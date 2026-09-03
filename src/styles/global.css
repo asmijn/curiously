@@ -1,0 +1,3598 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Pacifico&family=Playfair+Display:ital,wght@0,600;1,600;1,700&display=swap");
+
+/* =========================================================
+   ROOT
+   ========================================================= */
+
+:root {
+  --paper: #f5eedf;
+  --paper2: #fff9ed;
+  --ink: #1c191b;
+  --muted: #706967;
+
+  --red: #b9414d;
+  --pink: #edabc4;
+  --yellow: #efd579;
+  --blue: #a9d4dc;
+  --lav: #c8b8d8;
+  --mint: #b9d5c4;
+
+  --rule: #292428;
+
+  font-family: "Libre Baskerville", Georgia, serif;
+  color: var(--ink);
+  background: var(--paper);
+}
+
+/* =========================================================
+   RESET
+   ========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+
+  background:
+    radial-gradient(
+      rgba(50, 40, 30, 0.035) 1px,
+      transparent 1px
+    ),
+    var(--paper);
+
+  background-size: 5px 5px;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+
+.navbar {
+  height: 64px;
+  padding: 0 5vw;
+
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+
+  background: var(--paper);
+  border-bottom: 2px solid var(--rule);
+
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+
+  width: fit-content;
+
+  color: var(--ink);
+}
+
+.logo > span:first-child {
+  color: var(--red);
+  font-family: Pacifico;
+  font-size: 0.8rem;
+  line-height: 1;
+}
+
+.logo-heart {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  font-family: Georgia, serif;
+  font-size: 1.15rem;
+  line-height: 1;
+
+  color: var(--ink);
+
+  transform: translateY(-1px);
+}
+
+.nav-issue {
+  text-align: center;
+
+  font: 8px "DM Mono";
+  letter-spacing: 0.12em;
+}
+
+.navbar nav {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 25px;
+}
+
+.navbar nav a {
+  font: 9px "DM Mono";
+  letter-spacing: 0.1em;
+}
+
+.navbar nav a.active,
+.navbar nav a:hover {
+  color: var(--red);
+}
+
+/* =========================================================
+   COVER
+   ========================================================= */
+
+.cover {
+  min-height: calc(100vh - 64px);
+
+  padding: 24px 5vw 28px;
+
+  border-bottom: 2px solid var(--rule);
+
+  overflow: hidden;
+}
+
+.cover-topline {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+
+  border-bottom: 1px solid var(--rule);
+
+  padding-bottom: 14px;
+
+  font: 8px "DM Mono";
+  letter-spacing: 0.1em;
+}
+
+.cover-topline span:nth-child(2) {
+  text-align: center;
+}
+
+.cover-topline span:last-child {
+  text-align: right;
+}
+
+.cover-center {
+  height: 72vh;
+  min-height: 540px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  position: relative;
+}
+
+.cover-title {
+  text-align: center;
+  z-index: 2;
+}
+
+.eyebrow {
+  font: 9px "DM Mono";
+  letter-spacing: 0.14em;
+
+  margin-bottom: 18px;
+}
+
+.cover-title h1 {
+  font: 700 clamp(75px, 14vw, 210px) / 0.78
+    "Playfair Display";
+
+  letter-spacing: -0.09em;
+
+  margin: 0;
+}
+
+.cover-title sup {
+  font: normal 0.32em Pacifico;
+  color: var(--red);
+
+  vertical-align: top;
+}
+
+.cover-rule {
+  height: 2px;
+
+  background: var(--rule);
+
+  width: 70%;
+
+  margin: 30px auto;
+}
+
+.cover-title p {
+  font: 12px "DM Mono";
+  line-height: 1.55;
+
+  letter-spacing: 0.05em;
+}
+
+.cover-title em,
+.feature-copy em,
+.section-title em,
+.poll-section em,
+.experiment-copy em,
+.reader-mail em,
+.back-cover em,
+.archive-header em,
+.about-cover em,
+.about-end em {
+  color: var(--red);
+
+  font-family: "Playfair Display";
+
+  font-weight: 700;
+}
+
+.cover-side {
+  position: absolute;
+
+  left: 2%;
+  top: 40%;
+
+  font: 8px/1.8 "DM Mono";
+
+  writing-mode: vertical-rl;
+
+  transform: rotate(180deg);
+}
+
+.cover-burst {
+  position: absolute;
+
+  right: 7%;
+  top: 18%;
+
+  width: 105px;
+  height: 105px;
+
+  border: 1px solid var(--rule);
+  border-radius: 50%;
+
+  background: var(--yellow);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+
+  font: bold 17px "DM Mono";
+
+  transform: rotate(8deg);
+
+  box-shadow: 5px 5px 0 var(--rule);
+}
+
+.cover-burst small {
+  font-size: 7px;
+  line-height: 1.5;
+}
+
+.cover-question {
+  position: absolute;
+
+  left: 8%;
+  bottom: 16%;
+
+  width: 75px;
+  height: 75px;
+
+  border: 1px solid var(--rule);
+  border-radius: 50%;
+
+  background: var(--pink);
+
+  display: grid;
+  place-items: center;
+
+  font: 48px "Playfair Display";
+
+  transform: rotate(-12deg);
+}
+
+.cover-bottom {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, 1fr)
+    70px;
+
+  gap: 20px;
+
+  border-top: 1px solid var(--rule);
+
+  padding-top: 18px;
+}
+
+.cover-bottom div {
+  display: flex;
+  gap: 10px;
+
+  font: 8px/1.45 "DM Mono";
+}
+
+.cover-bottom b {
+  color: var(--red);
+}
+
+.cover-bottom > strong {
+  display: grid;
+  place-items: center;
+
+  border: 1px solid var(--rule);
+
+  font: 12px "DM Mono";
+}
+
+/* =========================================================
+   EDITOR'S NOTE
+   ========================================================= */
+
+.editors-note {
+  max-width: 1100px;
+
+  margin: auto;
+
+  min-height: 480px;
+
+  padding: 100px 7vw;
+
+  display: grid;
+
+  grid-template-columns:
+    0.5fr
+    1.5fr
+    0.4fr;
+
+  gap: 55px;
+
+  border-bottom: 1px solid var(--rule);
+}
+
+.margin-label,
+.margin-note {
+  font: 8px "DM Mono";
+  letter-spacing: 0.1em;
+}
+
+.margin-note {
+  writing-mode: vertical-rl;
+
+  justify-self: end;
+
+  line-height: 2;
+}
+
+.editor-copy {
+  font-size: 17px;
+  line-height: 1.9;
+}
+
+.dropcap {
+  float: left;
+
+  font: 100px/0.65 "Playfair Display";
+
+  margin: 10px 10px 0 0;
+}
+
+.editor-copy em {
+  color: var(--red);
+}
+
+.signature {
+  font: 26px Pacifico;
+
+  color: var(--red);
+}
+
+/* =========================================================
+   FEATURE STORY
+   ========================================================= */
+
+.feature-story,
+.latest,
+.about-grid-section {
+  padding: 115px 8vw;
+
+  border-bottom: 1px solid var(--rule);
+
+  position: relative;
+}
+
+.page-no {
+  position: absolute;
+
+  right: 5vw;
+  top: 30px;
+
+  font: 9px "DM Mono";
+}
+
+.section-kicker,
+.article-label {
+  font: 8px "DM Mono";
+
+  letter-spacing: 0.14em;
+
+  color: var(--red);
+}
+
+.feature-grid {
+  max-width: 1200px;
+
+  margin: 45px auto 0;
+
+  display: grid;
+
+  grid-template-columns:
+    1.1fr
+    0.9fr;
+
+  gap: 8vw;
+
+  align-items: center;
+}
+
+.feature-art {
+  position: relative;
+}
+
+.browser {
+  padding: 24px;
+
+  background: var(--pink);
+
+  border: 2px solid var(--rule);
+
+  box-shadow: 9px 9px 0 var(--rule);
+
+  transform: rotate(-2deg);
+}
+
+.browser-bar {
+  height: 34px;
+
+  background: var(--paper2);
+
+  border: 1px solid var(--rule);
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  padding: 0 9px;
+
+  font: 8px "DM Mono";
+}
+
+.browser-screen {
+  height: 465px;
+
+  background: var(--paper2);
+
+  border: 1px solid var(--rule);
+
+  margin-top: 10px;
+
+  padding: 38px;
+
+  position: relative;
+}
+
+.browser-screen small {
+  font: 7px "DM Mono";
+}
+
+.browser-screen h2 {
+  margin-top: 60px;
+
+  font: 700 clamp(45px, 6vw, 80px) / 0.82
+    "Playfair Display";
+
+  letter-spacing: -0.07em;
+}
+
+.browser-screen em {
+  color: var(--red);
+}
+
+.cursor {
+  position: absolute;
+
+  right: 30px;
+  bottom: 25px;
+
+  font-size: 50px;
+}
+
+.caption {
+  font: 8px/1.5 "DM Mono";
+
+  margin-top: 18px;
+}
+
+.feature-copy h2 {
+  font: 700 clamp(50px, 6vw, 85px) / 0.85
+    "Playfair Display";
+
+  letter-spacing: -0.07em;
+
+  margin: 20px 0;
+}
+
+.feature-copy p {
+  line-height: 1.8;
+
+  color: var(--muted);
+}
+
+.feature-copy .dek {
+  font-size: 19px;
+
+  color: var(--ink);
+}
+
+.black-button {
+  display: inline-block;
+
+  background: var(--ink);
+
+  color: white;
+
+  padding: 13px 18px;
+
+  font: 9px "DM Mono";
+
+  margin-top: 18px;
+}
+
+/* =========================================================
+   CURIOSITY SECTION
+   ========================================================= */
+
+.curiosity-section {
+  padding: 110px 8vw;
+
+  background: var(--lav);
+
+  border-bottom: 1px solid var(--rule);
+}
+
+.section-title {
+  max-width: 1200px;
+
+  margin: auto auto 55px;
+
+  display: flex;
+
+  gap: 28px;
+
+  align-items: flex-start;
+}
+
+.section-title > span:first-child {
+  font: 8px "DM Mono";
+}
+
+.section-title h2 {
+  margin: 0;
+
+  font: 700 clamp(50px, 7vw, 95px) / 0.82
+    "Playfair Display";
+
+  letter-spacing: -0.07em;
+}
+
+.red-star {
+  color: var(--red);
+
+  font-size: 40px;
+}
+
+.curiosity-grid {
+  max-width: 1200px;
+
+  margin: auto;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  gap: 25px;
+}
+
+.note {
+  min-height: 290px;
+
+  padding: 24px;
+
+  border: 1px solid var(--rule);
+
+  box-shadow: 6px 6px 0 var(--rule);
+
+  position: relative;
+
+  transition: 0.25s;
+}
+
+.note:hover {
+  transform:
+    translateY(-9px)
+    rotate(1deg);
+}
+
+.note.pink {
+  background: var(--pink);
+}
+
+.note.yellow {
+  background: var(--yellow);
+
+  transform: rotate(2deg);
+}
+
+.note.blue {
+  background: var(--blue);
+
+  transform: rotate(-1deg);
+}
+
+.note small {
+  font: 8px "DM Mono";
+}
+
+.note h3 {
+  font: 700 32px/1 "Playfair Display";
+
+  max-width: 310px;
+
+  margin-top: 65px;
+}
+
+.note > span {
+  position: absolute;
+
+  right: 20px;
+  bottom: 20px;
+
+  font: 20px Pacifico;
+
+  color: var(--red);
+}
+
+/* =========================================================
+   POLL
+   ========================================================= */
+
+.poll-section {
+  padding: 115px 8vw;
+
+  display: grid;
+
+  grid-template-columns:
+    1fr
+    0.75fr;
+
+  gap: 9vw;
+
+  border-bottom: 1px solid var(--rule);
+
+  position: relative;
+}
+
+.poll-section h2,
+.experiment-copy h2,
+.reader-mail h2 {
+  font: 700 clamp(55px, 7vw, 100px) / 0.8
+    "Playfair Display";
+
+  letter-spacing: -0.07em;
+
+  margin: 25px 0;
+}
+
+.poll-section > div > p {
+  max-width: 520px;
+
+  line-height: 1.8;
+}
+
+.poll {
+  align-self: center;
+
+  background: var(--paper2);
+
+  border: 2px solid var(--rule);
+
+  padding: 25px;
+
+  box-shadow: 8px 8px 0 var(--rule);
+}
+
+.poll-head {
+  font: 8px "DM Mono";
+
+  padding-bottom: 15px;
+
+  border-bottom: 1px solid var(--rule);
+}
+
+.poll-head b {
+  float: right;
+
+  color: var(--red);
+}
+
+.poll button {
+  width: 100%;
+
+  border: 0;
+
+  border-bottom: 1px solid #aaa;
+
+  background: none;
+
+  padding: 17px 4px;
+
+  display: flex;
+
+  justify-content: space-between;
+
+  text-align: left;
+}
+
+.poll button:hover,
+.poll button.chosen {
+  background: var(--yellow);
+}
+
+.poll-foot {
+  font: 8px "DM Mono";
+
+  margin-top: 18px;
+}
+
+/* =========================================================
+   LATEST ARTICLES
+   ========================================================= */
+
+.latest {
+  padding-bottom: 125px;
+}
+
+.article-grid {
+  max-width: 1200px;
+
+  margin: auto;
+
+  display: grid;
+
+  grid-template-columns:
+    1fr
+    1fr;
+
+  gap: 55px 30px;
+}
+
+.latest-card {
+  border-top: 2px solid var(--rule);
+
+  transition: 0.25s;
+}
+
+.latest-card:hover {
+  transform: translateY(-7px);
+}
+
+.latest-art {
+  height: 330px;
+
+  border-bottom: 1px solid var(--rule);
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  position: relative;
+}
+
+.latest-card.pink .latest-art {
+  background: var(--pink);
+}
+
+.latest-card.blue .latest-art {
+  background: var(--blue);
+}
+
+.latest-card.yellow .latest-art {
+  background: var(--yellow);
+}
+
+.latest-card.mint .latest-art {
+  background: var(--mint);
+}
+
+.latest-card.lavender .latest-art {
+  background: var(--lav);
+}
+
+.latest-art span {
+  position: absolute;
+
+  left: 15px;
+  top: 15px;
+
+  font: 8px "DM Mono";
+}
+
+.latest-art strong {
+  font: 700 65px "Playfair Display";
+
+  transform: rotate(-7deg);
+}
+
+.latest-art i {
+  position: absolute;
+
+  right: 20px;
+  bottom: 15px;
+
+  color: var(--red);
+
+  font-size: 35px;
+}
+
+.latest-copy {
+  padding: 20px 0;
+}
+
+.latest-copy small,
+.latest-copy b {
+  font: 8px "DM Mono";
+}
+
+.latest-copy h3 {
+  font: 700 38px/0.95 "Playfair Display";
+
+  letter-spacing: -0.05em;
+
+  margin: 18px 0 10px;
+}
+
+.latest-copy p {
+  color: var(--muted);
+
+  line-height: 1.6;
+}
+
+/* =========================================================
+   MUSIC EXPERIMENT
+   ========================================================= */
+
+.experiment {
+  padding: 120px 8vw;
+
+  background: var(--blue);
+
+  display: grid;
+
+  grid-template-columns:
+    1fr
+    0.75fr;
+
+  gap: 8vw;
+
+  border-bottom: 1px solid var(--rule);
+}
+
+.experiment-copy p {
+  line-height: 1.7;
+
+  max-width: 500px;
+}
+
+.score {
+  font: 9px "DM Mono";
+
+  margin-top: 30px;
+}
+
+.record-player {
+  background: var(--paper2);
+
+  border: 2px solid var(--rule);
+
+  box-shadow: 9px 9px 0 var(--rule);
+
+  padding: 28px;
+
+  text-align: center;
+}
+
+.record-label {
+  font: 8px "DM Mono";
+
+  margin-bottom: 20px;
+}
+
+.record {
+  width: 220px;
+  height: 220px;
+
+  border-radius: 50%;
+
+  margin: auto;
+
+  background:
+    repeating-radial-gradient(
+      circle,
+      #171519 0 2px,
+      #343034 3px,
+      #171519 4px
+    );
+
+  display: grid;
+
+  place-items: center;
+
+  animation: spin 8s linear infinite;
+}
+
+.record > div {
+  width: 65px;
+  height: 65px;
+
+  border-radius: 50%;
+
+  background: var(--pink);
+
+  border: 1px solid var(--rule);
+
+  display: grid;
+
+  place-items: center;
+
+  font-size: 25px;
+}
+
+.record-player > small {
+  display: block;
+
+  font: 7px "DM Mono";
+
+  margin-top: 22px;
+}
+
+.record-player h3 {
+  font: 25px "Playfair Display";
+
+  margin: 7px 0;
+}
+
+.record-player p {
+  font-size: 11px;
+
+  color: var(--muted);
+
+  margin-top: 0;
+}
+
+.song-buttons {
+  display: flex;
+
+  gap: 10px;
+}
+
+.song-buttons button {
+  flex: 1;
+
+  padding: 13px;
+
+  border: 1px solid var(--rule);
+
+  background: var(--paper);
+}
+
+.song-buttons button:hover,
+.song-buttons button.active {
+  background: var(--pink);
+}
+
+.result {
+  margin-top: 15px;
+
+  padding: 12px;
+
+  border: 1px solid var(--rule);
+
+  font: 8px "DM Mono";
+}
+
+.result.correct {
+  background: var(--mint);
+}
+
+.result.wrong {
+  background: #efc0c0;
+}
+
+.result button {
+  float: right;
+
+  border: 0;
+
+  background: none;
+
+  text-decoration: underline;
+
+  font: 8px "DM Mono";
+}
+
+/* =========================================================
+   READER MAIL
+   ========================================================= */
+
+.reader-mail {
+  max-width: 1050px;
+
+  margin: auto;
+
+  padding: 125px 7vw;
+
+  display: grid;
+
+  grid-template-columns:
+    100px
+    1fr;
+
+  gap: 45px;
+
+  border-bottom: 1px solid var(--rule);
+}
+
+.stamp {
+  width: 80px;
+  height: 80px;
+
+  border: 1px dashed var(--rule);
+
+  display: grid;
+
+  place-items: center;
+
+  font-size: 35px;
+
+  transform: rotate(-8deg);
+}
+
+.reader-mail p {
+  max-width: 550px;
+
+  line-height: 1.7;
+}
+
+/* =========================================================
+   BACK COVER
+   ========================================================= */
+
+.back-cover {
+  min-height: 620px;
+
+  background: var(--pink);
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  text-align: center;
+
+  position: relative;
+}
+
+.back-cover > div {
+  font-size: 50px;
+
+  color: var(--red);
+}
+
+.back-cover h2 {
+  font: 700 clamp(80px, 13vw, 170px) / 0.75
+    "Playfair Display";
+
+  letter-spacing: -0.09em;
+
+  margin: 30px 0;
+}
+
+.back-cover > a {
+  background: var(--ink);
+
+  color: white;
+
+  padding: 13px 20px;
+
+  font: 9px "DM Mono";
+
+  margin-top: 20px;
+}
+
+.back-cover > small {
+  position: absolute;
+
+  bottom: 25px;
+
+  font: 8px "DM Mono";
+}
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.footer {
+  padding: 55px 5vw;
+
+  background: var(--ink);
+
+  color: white;
+
+  display: flex;
+
+  justify-content: space-between;
+}
+
+.footer-logo {
+  font: 25px "Playfair Display";
+}
+
+.footer p {
+  color: #aaa;
+
+  font-size: 12px;
+}
+
+.footer-links {
+  display: flex;
+
+  gap: 25px;
+
+  align-items: flex-end;
+
+  font: 8px "DM Mono";
+
+  color: #aaa;
+}
+
+/* =========================================================
+   ARCHIVE PAGE
+   ========================================================= */
+
+.articles-page {
+  background: var(--paper);
+
+  min-height: 100vh;
+}
+
+.archive-header {
+  min-height: 470px;
+
+  padding: 105px 8vw 75px;
+
+  border-bottom: 2px solid var(--rule);
+
+  position: relative;
+
+  overflow: hidden;
+}
+
+.archive-header::after {
+  content: "♡";
+
+  position: absolute;
+
+  right: 9vw;
+  bottom: 55px;
+
+  font-family: Georgia, serif;
+
+  font-size: 90px;
+
+  color: var(--pink);
+
+  transform: rotate(12deg);
+}
+
+.archive-header h1 {
+  max-width: 1050px;
+
+  font: 700 clamp(65px, 9vw, 125px) / 0.78
+    "Playfair Display";
+
+  letter-spacing: -0.08em;
+
+  margin: 25px 0 30px;
+}
+
+.archive-header h1 em {
+  color: var(--red);
+
+  font-style: italic;
+}
+
+.archive-header p {
+  max-width: 620px;
+
+  font-family: "Libre Baskerville", Georgia, serif;
+
+  font-size: 1rem;
+
+  line-height: 1.8;
+
+  color: var(--muted);
+}
+
+/* =========================================================
+   CATEGORY FILTERS
+   ========================================================= */
+
+.filters {
+  padding: 20px 8vw;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 25px;
+
+  background: var(--paper);
+
+  border-bottom: 2px solid var(--rule);
+
+  position: sticky;
+
+  top: 64px;
+
+  z-index: 20;
+}
+
+.category-tabs {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 7px;
+}
+
+.category-tabs button {
+  border: 1px solid var(--rule);
+
+  background: transparent;
+
+  padding: 9px 13px;
+
+  color: var(--ink);
+
+  font: 8px "DM Mono";
+
+  letter-spacing: 0.08em;
+
+  transition:
+    background 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.category-tabs button:hover {
+  background: var(--pink);
+
+  color: var(--ink);
+
+  transform: translateY(-2px);
+}
+
+.category-tabs button.active {
+  background: var(--ink);
+
+  color: white;
+}
+
+/* =========================================================
+   SEARCH
+   ========================================================= */
+
+.search-box {
+  min-width: 220px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  padding: 7px 4px;
+
+  border-bottom: 1px solid var(--rule);
+}
+
+.search-box input {
+  width: 190px;
+
+  border: 0;
+
+  outline: 0;
+
+  background: transparent;
+
+  color: var(--ink);
+
+  font: 8px "DM Mono";
+
+  letter-spacing: 0.05em;
+}
+
+.search-box input::placeholder {
+  color: var(--muted);
+}
+
+.search-box button {
+  display: grid;
+
+  place-items: center;
+
+  border: 0;
+
+  background: transparent;
+
+  padding: 3px;
+}
+
+/* =========================================================
+   ARTICLE GRID
+   ========================================================= */
+
+.archive-grid {
+  max-width: 1450px;
+
+  margin: auto;
+
+  padding: 75px 8vw 110px;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 70px 32px;
+}
+
+/* =========================================================
+   ARTICLE CARD
+   ========================================================= */
+
+.article-card {
+  display: block;
+
+  width: 100%;
+
+  border: 1px solid var(--rule);
+
+  background: var(--paper2);
+
+  color: var(--ink);
+
+  box-shadow: 5px 5px 0 transparent;
+
+  overflow: hidden;
+
+  transition:
+    transform 220ms ease,
+    box-shadow 220ms ease;
+}
+
+.article-card:hover {
+  transform:
+    translateY(-8px)
+    rotate(0.4deg);
+
+  box-shadow:
+    8px 8px 0 var(--rule);
+}
+
+/* =========================================================
+   CARD ART
+   ========================================================= */
+
+.card-art {
+  position: relative;
+
+  width: 100%;
+
+  aspect-ratio: 16 / 11;
+
+  overflow: hidden;
+
+  border-bottom: 1px solid var(--rule);
+
+  display: block;
+
+  background: var(--paper);
+}
+
+/* =========================================================
+   CARD IMAGE WRAPPER
+   ========================================================= */
+
+.card-image-wrap {
+  position: absolute;
+
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  overflow: hidden;
+
+  z-index: 1;
+}
+
+/* =========================================================
+   CARD COVER IMAGE
+   ========================================================= */
+
+.card-cover-image {
+  position: absolute;
+
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: cover;
+
+  object-position: center 42%;
+
+  transform: scale(1);
+
+  transition:
+    transform 0.45s ease,
+    object-position 0.45s ease;
+}
+
+.article-card:hover .card-cover-image {
+  transform: scale(1.015);
+}
+
+/* =========================================================
+   CARD IMAGE OVERLAY
+   ========================================================= */
+
+.card-art::after {
+  content: "";
+
+  position: absolute;
+
+  inset: 0;
+
+  z-index: 2;
+
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.08),
+      transparent 30%,
+      transparent 70%,
+      rgba(0, 0, 0, 0.06)
+    );
+}
+
+/* =========================================================
+   CARD NUMBER
+   ========================================================= */
+
+.card-number {
+  position: absolute;
+
+  top: 16px;
+  left: 16px;
+
+  z-index: 5;
+
+  font: 8px "DM Mono";
+
+  letter-spacing: 0.1em;
+
+  color: var(--ink);
+}
+
+/* =========================================================
+   CARD CATEGORY
+   ========================================================= */
+
+.card-category {
+  position: absolute;
+
+  top: 16px;
+  right: 16px;
+
+  z-index: 5;
+
+  padding-bottom: 3px;
+
+  border-bottom: 1px solid var(--rule);
+
+  font: 8px "DM Mono";
+
+  letter-spacing: 0.1em;
+
+  color: var(--ink);
+}
+
+/* =========================================================
+   FALLBACK CARD ART
+   ========================================================= */
+
+.card-art-word {
+  position: absolute;
+
+  inset: 0;
+
+  z-index: 1;
+
+  display: grid;
+
+  place-items: center;
+
+  padding: 30px;
+
+  text-align: center;
+
+  font: 700 clamp(48px, 6vw, 78px) / 0.85
+    "Playfair Display";
+
+  letter-spacing: -0.07em;
+
+  transform: rotate(-7deg);
+
+  transition:
+    transform 250ms ease,
+    letter-spacing 250ms ease;
+}
+
+.article-card:hover .card-art-word {
+  transform:
+    rotate(-3deg)
+    scale(1.04);
+
+  letter-spacing: -0.09em;
+}
+
+/* =========================================================
+   READ ME
+   ========================================================= */
+
+.card-scribble {
+  position: absolute;
+
+  right: 20px;
+  bottom: 18px;
+
+  z-index: 5;
+
+  color: var(--red);
+
+  font: 17px Pacifico;
+
+  transform: rotate(-7deg);
+
+  transition:
+    transform 180ms ease;
+}
+
+.article-card:hover .card-scribble {
+  transform:
+    rotate(-3deg)
+    translateX(-3px);
+}
+
+/* =========================================================
+   CARD COLOR VARIATIONS
+   ========================================================= */
+
+.article-pink .card-art {
+  background: var(--pink);
+}
+
+.article-blue .card-art {
+  background: var(--blue);
+}
+
+.article-yellow .card-art {
+  background: var(--yellow);
+}
+
+.article-mint .card-art {
+  background: var(--mint);
+}
+
+.article-lavender .card-art {
+  background: var(--lav);
+}
+
+/* =========================================================
+   CARD TEXT
+   ========================================================= */
+
+.card-copy {
+  padding: 27px 25px 30px;
+
+  background: var(--paper2);
+}
+
+.card-meta {
+  color: var(--red);
+
+  font: 8px "DM Mono";
+
+  letter-spacing: 0.07em;
+
+  text-transform: uppercase;
+}
+
+.card-copy h3 {
+  max-width: 600px;
+
+  margin: 18px 0 13px;
+
+  font: 700 clamp(32px, 4vw, 48px) / 0.92
+    "Playfair Display";
+
+  letter-spacing: -0.055em;
+
+  color: var(--ink);
+}
+
+.card-copy p {
+  max-width: 600px;
+
+  margin: 0;
+
+  color: var(--muted);
+
+  font-family: "Libre Baskerville", Georgia, serif;
+
+  font-size: 0.92rem;
+
+  line-height: 1.7;
+}
+
+/* =========================================================
+   CARD ROTATION
+   ========================================================= */
+
+.article-card:nth-child(6n + 1) {
+  transform: rotate(-0.35deg);
+}
+
+.article-card:nth-child(6n + 2) {
+  transform: rotate(0.25deg);
+}
+
+.article-card:nth-child(6n + 3) {
+  transform: rotate(-0.15deg);
+}
+
+.article-card:nth-child(6n + 4) {
+  transform: rotate(0.3deg);
+}
+
+.article-card:nth-child(6n + 5) {
+  transform: rotate(-0.25deg);
+}
+
+.article-card:nth-child(6n + 6) {
+  transform: rotate(0.15deg);
+}
+
+.article-card:nth-child(6n + 1):hover,
+.article-card:nth-child(6n + 2):hover,
+.article-card:nth-child(6n + 3):hover,
+.article-card:nth-child(6n + 4):hover,
+.article-card:nth-child(6n + 5):hover,
+.article-card:nth-child(6n + 6):hover {
+  transform:
+    translateY(-8px)
+    rotate(0.4deg);
+}
+
+/* =========================================================
+   EMPTY SEARCH STATE
+   ========================================================= */
+
+.empty {
+  min-height: 350px;
+
+  display: grid;
+
+  place-items: center;
+
+  padding: 80px 8vw;
+
+  text-align: center;
+
+  font: 10px "DM Mono";
+
+  letter-spacing: 0.08em;
+}
+
+/* =========================================================
+   LARGE DESKTOP
+   ========================================================= */
+
+@media (min-width: 1101px) {
+  .archive-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+
+    gap: 70px 32px;
+  }
+
+  .card-art {
+    aspect-ratio: 16 / 11;
+  }
+
+  .card-cover-image {
+    object-position: center 42%;
+  }
+}
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (min-width: 801px) and (max-width: 1100px) {
+  .archive-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+
+    gap: 45px 25px;
+  }
+
+  .card-art {
+    aspect-ratio: 4 / 3;
+  }
+
+  .card-cover-image {
+    object-position: center center;
+  }
+
+  .card-copy {
+    padding: 24px 22px 28px;
+  }
+
+  .card-copy h3 {
+    font-size: clamp(30px, 4vw, 42px);
+  }
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 800px) {
+  .archive-grid {
+    grid-template-columns: 1fr;
+
+    padding: 55px 7vw 80px;
+
+    gap: 55px;
+  }
+
+  .article-card {
+    box-shadow: none;
+  }
+
+  .article-card:hover {
+    transform: none;
+
+    box-shadow: none;
+  }
+
+  .card-art {
+    aspect-ratio: 4 / 3;
+
+    height: auto;
+  }
+
+  .card-cover-image {
+    object-fit: cover;
+
+    object-position: center center;
+
+    transform: none;
+  }
+
+  .article-card:hover .card-cover-image {
+    transform: none;
+  }
+
+  .card-number {
+    top: 18px;
+
+    left: 18px;
+
+    font-size: 10px;
+  }
+
+  .card-category {
+    top: 18px;
+
+    right: 18px;
+
+    font-size: 10px;
+  }
+
+  .card-scribble {
+    right: 18px;
+
+    bottom: 18px;
+
+    font-size: 18px;
+  }
+
+  .card-copy {
+    padding: 23px 20px 27px;
+  }
+
+  .card-meta {
+    margin-bottom: 14px;
+
+    font-size: 9px;
+  }
+
+  .card-copy h3 {
+    font-size: 36px;
+
+    line-height: 0.97;
+  }
+
+  .card-copy p {
+    font-size: 0.88rem;
+
+    line-height: 1.6;
+  }
+}
+
+/* =========================================================
+   SMALL PHONES
+   ========================================================= */
+
+@media (max-width: 480px) {
+  .archive-grid {
+    padding-left: 5vw;
+
+    padding-right: 5vw;
+
+    gap: 35px;
+  }
+
+  .card-art {
+    aspect-ratio: 4 / 3;
+  }
+
+  .card-copy {
+    padding: 20px 18px 24px;
+  }
+
+  .card-copy h3 {
+    font-size: 30px;
+  }
+
+  .card-number {
+    top: 15px;
+
+    left: 15px;
+  }
+
+  .card-category {
+    top: 15px;
+
+    right: 15px;
+  }
+
+  .card-scribble {
+    right: 15px;
+
+    bottom: 15px;
+  }
+}
+
+/* =========================================================
+   ARTICLE DETAIL PAGE
+   ========================================================= */
+
+.article-page {
+  min-height: 100vh;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.article-top {
+  padding: 20px 7vw;
+
+  display: grid;
+
+  grid-template-columns: 1fr auto auto;
+
+  gap: 25px;
+
+  border-bottom: 1px solid var(--rule);
+
+  font: 8px "DM Mono";
+
+  letter-spacing: 0.08em;
+}
+
+.article-top a:hover {
+  color: var(--red);
+}
+
+.article-hero {
+  max-width: 1200px;
+
+  margin: auto;
+
+  padding: 105px 7vw 80px;
+
+  text-align: center;
+}
+
+.article-hero h1 {
+  margin: 25px auto;
+
+  max-width: 1100px;
+
+  font: 700 clamp(55px, 8vw, 120px) / 0.82
+    "Playfair Display";
+
+  letter-spacing: -0.075em;
+}
+
+.article-dek {
+  max-width: 700px;
+
+  margin: 30px auto;
+
+  font-size: 18px;
+
+  line-height: 1.7;
+
+  color: var(--muted);
+}
+
+.article-byline {
+  font: 8px "DM Mono";
+
+  letter-spacing: 0.1em;
+}
+
+.article-visual {
+  padding: 30px 8vw 110px;
+
+  max-width: 1350px;
+
+  margin: auto;
+}
+
+.visual-frame {
+  min-height: 500px;
+
+  border: 2px solid var(--rule);
+
+  background: var(--blue);
+
+  box-shadow: 9px 9px 0 var(--rule);
+
+  padding: 20px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: space-between;
+
+  text-align: center;
+}
+
+.visual-top,
+.visual-bottom {
+  display: flex;
+
+  justify-content: space-between;
+
+  font: 8px "DM Mono";
+
+  letter-spacing: 0.08em;
+}
+
+.visual-center {
+  font: 700 clamp(70px, 12vw, 160px) / 0.8
+    "Playfair Display";
+
+  letter-spacing: -0.08em;
+
+  transform: rotate(-4deg);
+}
+
+.article-layout {
+  max-width: 1200px;
+
+  margin: auto;
+
+  padding: 0 7vw 120px;
+
+  display: grid;
+
+  grid-template-columns: 200px 1fr;
+
+  gap: 75px;
+}
+
+.article-layout aside {
+  position: sticky;
+
+  top: 100px;
+
+  align-self: start;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 12px;
+}
+
+.aside-note {
+  font: 8px "DM Mono";
+
+  color: var(--red);
+
+  letter-spacing: 0.12em;
+
+  margin-bottom: 10px;
+}
+
+.article-layout aside a {
+  font: 9px "DM Mono";
+
+  line-height: 1.5;
+}
+
+.article-layout aside a:hover {
+  color: var(--red);
+}
+
+.article-layout aside button {
+  margin-top: 18px;
+
+  border: 1px solid var(--rule);
+
+  background: transparent;
+
+  padding: 10px;
+
+  font: 8px "DM Mono";
+
+  text-align: left;
+}
+
+.article-layout aside button:hover,
+.article-layout aside button.liked {
+  background: var(--pink);
+}
+
+.article-body {
+  max-width: 720px;
+}
+
+.article-body .lead {
+  font-size: 22px;
+
+  line-height: 1.7;
+
+  margin-top: 0;
+
+  margin-bottom: 70px;
+}
+
+.article-body section {
+  margin-bottom: 80px;
+}
+
+.body-number {
+  display: block;
+
+  margin-bottom: 12px;
+
+  color: var(--red);
+
+  font: 9px "DM Mono";
+}
+
+.article-body section h2 {
+  margin: 0 0 20px;
+
+  font: 700 clamp(35px, 5vw, 58px) / 0.9
+    "Playfair Display";
+
+  letter-spacing: -0.05em;
+}
+
+.article-body section p {
+  font-size: 16px;
+
+  line-height: 1.9;
+
+  color: var(--muted);
+}
+
+.article-body blockquote {
+  margin: 45px 0;
+
+  padding: 30px;
+
+  border-left: 3px solid var(--red);
+
+  background: var(--paper2);
+
+  font: italic 20px/1.6
+    "Libre Baskerville";
+}
+
+.article-end {
+  padding-top: 45px;
+
+  border-top: 1px solid var(--rule);
+
+  text-align: center;
+
+  color: var(--red);
+
+  font: 9px "DM Mono";
+
+  letter-spacing: 0.1em;
+}
+
+.article-next {
+  padding: 45px 7vw;
+
+  border-top: 1px solid var(--rule);
+
+  border-bottom: 1px solid var(--rule);
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 30px;
+
+  font: 9px "DM Mono";
+}
+
+.article-next a {
+  color: var(--red);
+}
+
+.article-next a:hover {
+  text-decoration: underline;
+}
+
+.not-found {
+  min-height: 70vh;
+
+  display: grid;
+
+  place-items: center;
+
+  text-align: center;
+
+  padding: 80px 7vw;
+}
+
+.not-found h1 {
+  font: 700 clamp(50px, 8vw, 100px) / 0.85
+    "Playfair Display";
+
+  letter-spacing: -0.06em;
+}
+
+.not-found a {
+  font: 9px "DM Mono";
+
+  color: var(--red);
+}
+
+/* =========================================================
+   ADMIN — CLEAN EDITORIAL DASHBOARD
+   ========================================================= */
+
+.admin-page {
+  min-height: 100vh;
+
+  padding: 80px 7vw 120px;
+
+  background: var(--paper);
+
+  color: var(--ink);
+}
+
+/* ---------------------------------------------------------
+   ADMIN LOADING
+   --------------------------------------------------------- */
+
+.admin-loading {
+  min-height: 60vh;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 18px;
+
+  font-family: "DM Mono", monospace;
+
+  font-size: 11px;
+
+  letter-spacing: 0.12em;
+}
+
+.admin-loading-mark {
+  width: 58px;
+  height: 58px;
+
+  display: grid;
+
+  place-items: center;
+
+  border: 1px solid var(--ink);
+
+  border-radius: 50%;
+
+  background: var(--pink);
+
+  font-family: "Libre Baskerville", serif;
+
+  font-size: 30px;
+}
+
+/* ---------------------------------------------------------
+   ADMIN HEADER
+   --------------------------------------------------------- */
+
+.admin-header {
+  max-width: 1450px;
+
+  margin: 0 auto;
+
+  padding-bottom: 55px;
+
+  display: flex;
+
+  align-items: flex-end;
+
+  justify-content: space-between;
+
+  gap: 50px;
+
+  border-bottom: 1px solid var(--rule);
+}
+
+.admin-header-main {
+  position: relative;
+}
+
+.admin-header h1 {
+  margin: 15px 0 20px;
+
+  font-family: "Playfair Display", Georgia, serif;
+
+  font-size: clamp(58px, 8vw, 125px);
+
+  line-height: 0.82;
+
+  letter-spacing: -0.055em;
+
+  font-weight: 400;
+}
+
+.admin-header h1 em {
+  font-weight: 400;
+}
+
+.admin-header-description {
+  margin: 0;
+
+  max-width: 460px;
+
+  font-family: "Libre Baskerville", Georgia, serif;
+
+  font-size: 15px;
+
+  line-height: 1.7;
+
+  color: var(--muted);
+}
+
+/* ---------------------------------------------------------
+   ADMIN ACCOUNT
+   --------------------------------------------------------- */
+
+.admin-account {
+  display: flex;
+
+  align-items: center;
+
+  gap: 25px;
+
+  padding-bottom: 4px;
+}
+
+.admin-account-info {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 6px;
+
+  text-align: right;
+}
+
+.admin-account-label {
+  font-family: "DM Mono", monospace;
+
+  font-size: 9px;
+
+  letter-spacing: 0.12em;
+
+  color: var(--muted);
+}
+
+.admin-account-email {
+  font-family: "DM Mono", monospace;
+
+  font-size: 11px;
+
+  letter-spacing: 0.03em;
+}
+
+.admin-logout-button {
+  min-height: 40px;
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 8px;
+
+  padding: 0 15px;
+
+  border: 1px solid var(--rule);
+
+  background: transparent;
+
+  font-family: "DM Mono", monospace;
+
+  font-size: 9px;
+
+  letter-spacing: 0.1em;
+
+  transition:
+    background 180ms ease,
+    color 180ms ease,
+    transform 180ms ease;
+}
+
+.admin-logout-button:hover {
+  background: var(--ink);
+
+  color: var(--paper);
+}
+
+.admin-logout-button:active {
+  transform: translateY(1px);
+}
+
+/* ---------------------------------------------------------
+   ADMIN OVERVIEW
+   --------------------------------------------------------- */
+
+.admin-overview {
+  max-width: 1450px;
+
+  margin: 0 auto;
+
+  display: grid;
+
+  grid-template-columns: repeat(4, 1fr);
+
+  border-left: 1px solid var(--rule);
+
+  border-bottom: 1px solid var(--rule);
+}
+
+.admin-stat {
+  min-height: 135px;
+
+  padding: 24px 25px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: space-between;
+
+  border-right: 1px solid var(--rule);
+}
+
+.admin-stat-number {
+  font-family: "Playfair Display", Georgia, serif;
+
+  font-size: 48px;
+
+  line-height: 1;
+
+  font-weight: 400;
+}
+
+.admin-stat-label {
+  font-family: "DM Mono", monospace;
+
+  font-size: 9px;
+
+  letter-spacing: 0.12em;
+
+  color: var(--muted);
+}
+
+/* ---------------------------------------------------------
+   ADMIN MESSAGE
+   --------------------------------------------------------- */
+
+.admin-message {
+  max-width: 1450px;
+
+  margin: 22px auto 0;
+
+  min-height: 45px;
+
+  padding: 10px 14px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  border: 1px solid var(--rule);
+
+  background: var(--mint);
+
+  font-family: "DM Mono", monospace;
+
+  font-size: 10px;
+
+  letter-spacing: 0.04em;
+}
+
+.admin-message button {
+  margin-left: auto;
+
+  width: 30px;
+  height: 30px;
+
+  display: grid;
+
+  place-items: center;
+
+  border: 0;
+
+  background: transparent;
+}
+
+/* ---------------------------------------------------------
+   ADMIN SECTIONS
+   --------------------------------------------------------- */
+
+.admin-section {
+  max-width: 1450px;
+
+  margin: 90px auto 0;
+}
+
+.admin-section-heading {
+  margin-bottom: 35px;
+
+  display: flex;
+
+  align-items: flex-end;
+
+  justify-content: space-between;
+
+  gap: 30px;
+}
+
+.admin-section-title {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 22px;
+}
+
+.admin-section-title .page-no {
+  margin-top: 7px;
+}
+
+.admin-section-title h2 {
+  margin: 7px 0 8px;
+
+  font-family: "Playfair Display", Georgia, serif;
+
+  font-size: clamp(38px, 4vw, 60px);
+
+  line-height: 0.9;
+
+  font-weight: 400;
+
+  letter-spacing: -0.04em;
+}
+
+.admin-section-title p {
+  margin: 0;
+
+  font-family: "Libre Baskerville", Georgia, serif;
+
+  font-size: 13px;
+
+  line-height: 1.6;
+
+  color: var(--muted);
+}
+
+/* ---------------------------------------------------------
+   ADMIN BUTTONS
+   --------------------------------------------------------- */
+
+.admin-primary-button,
+.admin-secondary-button {
+  min-height: 45px;
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 9px;
+
+  padding: 0 18px;
+
+  font-family: "DM Mono", monospace;
+
+  font-size: 9px;
+
+  letter-spacing: 0.1em;
+
+  transition:
+    background 180ms ease,
+    color 180ms ease,
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.admin-primary-button {
+  border: 1px solid var(--ink);
+
+  background: var(--ink);
+
+  color: var(--paper);
+}
+
+.admin-primary-button:hover {
+  background: var(--pink);
+
+  color: var(--ink);
+
+  box-shadow: 4px 4px 0 var(--ink);
+}
+
+.admin-secondary-button {
+  border: 1px solid var(--rule);
+
+  background: transparent;
+
+  color: var(--ink);
+}
+
+.admin-secondary-button:hover {
+  background: var(--yellow);
+
+  box-shadow: 4px 4px 0 var(--ink);
+}
+
+.admin-primary-button:active,
+.admin-secondary-button:active {
+  transform: translateY(1px);
+}
+
+/* ---------------------------------------------------------
+   ADMIN ARTICLE LIST
+   --------------------------------------------------------- */
+
+.admin-article-list {
+  border-top: 1px solid var(--rule);
+}
+
+.admin-article-row {
+  min-height: 150px;
+
+  padding: 25px 0;
+
+  display: grid;
+
+  grid-template-columns:
+    55px
+    minmax(0, 1fr)
+    auto
+    auto;
+
+  align-items: center;
+
+  gap: 25px;
+
+  border-bottom: 1px solid rgba(41, 36, 40, 0.28);
+
+  transition: background 160ms ease;
+}
+
+.admin-article-row:hover {
+  background: rgba(237, 171, 196, 0.12);
+}
+
+.admin-number {
+  align-self: flex-start;
+
+  padding-top: 3px;
+
+  font-family: "DM Mono", monospace;
+
+  font-size: 10px;
+
+  letter-spacing: 0.08em;
+
+  color: var(--muted);
+}
+
+.admin-article-info {
+  min-width: 0;
+}
+
+.admin-article-meta {
+  margin-bottom: 8px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 7px;
+
+  font-family: "DM Mono", monospace;
+
+  font-size: 9px;
+
+  letter-spacing: 0.08em;
+
+  color: var(--muted);
+}
+
+.admin-category-label {
+  color: var(--red);
+}
+
+.admin-article-info h3 {
+  margin: 0 0 7px;
+
+  max-width: 750px;
+
+  font-family: "Playfair Display", Georgia, serif;
+
+  font-size: clamp(20px, 2vw, 29px);
+
+  line-height: 1.08;
+
+  font-weight: 400;
+}
+
+.admin-article-subtitle {
+  margin: 0 0 10px;
+
+  max-width: 650px;
+
+  font-family: "Libre Baskerville", Georgia, serif;
+
+  font-size: 12px;
+
+  line-height: 1.5;
+
+  color: var(--muted);
+}
+
+.admin-slug {
+  display: block;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+
+  max-width: 500px;
+
+  font-family: "DM Mono", monospace;
+
+  font-size: 9px;
+
+  color: #918b88;
+}
+
+/* ---------------------------------------------------------
+   ADMIN STATUS
+   --------------------------------------------------------- */
+
+.admin-status {
+  white-space: nowrap;
+}
+
+.status-published,
+.status-draft {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 7px;
+
+  padding: 7px 9px;
+
+  border: 1px solid currentColor;
+
+  font-family: "DM Mono", monospace;
+
+  font-size: 8px;
+
+  letter-spacing: 0.08em;
+}
+
+.status-published {
+  color: #3d7655;
+
+  background: rgba(185, 213, 196, 0.3);
+}
+
+.status-draft {
+  color: #8b6d21;
+
+  background: rgba(239, 213, 121, 0.25);
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+
+  border-radius: 50%;
+
+  background: currentColor;
+}
+
+/* ---------------------------------------------------------
+   ADMIN ACTIONS
+   --------------------------------------------------------- */
+
+.admin-row-actions {
+  display: flex;
+
+  align-items: center;
+
+  gap: 5px;
+}
+
+.admin-action-button {
+  min-height: 34px;
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 6px;
+
+  padding: 0 10px;
+
+  border: 1px solid transparent;
+
+  background: transparent;
+
+  font-family: "DM Mono", monospace;
+
+  font-size: 8px;
+
+  letter-spacing: 0.07em;
+
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    color 160ms ease;
+}
+
+.admin-action-button:hover {
+  border-color: var(--rule);
+
+  background: var(--paper2);
+}
+
+.admin-action-button:focus-visible,
+.admin-primary-button:focus-visible,
+.admin-secondary-button:focus-visible,
+.admin-logout-button:focus-visible,
+.admin-message button:focus-visible {
+  outline: 2px solid var(--red);
+
+  outline-offset: 3px;
+}
+
+.admin-delete-button {
+  color: var(--red);
+}
+
+.admin-delete-button:hover {
+  border-color: var(--red);
+
+  background: rgba(185, 65, 77, 0.07);
+}
+
+/* ---------------------------------------------------------
+   ADMIN EMPTY STATE
+   --------------------------------------------------------- */
+
+.admin-empty {
+  min-height: 360px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  text-align: center;
+
+  border-bottom: 1px solid var(--rule);
+}
+
+.admin-empty-mark {
+  width: 65px;
+  height: 65px;
+
+  display: grid;
+
+  place-items: center;
+
+  margin-bottom: 20px;
+
+  border: 1px solid var(--ink);
+
+  border-radius: 50%;
+
+  background: var(--lav);
+
+  font-family: "Libre Baskerville", serif;
+
+  font-size: 30px;
+}
+
+.admin-empty h3 {
+  margin: 0 0 8px;
+
+  font-family: "Playfair Display", Georgia, serif;
+
+  font-size: 27px;
+
+  font-weight: 400;
+}
+
+.admin-empty p {
+  margin: 0 0 25px;
+
+  font-family: "Libre Baskerville", Georgia, serif;
+
+  font-size: 13px;
+
+  color: var(--muted);
+}
+
+/* ---------------------------------------------------------
+   ADMIN CATEGORIES
+   --------------------------------------------------------- */
+
+.admin-categories-section {
+  padding-top: 10px;
+}
+
+.admin-category-list {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 9px;
+
+  padding: 25px 0 0;
+
+  border-top: 1px solid var(--rule);
+}
+
+.admin-category-pill {
+  padding: 9px 13px;
+
+  border: 1px solid var(--rule);
+
+  background: var(--paper2);
+
+  font-family: "DM Mono", monospace;
+
+  font-size: 9px;
+
+  letter-spacing: 0.08em;
+
+  transition:
+    background 160ms ease,
+    transform 160ms ease;
+}
+
+.admin-category-pill:nth-child(1n) {
+  background: rgba(237, 171, 196, 0.22);
+}
+
+.admin-category-pill:nth-child(2n) {
+  background: rgba(239, 213, 121, 0.22);
+}
+
+.admin-category-pill:nth-child(3n) {
+  background: rgba(169, 212, 220, 0.22);
+}
+
+.admin-category-pill:nth-child(4n) {
+  background: rgba(200, 184, 216, 0.22);
+}
+
+.admin-category-pill:hover {
+  transform: translateY(-2px);
+}
+
+/* =========================================================
+   ADMIN TABLET
+   ========================================================= */
+
+@media (max-width: 1050px) {
+  .admin-page {
+    padding: 65px 5vw 100px;
+  }
+
+  .admin-header {
+    align-items: flex-start;
+  }
+
+  .admin-account {
+    flex-direction: column;
+
+    align-items: flex-end;
+
+    gap: 15px;
+  }
+
+  .admin-article-row {
+    grid-template-columns:
+      45px
+      minmax(0, 1fr);
+
+    gap: 15px 20px;
+  }
+
+  .admin-status {
+    grid-column: 2;
+  }
+
+  .admin-row-actions {
+    grid-column: 2;
+  }
+}
+
+/* =========================================================
+   ADMIN MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+  .admin-page {
+    padding: 45px 5vw 80px;
+  }
+
+  .admin-header {
+    flex-direction: column;
+
+    gap: 35px;
+
+    padding-bottom: 40px;
+  }
+
+  .admin-header h1 {
+    font-size: clamp(52px, 17vw, 82px);
+  }
+
+  .admin-header-description {
+    font-size: 13px;
+  }
+
+  .admin-account {
+    width: 100%;
+
+    flex-direction: row;
+
+    align-items: center;
+
+    justify-content: space-between;
+  }
+
+  .admin-account-info {
+    text-align: left;
+
+    min-width: 0;
+  }
+
+  .admin-account-email {
+    max-width: 210px;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+  }
+
+  .admin-overview {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .admin-stat {
+    min-height: 105px;
+
+    padding: 18px;
+  }
+
+  .admin-stat-number {
+    font-size: 38px;
+  }
+
+  .admin-section {
+    margin-top: 65px;
+  }
+
+  .admin-section-heading {
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    gap: 22px;
+  }
+
+  .admin-section-title {
+    gap: 15px;
+  }
+
+  .admin-section-title h2 {
+    font-size: 42px;
+  }
+
+  .admin-primary-button,
+  .admin-secondary-button {
+    width: 100%;
+  }
+
+  .admin-article-row {
+    padding: 25px 0;
+
+    grid-template-columns:
+      32px
+      minmax(0, 1fr);
+
+    gap: 12px 14px;
+  }
+
+  .admin-number {
+    font-size: 9px;
+  }
+
+  .admin-article-info h3 {
+    font-size: 22px;
+  }
+
+  .admin-article-meta {
+    flex-wrap: wrap;
+
+    line-height: 1.5;
+  }
+
+  .admin-slug {
+    max-width: 100%;
+  }
+
+  .admin-status {
+    grid-column: 2;
+  }
+
+  .admin-row-actions {
+    grid-column: 2;
+
+    width: 100%;
+
+    display: grid;
+
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .admin-action-button {
+    min-height: 40px;
+
+    padding: 0 5px;
+
+    font-size: 7px;
+  }
+
+  .admin-action-button svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .admin-category-list {
+    padding-top: 20px;
+  }
+}
+
+/* =========================================================
+   ADMIN SMALL PHONES
+   ========================================================= */
+
+@media (max-width: 420px) {
+  .admin-page {
+    padding-left: 4vw;
+
+    padding-right: 4vw;
+  }
+
+  .admin-account {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+  .admin-account-info {
+    width: 100%;
+  }
+
+  .admin-logout-button {
+    width: 100%;
+  }
+
+  .admin-stat-number {
+    font-size: 34px;
+  }
+
+  .admin-section-title h2 {
+    font-size: 37px;
+  }
+
+  .admin-article-row {
+    grid-template-columns:
+      25px
+      minmax(0, 1fr);
+  }
+
+  .admin-row-actions {
+    grid-template-columns: 1fr;
+
+    gap: 5px;
+  }
+
+  .admin-action-button {
+    width: 100%;
+  }
+}
+
+/* =========================================================
+   GENERAL MOBILE ADJUSTMENTS
+   ========================================================= */
+
+@media (max-width: 800px) {
+  .navbar {
+    height: 58px;
+
+    padding: 0 5vw;
+
+    grid-template-columns: 1fr auto;
+  }
+
+  .nav-issue {
+    display: none;
+  }
+
+  .navbar nav {
+    gap: 14px;
+  }
+
+  .navbar nav a {
+    font-size: 8px;
+  }
+
+  .cover {
+    min-height: auto;
+
+    padding: 18px 5vw 24px;
+  }
+
+  .cover-center {
+    height: 65vh;
+
+    min-height: 470px;
+  }
+
+  .cover-title h1 {
+    font-size: clamp(62px, 20vw, 120px);
+  }
+
+  .cover-burst {
+    width: 75px;
+    height: 75px;
+
+    right: 2%;
+    top: 12%;
+
+    font-size: 12px;
+  }
+
+  .cover-question {
+    width: 58px;
+    height: 58px;
+
+    left: 3%;
+
+    font-size: 35px;
+  }
+
+  .cover-bottom {
+    grid-template-columns: 1fr 1fr;
+
+    gap: 15px;
+  }
+
+  .cover-bottom > strong {
+    display: none;
+  }
+
+  .editors-note {
+    padding: 75px 7vw;
+
+    display: block;
+  }
+
+  .margin-label {
+    margin-bottom: 35px;
+  }
+
+  .margin-note {
+    display: none;
+  }
+
+  .editor-copy {
+    font-size: 15px;
+  }
+
+  .dropcap {
+    font-size: 75px;
+  }
+
+  .feature-story,
+  .latest,
+  .about-grid-section {
+    padding: 80px 7vw;
+  }
+
+  .feature-grid {
+    grid-template-columns: 1fr;
+
+    gap: 50px;
+  }
+
+  .browser-screen {
+    height: 380px;
+
+    padding: 25px;
+  }
+
+  .curiosity-section {
+    padding: 80px 7vw;
+  }
+
+  .curiosity-grid {
+    grid-template-columns: 1fr;
+
+    gap: 25px;
+  }
+
+  .poll-section {
+    padding: 80px 7vw;
+
+    grid-template-columns: 1fr;
+
+    gap: 45px;
+  }
+
+  .experiment {
+    padding: 80px 7vw;
+
+    grid-template-columns: 1fr;
+
+    gap: 50px;
+  }
+
+  .reader-mail {
+    padding: 85px 7vw;
+
+    grid-template-columns: 1fr;
+
+    gap: 30px;
+  }
+
+  .stamp {
+    width: 65px;
+    height: 65px;
+
+    font-size: 28px;
+  }
+
+  .article-grid {
+    grid-template-columns: 1fr;
+
+    gap: 45px;
+  }
+
+  .latest-art {
+    height: 280px;
+  }
+
+  .back-cover {
+    min-height: 500px;
+
+    padding: 50px 7vw;
+  }
+
+  .footer {
+    padding: 45px 7vw;
+
+    flex-direction: column;
+
+    gap: 35px;
+  }
+
+  .footer-links {
+    align-items: flex-start;
+
+    flex-wrap: wrap;
+  }
+
+  .filters {
+    top: 58px;
+
+    padding: 15px 5vw;
+
+    align-items: stretch;
+
+    flex-direction: column;
+
+    gap: 15px;
+  }
+
+  .category-tabs {
+    overflow-x: auto;
+
+    flex-wrap: nowrap;
+
+    padding-bottom: 3px;
+  }
+
+  .category-tabs button {
+    flex: 0 0 auto;
+  }
+
+  .search-box {
+    width: 100%;
+
+    min-width: 0;
+  }
+
+  .search-box input {
+    width: 100%;
+  }
+
+  .archive-header {
+    min-height: 390px;
+
+    padding: 80px 7vw 60px;
+  }
+
+  .archive-header h1 {
+    font-size: clamp(54px, 15vw, 90px);
+  }
+
+  .archive-header p {
+    font-size: 0.9rem;
+  }
+
+  .article-top {
+    padding: 15px 5vw;
+
+    grid-template-columns: 1fr auto;
+
+    font-size: 7px;
+  }
+
+  .article-top span:nth-of-type(1) {
+    display: none;
+  }
+
+  .article-hero {
+    padding: 75px 7vw 60px;
+  }
+
+  .article-hero h1 {
+    font-size: clamp(48px, 14vw, 85px);
+  }
+
+  .article-dek {
+    font-size: 15px;
+  }
+
+  .article-visual {
+    padding: 20px 5vw 80px;
+  }
+
+  .visual-frame {
+    min-height: 380px;
+
+    box-shadow: 6px 6px 0 var(--rule);
+  }
+
+  .visual-center {
+    font-size: clamp(55px, 16vw, 110px);
+  }
+
+  .article-layout {
+    padding: 0 7vw 80px;
+
+    grid-template-columns: 1fr;
+
+    gap: 45px;
+  }
+
+  .article-layout aside {
+    position: static;
+
+    padding-bottom: 25px;
+
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .article-body .lead {
+    font-size: 18px;
+
+    margin-bottom: 55px;
+  }
+
+  .article-body section {
+    margin-bottom: 60px;
+  }
+
+  .article-body section p {
+    font-size: 15px;
+  }
+
+  .article-next {
+    padding: 35px 7vw;
+
+    flex-direction: column;
+
+    align-items: flex-start;
+  }
+}
+
+/* =========================================================
+   ANIMATIONS
+   ========================================================= */
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+
+    transition: none !important;
+
+    animation: none !important;
+  }
+}
