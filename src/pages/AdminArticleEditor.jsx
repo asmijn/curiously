@@ -1,5 +1,15 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import {
+  ArrowLeft,
+  Eye,
+  ImagePlus,
+  Plus,
+  Save,
+  Trash2,
+  Upload,
+  X,
+} from "lucide-react";
 import { supabase } from "../supabase";
 
 const emptySection = {
@@ -36,12 +46,7 @@ export default function AdminArticleEditor() {
     cover_image: "",
     content: "",
     published: false,
-    sections: [
-      {
-        heading: "",
-        body: "",
-      },
-    ],
+    sections: [{ ...emptySection }],
   });
 
   useEffect(() => {
@@ -120,10 +125,9 @@ export default function AdminArticleEditor() {
       content: data.content || "",
       published: data.published || false,
       sections:
-        Array.isArray(data.sections) &&
-        data.sections.length
+        Array.isArray(data.sections) && data.sections.length
           ? data.sections
-          : [emptySection],
+          : [{ ...emptySection }],
     });
 
     setLoading(false);
@@ -147,9 +151,7 @@ export default function AdminArticleEditor() {
       return {
         ...current,
         title: value,
-        slug: isEditing
-          ? current.slug
-          : generatedSlug,
+        slug: isEditing ? current.slug : generatedSlug,
       };
     });
   }
@@ -193,7 +195,7 @@ export default function AdminArticleEditor() {
         ...current,
         sections: sections.length
           ? sections
-          : [emptySection],
+          : [{ ...emptySection }],
       };
     });
   }
@@ -235,20 +237,16 @@ export default function AdminArticleEditor() {
 
       const filePath = `covers/${fileName}`;
 
-      const { error: uploadError } =
-        await supabase.storage
-          .from("article-covers")
-          .upload(filePath, file, {
-            cacheControl: "3600",
-            upsert: false,
-            contentType: file.type,
-          });
+      const { error: uploadError } = await supabase.storage
+        .from("article-covers")
+        .upload(filePath, file, {
+          cacheControl: "3600",
+          upsert: false,
+          contentType: file.type,
+        });
 
       if (uploadError) {
-        console.error(
-          "Cover upload error:",
-          uploadError
-        );
+        console.error("Cover upload error:", uploadError);
 
         setError(
           uploadError.message ||
@@ -265,18 +263,13 @@ export default function AdminArticleEditor() {
         .from("article-covers")
         .getPublicUrl(filePath);
 
-      console.log(
-        "COVER PUBLIC URL:",
-        publicUrl
-      );
-
       setForm((current) => ({
         ...current,
         cover_image: publicUrl,
       }));
 
       setMessage(
-        "Cover uploaded. Now save the article."
+        "Cover uploaded. Save the article to keep it."
       );
     } catch (uploadError) {
       console.error(
@@ -308,10 +301,9 @@ export default function AdminArticleEditor() {
             markerIndex + marker.length
           );
 
-        const { error } =
-          await supabase.storage
-            .from("article-covers")
-            .remove([filePath]);
+        const { error } = await supabase.storage
+          .from("article-covers")
+          .remove([filePath]);
 
         if (error) {
           console.error(
@@ -353,37 +345,32 @@ export default function AdminArticleEditor() {
       return;
     }
 
+    const cleanedSections = form.sections
+      .map((section) => ({
+        heading: section.heading?.trim() || "",
+        body: section.body?.trim() || "",
+      }))
+      .filter(
+        (section) =>
+          section.heading || section.body
+      );
+
     const articleData = {
       slug: form.slug.trim(),
       title: form.title.trim(),
       subtitle: form.subtitle.trim(),
-      category_id:
-        form.category_id || null,
+      category_id: form.category_id || null,
       format: form.format.trim(),
       tag: form.tag.trim(),
       read_time: form.read_time.trim(),
       date: form.date.trim(),
       color: form.color,
       dek: form.dek.trim(),
-
-      // THIS IS THE IMPORTANT FIELD
-      cover_image:
-        form.cover_image?.trim() || null,
-
+      cover_image: form.cover_image?.trim() || null,
       content: form.content,
       published: publishedValue,
-      sections: form.sections,
+      sections: cleanedSections,
     };
-
-    console.log(
-      "SAVING ARTICLE:",
-      articleData
-    );
-
-    console.log(
-      "COVER BEING SAVED:",
-      articleData.cover_image
-    );
 
     let saveError = null;
 
@@ -417,41 +404,13 @@ export default function AdminArticleEditor() {
       return;
     }
 
-    console.log(
-      "ARTICLE SAVED SUCCESSFULLY"
-    );
-
-    /*
-      Verify the database actually contains
-      the cover URL after saving.
-    */
-    const {
-      data: savedArticle,
-      error: verifyError,
-    } = await supabase
-      .from("articles")
-      .select(
-        "slug, cover_image, published"
-      )
-      .eq("slug", form.slug.trim())
-      .maybeSingle();
-
-    if (verifyError) {
-      console.error(
-        "VERIFY SAVE ERROR:",
-        verifyError
-      );
-    } else {
-      console.log(
-        "DATABASE COVER IMAGE:",
-        savedArticle?.cover_image
-      );
-
-      console.log(
-        "DATABASE PUBLISHED:",
-        savedArticle?.published
-      );
-    }
+    setForm((current) => ({
+      ...current,
+      published: publishedValue,
+      sections: cleanedSections.length
+        ? cleanedSections
+        : [{ ...emptySection }],
+    }));
 
     setMessage(
       publishedValue
@@ -476,6 +435,33 @@ export default function AdminArticleEditor() {
     await saveArticle(true);
   }
 
+  function previewArticle() {
+    if (!form.slug) {
+      setError("Save the article before previewing it.");
+      return;
+    }
+
+    window.open(
+      `/article/${form.slug}`,
+      "_blank",
+      "noopener,noreferrer"
+    );
+  }
+
+  const wordCount = form.sections.reduce(
+    (total, section) => {
+      const words = `${section.heading || ""} ${
+        section.body || ""
+      }`
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean);
+
+      return total + words.length;
+    },
+    0
+  );
+
   if (loading) {
     return (
       <main className="admin-editor-page">
@@ -488,93 +474,99 @@ export default function AdminArticleEditor() {
 
   return (
     <main className="admin-editor-page">
-      <header className="admin-editor-header">
-        <div>
+      <header className="writer-header">
+        <div className="writer-header-left">
           <button
-            className="admin-back"
+            className="writer-back"
             onClick={() => navigate("/admin")}
+            type="button"
           >
-            ← BACK TO ADMIN
+            <ArrowLeft size={15} />
+            BACK TO ADMIN
           </button>
 
-          <div className="section-kicker">
-            CURIOUSLY / ARTICLE EDITOR
+          <div className="writer-brand">
+            <span>CURIOUSLY</span>
+            <span>WRITER</span>
           </div>
-
-          <h1>
-            {isEditing ? (
-              <>
-                EDIT
-                <br />
-                <em>STORY.</em>
-              </>
-            ) : (
-              <>
-                NEW
-                <br />
-                <em>STORY.</em>
-              </>
-            )}
-          </h1>
         </div>
 
-        <div className="admin-editor-actions">
+        <div className="writer-header-actions">
           <button
+            type="button"
+            className="writer-preview-button"
+            onClick={previewArticle}
+          >
+            <Eye size={15} />
+            PREVIEW
+          </button>
+
+          <button
+            type="button"
+            className="writer-save-button"
             onClick={handleSaveDraft}
             disabled={saving}
           >
-            {saving
-              ? "SAVING..."
-              : "SAVE DRAFT"}
+            <Save size={15} />
+            {saving ? "SAVING..." : "SAVE DRAFT"}
           </button>
 
           <button
-            className="admin-primary-button"
+            type="button"
+            className="writer-publish-button"
             onClick={handlePublish}
             disabled={saving}
           >
-            {saving
-              ? "SAVING..."
-              : "PUBLISH →"}
+            {saving ? "SAVING..." : "PUBLISH →"}
           </button>
         </div>
       </header>
 
       {error && (
-        <div className="admin-error">
-          {error}
+        <div className="writer-message writer-error">
+          <span>{error}</span>
+
+          <button
+            type="button"
+            onClick={() => setError("")}
+            aria-label="Dismiss error"
+          >
+            <X size={15} />
+          </button>
         </div>
       )}
 
       {message && (
-        <div className="admin-message">
-          {message}
+        <div className="writer-message writer-success">
+          <span>{message}</span>
+
+          <button
+            type="button"
+            onClick={() => setMessage("")}
+            aria-label="Dismiss message"
+          >
+            <X size={15} />
+          </button>
         </div>
       )}
 
-      <section className="admin-editor-section">
-        <div className="section-kicker">
-          01 / STORY DETAILS
-        </div>
-
-        <div className="admin-editor-grid">
-          <label>
-            TITLE
-
+      <div className="writer-layout">
+        <div className="writer-main">
+          <section className="writer-title-area">
             <input
+              className="writer-title"
               value={form.title}
               onChange={(event) =>
                 handleTitleChange(
                   event.target.value
                 )
               }
+              placeholder="Write your headline..."
+              aria-label="Article title"
             />
-          </label>
-
-          <label>
-            SUBTITLE
 
             <textarea
+              className="writer-subtitle"
               value={form.subtitle}
               onChange={(event) =>
                 updateField(
@@ -582,325 +574,370 @@ export default function AdminArticleEditor() {
                   event.target.value
                 )
               }
-            />
-          </label>
-
-          <label>
-            CATEGORY
-
-            <select
-              value={form.category_id}
-              onChange={(event) =>
-                updateField(
-                  "category_id",
-                  event.target.value
-                )
-              }
-            >
-              <option value="">
-                SELECT CATEGORY
-              </option>
-
-              {categories.map((category) => (
-                <option
-                  key={category.id}
-                  value={category.id}
-                >
-                  {category.name}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label>
-            FORMAT
-
-            <input
-              value={form.format}
-              onChange={(event) =>
-                updateField(
-                  "format",
-                  event.target.value
-                )
-              }
-            />
-          </label>
-
-          <label>
-            TAG
-
-            <input
-              value={form.tag}
-              onChange={(event) =>
-                updateField(
-                  "tag",
-                  event.target.value
-                )
-              }
-            />
-          </label>
-
-          <label>
-            READ TIME
-
-            <input
-              value={form.read_time}
-              onChange={(event) =>
-                updateField(
-                  "read_time",
-                  event.target.value
-                )
-              }
-            />
-          </label>
-
-          <label>
-            DATE
-
-            <input
-              value={form.date}
-              onChange={(event) =>
-                updateField(
-                  "date",
-                  event.target.value
-                )
-              }
-            />
-          </label>
-
-          <label>
-            COLOR
-
-            <select
-              value={form.color}
-              onChange={(event) =>
-                updateField(
-                  "color",
-                  event.target.value
-                )
-              }
-            >
-              <option value="pink">
-                PINK
-              </option>
-
-              <option value="yellow">
-                YELLOW
-              </option>
-
-              <option value="blue">
-                BLUE
-              </option>
-
-              <option value="lavender">
-                LAVENDER
-              </option>
-
-              <option value="mint">
-                MINT
-              </option>
-            </select>
-          </label>
-
-          <label>
-            URL SLUG
-
-            <input
-              value={form.slug}
-              onChange={(event) =>
-                updateField(
-                  "slug",
-                  event.target.value
-                )
-              }
+              placeholder="Write a short introduction to your story..."
+              rows="2"
+              aria-label="Article subtitle"
             />
 
-            <small>
-              Your article will live at{" "}
-              /article/{form.slug}
-            </small>
-          </label>
-        </div>
-      </section>
-
-      <section className="admin-editor-section">
-        <div className="section-kicker">
-          02 / ARTICLE COVER
-        </div>
-
-        <div className="cover-upload-area">
-          <h2>ARTICLE COVER</h2>
-
-          <p>
-            Upload a JPG, PNG, WEBP, or GIF.
-            Maximum 10MB.
-          </p>
-
-          {form.cover_image ? (
-            <div className="cover-preview">
-              <img
-                src={form.cover_image}
-                alt="Article cover preview"
-              />
-
-              <button
-                type="button"
-                onClick={removeCover}
-              >
-                REMOVE COVER
-              </button>
-            </div>
-          ) : (
-            <label className="cover-upload-button">
-              {uploading
-                ? "UPLOADING..."
-                : "UPLOAD COVER →"}
+            <div className="writer-slug">
+              <span>/article/</span>
 
               <input
-                type="file"
-                accept="image/jpeg,image/png,image/webp,image/gif"
+                value={form.slug}
                 onChange={(event) =>
-                  uploadCover(
-                    event.target.files?.[0]
+                  updateField(
+                    "slug",
+                    event.target.value
                   )
                 }
-                disabled={uploading}
-                hidden
+                aria-label="Article URL slug"
+              />
+            </div>
+          </section>
+
+          <section className="writer-section">
+            <div className="writer-section-label">
+              STORY INTRO
+            </div>
+
+            <textarea
+              className="writer-dek"
+              value={form.dek}
+              onChange={(event) =>
+                updateField(
+                  "dek",
+                  event.target.value
+                )
+              }
+              placeholder="Start with the thought that pulls the reader in..."
+              rows="4"
+              aria-label="Article dek"
+            />
+          </section>
+
+          <section className="writer-section writer-story">
+            <div className="writer-section-heading">
+              <div>
+                <span className="writer-section-label">
+                  STORY
+                </span>
+
+                <span className="writer-word-count">
+                  {wordCount} words
+                </span>
+              </div>
+
+              <span className="writer-hint">
+                Write freely. You can edit this later.
+              </span>
+            </div>
+
+            <div className="writer-sections">
+              {form.sections.map(
+                (section, index) => (
+                  <article
+                    className="writer-story-section"
+                    key={index}
+                  >
+                    <div className="writer-section-number">
+                      {String(index + 1).padStart(
+                        2,
+                        "0"
+                      )}
+                    </div>
+
+                    <div className="writer-section-fields">
+                      <input
+                        className="writer-heading-input"
+                        value={section.heading}
+                        onChange={(event) =>
+                          updateSection(
+                            index,
+                            "heading",
+                            event.target.value
+                          )
+                        }
+                        placeholder="Section heading..."
+                        aria-label={`Section ${
+                          index + 1
+                        } heading`}
+                      />
+
+                      <textarea
+                        className="writer-body-input"
+                        value={section.body}
+                        onChange={(event) =>
+                          updateSection(
+                            index,
+                            "body",
+                            event.target.value
+                          )
+                        }
+                        placeholder="Start writing here..."
+                        rows="10"
+                        aria-label={`Section ${
+                          index + 1
+                        } body`}
+                      />
+                    </div>
+
+                    {form.sections.length > 1 && (
+                      <button
+                        type="button"
+                        className="writer-remove-section"
+                        onClick={() =>
+                          removeSection(index)
+                        }
+                        aria-label={`Remove section ${
+                          index + 1
+                        }`}
+                        title="Remove section"
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    )}
+                  </article>
+                )
+              )}
+            </div>
+
+            <button
+              type="button"
+              className="writer-add-section"
+              onClick={addSection}
+            >
+              <Plus size={17} />
+              ADD ANOTHER SECTION
+            </button>
+          </section>
+        </div>
+
+        <aside className="writer-sidebar">
+          <section className="writer-sidebar-card">
+            <div className="writer-sidebar-title">
+              PUBLISHING
+            </div>
+
+            <div className="writer-status">
+              <span
+                className={
+                  form.published
+                    ? "status-dot published"
+                    : "status-dot draft"
+                }
+              />
+
+              {form.published
+                ? "PUBLISHED"
+                : "DRAFT"}
+            </div>
+
+            <label className="writer-field">
+              <span>CATEGORY</span>
+
+              <select
+                value={form.category_id}
+                onChange={(event) =>
+                  updateField(
+                    "category_id",
+                    event.target.value
+                  )
+                }
+              >
+                <option value="">
+                  SELECT CATEGORY
+                </option>
+
+                {categories.map((category) => (
+                  <option
+                    key={category.id}
+                    value={category.id}
+                  >
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="writer-field">
+              <span>FORMAT</span>
+
+              <input
+                value={form.format}
+                onChange={(event) =>
+                  updateField(
+                    "format",
+                    event.target.value
+                  )
+                }
+                placeholder="THE RABBIT HOLE"
               />
             </label>
-          )}
 
-          {form.cover_image && (
-            <p className="cover-url">
-              Cover URL:
+            <label className="writer-field">
+              <span>TAG</span>
 
-              <br />
+              <input
+                value={form.tag}
+                onChange={(event) =>
+                  updateField(
+                    "tag",
+                    event.target.value
+                  )
+                }
+                placeholder="INTERNET CULTURE"
+              />
+            </label>
 
-              {form.cover_image}
-            </p>
-          )}
-        </div>
-      </section>
+            <label className="writer-field">
+              <span>READ TIME</span>
 
-      <section className="admin-editor-section">
-        <div className="section-kicker">
-          03 / STORY CONTENT
-        </div>
+              <input
+                value={form.read_time}
+                onChange={(event) =>
+                  updateField(
+                    "read_time",
+                    event.target.value
+                  )
+                }
+                placeholder="7 min read"
+              />
+            </label>
 
-        <label className="full-width-label">
-          DEK
+            <label className="writer-field">
+              <span>DATE</span>
 
-          <textarea
-            value={form.dek}
-            onChange={(event) =>
-              updateField(
-                "dek",
-                event.target.value
-              )
-            }
-          />
-        </label>
+              <input
+                value={form.date}
+                onChange={(event) =>
+                  updateField(
+                    "date",
+                    event.target.value
+                  )
+                }
+                placeholder="September 3, 2026"
+              />
+            </label>
 
-        <div className="admin-sections-editor">
-          {form.sections.map(
-            (section, index) => (
-              <div
-                className="admin-section-editor"
-                key={index}
+            <label className="writer-field">
+              <span>ACCENT COLOR</span>
+
+              <select
+                value={form.color}
+                onChange={(event) =>
+                  updateField(
+                    "color",
+                    event.target.value
+                  )
+                }
               >
-                <div className="admin-section-editor-top">
-                  <span>
-                    SECTION{" "}
-                    {String(index + 1).padStart(
-                      2,
-                      "0"
-                    )}
-                  </span>
+                <option value="pink">
+                  PINK
+                </option>
 
-                  <button
-                    type="button"
-                    onClick={() =>
-                      removeSection(index)
-                    }
-                  >
-                    REMOVE
-                  </button>
-                </div>
+                <option value="yellow">
+                  YELLOW
+                </option>
 
-                <label>
-                  HEADING
+                <option value="blue">
+                  BLUE
+                </option>
 
-                  <input
-                    value={section.heading}
-                    onChange={(event) =>
-                      updateSection(
-                        index,
-                        "heading",
-                        event.target.value
-                      )
-                    }
-                  />
-                </label>
+                <option value="lavender">
+                  LAVENDER
+                </option>
 
-                <label>
-                  BODY
+                <option value="mint">
+                  MINT
+                </option>
+              </select>
+            </label>
+          </section>
 
-                  <textarea
-                    rows="8"
-                    value={section.body}
-                    onChange={(event) =>
-                      updateSection(
-                        index,
-                        "body",
-                        event.target.value
-                      )
-                    }
-                  />
-                </label>
+          <section className="writer-sidebar-card">
+            <div className="writer-sidebar-title">
+              COVER IMAGE
+            </div>
+
+            {form.cover_image ? (
+              <div className="writer-cover">
+                <img
+                  src={form.cover_image}
+                  alt="Article cover preview"
+                />
+
+                <button
+                  type="button"
+                  onClick={removeCover}
+                >
+                  <X size={14} />
+                  REMOVE
+                </button>
               </div>
-            )
-          )}
-        </div>
+            ) : (
+              <label className="writer-upload">
+                <ImagePlus size={24} />
 
+                <strong>
+                  {uploading
+                    ? "UPLOADING..."
+                    : "UPLOAD COVER"}
+                </strong>
+
+                <span>
+                  JPG, PNG, WEBP or GIF
+                  <br />
+                  Maximum 10MB
+                </span>
+
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  onChange={(event) =>
+                    uploadCover(
+                      event.target.files?.[0]
+                    )
+                  }
+                  disabled={uploading}
+                  hidden
+                />
+
+                <span className="writer-upload-link">
+                  <Upload size={13} />
+                  CHOOSE IMAGE
+                </span>
+              </label>
+            )}
+          </section>
+
+          <section className="writer-sidebar-card writer-tip">
+            <div className="writer-sidebar-title">
+              WRITING NOTE
+            </div>
+
+            <p>
+              Don't worry about making every section
+              perfect. Get the thought down first.
+              You can always come back and edit.
+            </p>
+
+            <span>✦ CURIOUSLY EDITORIAL</span>
+          </section>
+        </aside>
+      </div>
+
+      <footer className="writer-footer">
         <button
           type="button"
-          className="admin-secondary-button"
-          onClick={addSection}
-        >
-          + ADD SECTION
-        </button>
-      </section>
-
-      <section className="admin-editor-section">
-        <div className="section-kicker">
-          04 / RAW CONTENT
-        </div>
-
-        <label className="full-width-label">
-          CONTENT
-
-          <textarea
-            rows="12"
-            value={form.content}
-            onChange={(event) =>
-              updateField(
-                "content",
-                event.target.value
-              )
-            }
-          />
-        </label>
-      </section>
-
-      <footer className="admin-editor-footer">
-        <button
           onClick={() => navigate("/admin")}
         >
-          ← CANCEL
+          <ArrowLeft size={15} />
+          BACK TO ADMIN
         </button>
 
         <div>
           <button
+            type="button"
             onClick={handleSaveDraft}
             disabled={saving}
           >
@@ -908,7 +945,7 @@ export default function AdminArticleEditor() {
           </button>
 
           <button
-            className="admin-primary-button"
+            type="button"
             onClick={handlePublish}
             disabled={saving}
           >

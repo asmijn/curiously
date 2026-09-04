@@ -1,5 +1,6 @@
 import { Link, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { ArrowLeft, Bookmark, Heart } from "lucide-react";
 import { supabase } from "../supabase";
 
 export default function Article() {
@@ -48,8 +49,8 @@ export default function Article() {
 
   if (loading) {
     return (
-      <main className="not-found">
-        <h1>LOADING STORY...</h1>
+      <main className="article-loading">
+        <span>LOADING STORY...</span>
       </main>
     );
   }
@@ -57,7 +58,15 @@ export default function Article() {
   if (!article) {
     return (
       <main className="not-found">
-        <h1>ARTICLE NOT FOUND.</h1>
+        <div className="section-kicker">
+          CURIOUSLY / ERROR
+        </div>
+
+        <h1>
+          ARTICLE
+          <br />
+          <em>NOT FOUND.</em>
+        </h1>
 
         <Link to="/articles">
           ← BACK TO MAGAZINE
@@ -66,141 +75,290 @@ export default function Article() {
     );
   }
 
+  const sections = Array.isArray(article.sections)
+    ? article.sections
+    : [];
+
   return (
     <main
-      className={`article-page article-theme-${article.color}`}
+      className={`article-page article-theme-${
+        article.color || "pink"
+      }`}
     >
+      {/* =====================================================
+          ARTICLE TOP BAR
+          ===================================================== */}
+
       <div className="article-top">
-        <Link to="/articles">
-          ← BACK TO MAGAZINE
+        <Link
+          to="/articles"
+          className="article-back"
+        >
+          <ArrowLeft size={13} />
+          BACK TO MAGAZINE
         </Link>
 
-        <span>
-          CURIOUSLY / VOL. 01 / {article.category}
+        <span className="article-issue">
+          CURIOUSLY / VOL. 01 / 2026
         </span>
 
-        <span>
-          PAGE 08
+        <span className="article-page-number">
+          STORY / 01
         </span>
       </div>
 
+      {/* =====================================================
+          HERO
+          ===================================================== */}
+
       <header className="article-hero">
-        <div className="section-kicker">
-          {article.category} / {article.format}
+        <div className="article-hero-meta">
+          <span>
+            {article.category}
+          </span>
+
+          <span>✦</span>
+
+          <span>
+            {article.format || "STORY"}
+          </span>
         </div>
 
         <h1>
           {article.title}
         </h1>
 
-        <p className="article-dek">
-          {article.subtitle}
-        </p>
+        {article.subtitle && (
+          <p className="article-subtitle">
+            {article.subtitle}
+          </p>
+        )}
 
         <div className="article-byline">
-          {article.date} · ASMI JAIN ·{" "}
-          {article.readTime.toUpperCase()}
+          <span>
+            {article.date || "2026"}
+          </span>
+
+          <span>·</span>
+
+          <span>
+            ASMI JAIN
+          </span>
+
+          {article.readTime && (
+            <>
+              <span>·</span>
+
+              <span>
+                {article.readTime.toUpperCase()}
+              </span>
+            </>
+          )}
         </div>
       </header>
 
-      <div className="article-visual">
-        <div className="visual-frame">
-          <div className="visual-top">
-            CURIOUSLY / FIG. 01
+      {/* =====================================================
+          COVER IMAGE
+          ===================================================== */}
 
+      <div className="article-cover-wrap">
+        {article.coverImage ? (
+          <figure className="article-cover">
+            <img
+              src={article.coverImage}
+              alt={article.title}
+              onError={(event) => {
+                console.error(
+                  "Article cover failed to load:",
+                  article.coverImage
+                );
+
+                event.currentTarget.style.display =
+                  "none";
+              }}
+            />
+
+            <figcaption>
+              <span>
+                CURIOUSLY / FIG. 01
+              </span>
+
+              <span>
+                {article.category}
+              </span>
+            </figcaption>
+          </figure>
+        ) : (
+          <div className="article-cover-placeholder">
             <span>
-              ✦
+              {article.category}
             </span>
-          </div>
 
-          <div className="visual-center">
-            {article.category}
+            <small>
+              CURIOUSLY / FIG. 01
+            </small>
           </div>
-
-          <div className="visual-bottom">
-            AN EDITORIAL ILLUSTRATION / 2026
-          </div>
-        </div>
+        )}
       </div>
 
+      {/* =====================================================
+          ARTICLE BODY
+          ===================================================== */}
+
       <div className="article-layout">
-        <aside>
-          <div className="aside-note">
-            IN THIS STORY
+        {/* SIDE NOTES */}
+
+        <aside className="article-sidebar">
+          <div className="article-sidebar-inner">
+            <div className="aside-label">
+              IN THIS STORY
+            </div>
+
+            <nav className="article-toc">
+              {sections.map(
+                (section, index) => (
+                  <a
+                    href={`#section-${index}`}
+                    key={`${section.heading}-${index}`}
+                  >
+                    <span>
+                      {String(index + 1).padStart(
+                        2,
+                        "0"
+                      )}
+                    </span>
+
+                    {section.heading ||
+                      `SECTION ${index + 1}`}
+                  </a>
+                )
+              )}
+            </nav>
+
+            <button
+              type="button"
+              className={`article-save ${
+                liked ? "liked" : ""
+              }`}
+              onClick={() =>
+                setLiked(!liked)
+              }
+            >
+              {liked ? (
+                <>
+                  <Heart
+                    size={14}
+                    fill="currentColor"
+                  />
+                  SAVED
+                </>
+              ) : (
+                <>
+                  <Bookmark size={14} />
+                  SAVE STORY
+                </>
+              )}
+            </button>
           </div>
-
-          {article.sections.map(
-            (section, index) => (
-              <a
-                href={`#section-${index}`}
-                key={section.heading}
-              >
-                {String(index + 1).padStart(2, "0")}{" "}
-                / {section.heading}
-              </a>
-            )
-          )}
-
-          <button
-            className={liked ? "liked" : ""}
-            onClick={() =>
-              setLiked(!liked)
-            }
-          >
-            {liked
-              ? "♥ SAVED"
-              : "♡ SAVE STORY"}
-          </button>
         </aside>
 
-        <article className="article-body">
-          <p className="lead">
-            {article.dek}
-          </p>
+        {/* MAIN STORY */}
 
-          {article.sections.map(
+        <article className="article-body">
+          {article.dek && (
+            <p className="article-lead">
+              {article.dek}
+            </p>
+          )}
+
+          {sections.map(
             (section, index) => (
               <section
+                className="article-section"
                 id={`section-${index}`}
-                key={section.heading}
+                key={`${section.heading}-${index}`}
               >
-                <span className="body-number">
-                  0{index + 1}
-                </span>
+                <div className="article-section-marker">
+                  <span>
+                    {String(index + 1).padStart(
+                      2,
+                      "0"
+                    )}
+                  </span>
 
-                <h2>
-                  {section.heading}
-                </h2>
+                  <span />
+                </div>
 
-                <p>
-                  {section.body}
-                </p>
-
-                {index === 1 && (
-                  <blockquote>
-                    “The interesting part is not
-                    always the answer. Sometimes it
-                    is discovering that the question
-                    is much bigger than it seemed.”
-                  </blockquote>
+                {section.heading && (
+                  <h2>
+                    {section.heading}
+                  </h2>
                 )}
+
+                {section.body && (
+                  <p>
+                    {section.body}
+                  </p>
+                )}
+
+                {index === 1 &&
+                  sections.length > 2 && (
+                    <blockquote>
+                      <span className="quote-mark">
+                        “
+                      </span>
+
+                      The interesting part isn't
+                      always the answer. Sometimes
+                      it is discovering that the
+                      question is much bigger than
+                      it seemed.
+                    </blockquote>
+                  )}
               </section>
             )
           )}
 
+          {!sections.length &&
+            article.content && (
+              <section className="article-section">
+                <p>
+                  {article.content}
+                </p>
+              </section>
+            )}
+
           <div className="article-end">
-            ✦ END OF STORY ✦
+            <span>✦</span>
+            END OF STORY
+            <span>✦</span>
           </div>
         </article>
       </div>
 
-      <div className="article-next">
-        <span>
-          THERE'S ALWAYS ANOTHER RABBIT HOLE.
-        </span>
+      {/* =====================================================
+          NEXT STORY
+          ===================================================== */}
 
-        <Link to="/articles">
-          EXPLORE MORE STORIES →
+      <div className="article-next">
+        <div className="article-next-copy">
+          <span className="section-kicker">
+            CURIOUSLY / CONTINUE
+          </span>
+
+          <h2>
+            THERE'S ALWAYS
+            <br />
+            <em>ANOTHER RABBIT HOLE.</em>
+          </h2>
+        </div>
+
+        <Link
+          to="/articles"
+          className="article-next-link"
+        >
+          EXPLORE THE MAGAZINE
+          <span>→</span>
         </Link>
       </div>
     </main>

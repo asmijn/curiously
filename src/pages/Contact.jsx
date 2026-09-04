@@ -1,239 +1,222 @@
+import { ArrowUpRight, Mail } from "lucide-react";
+
 export default function Contact() {
   return (
     <main className="contact-page">
 
-      <section className="contact-cover">
-        <div className="section-kicker">
-          GET IN TOUCH / CURIOUSLY
+      {/* HERO */}
+
+      <section className="contact-hero">
+
+        <div className="contact-hero-top">
+          <span>CURIOUSLY / CONTACT</span>
+          <span>VOL. 01 / 2026</span>
         </div>
 
-        <h1>
-          LET'S
-          <br />
-          <em>CONNECT.</em>
-        </h1>
+        <div className="contact-hero-main">
 
-        <div className="contact-question">
-          ?
+          <div className="contact-kicker">
+            LET'S TALK
+          </div>
+
+          <h1>
+            SAY
+            <br />
+            <em>HELLO.</em>
+          </h1>
+
+          <div className="contact-hero-question">
+            <span>GOT A QUESTION?</span>
+            <strong>↘</strong>
+          </div>
+
         </div>
 
-        <p>
-          Have a question, an idea, a collaboration,
-          <br />
-          or another rabbit hole worth exploring?
-        </p>
+        <div className="contact-hero-bottom">
+          <span>
+            IDEAS / PROJECTS / QUESTIONS
+          </span>
+
+          <span>
+            I LIKE HEARING FROM CURIOUS PEOPLE.
+          </span>
+        </div>
+
       </section>
 
 
-      <section className="contact-content">
+      {/* MAIN CONTACT */}
 
-        <div className="contact-intro">
-          <span className="page-no">
-            15
+      <section className="contact-main">
+
+        <div className="contact-note">
+
+          <span className="section-kicker">
+            A LITTLE NOTE
           </span>
 
-          <div>
-            <div className="section-kicker">
-              FIND ME AROUND THE INTERNET
-            </div>
+          <h2>
+            HAVE SOMETHING
+            <br />
+            <em>INTERESTING?</em>
+          </h2>
 
-            <h2>
-              SAY
-              <br />
-              <em>HELLO.</em>
-            </h2>
+          <p>
+            Whether you want to talk about a project,
+            collaborate on something, share an idea,
+            or simply send me down a new internet
+            rabbit hole — I'd love to hear from you.
+          </p>
 
-            <p>
-              Whether you want to talk about design,
-              data, technology, research, or just
-              something interesting you noticed —
-              I'd love to hear from you.
-            </p>
-          </div>
+          <p>
+            The best messages usually start with a
+            question.
+          </p>
+
         </div>
 
 
         <div className="contact-links">
 
+          {/* EMAIL */}
+
           <a
             href="mailto:asmijainj@gmail.com"
-            className="contact-card pink"
+            className="contact-link contact-link-pink"
           >
-            <div className="contact-icon">
-              ✉
+            <div className="contact-link-number">
+              01
             </div>
 
-            <div>
-              <small>EMAIL</small>
-              <h3>
+            <div className="contact-link-content">
+              <span>EMAIL</span>
+              <strong>
                 asmijainj@gmail.com
-              </h3>
+              </strong>
             </div>
 
-            <span>↗</span>
+            <ArrowUpRight size={18} />
           </a>
 
+
+          {/* LINKEDIN */}
 
           <a
             href="https://www.linkedin.com/in/asmi-jain-5b7182321"
             target="_blank"
             rel="noreferrer"
-            className="contact-card blue"
+            className="contact-link contact-link-blue"
           >
-            <div className="contact-icon contact-letter-icon">
-              in
+            <div className="contact-link-number">
+              02
             </div>
 
-            <div>
-              <small>LINKEDIN</small>
-              <h3>Asmi Jain</h3>
+            <div className="contact-link-content">
+              <span>LINKEDIN</span>
+              <strong>
+                CONNECT WITH ME
+              </strong>
             </div>
 
-            <span>↗</span>
+            <ArrowUpRight size={18} />
           </a>
 
+
+          {/* INSTAGRAM */}
 
           <a
             href="https://www.instagram.com/asmi_jain22"
             target="_blank"
             rel="noreferrer"
-            className="contact-card yellow"
+            className="contact-link contact-link-yellow"
           >
-            <div className="contact-icon">
-              ◎
+            <div className="contact-link-number">
+              03
             </div>
 
-            <div>
-              <small>INSTAGRAM</small>
-              <h3>@asmi_jain22</h3>
+            <div className="contact-link-content">
+              <span>INSTAGRAM</span>
+              <strong>
+                @ASMI_JAIN22
+              </strong>
             </div>
 
-            <span>↗</span>
+            <ArrowUpRight size={18} />
           </a>
 
+
+          {/* PORTFOLIO */}
 
           <a
             href="https://asmi-portfolio-three.vercel.app/#projects"
             target="_blank"
             rel="noreferrer"
-            className="contact-card lavender"
+            className="contact-link contact-link-lavender"
           >
-            <div className="contact-icon">
-              ↗
+            <div className="contact-link-number">
+              04
             </div>
 
-            <div>
-              <small>PORTFOLIO</small>
-              <h3>
-                MY WORK & PROJECTS
-              </h3>
+            <div className="contact-link-content">
+              <span>PORTFOLIO</span>
+              <strong>
+                SEE MY WORK
+              </strong>
             </div>
 
-            <span>↗</span>
+            <ArrowUpRight size={18} />
           </a>
 
         </div>
-      </section>
-
-
-      {/* ABOUT ME */}
-
-      <section className="about-me-contact">
-
-        <div className="about-me-label">
-          <span className="page-no">
-            16
-          </span>
-
-          <div className="section-kicker">
-            A LITTLE ABOUT ME
-          </div>
-        </div>
-
-
-        <div className="about-me-grid">
-
-          <div className="about-me-photo-wrap">
-            <div className="about-me-photo">
-              <img
-                src="/about-me.JPG"
-                alt="Asmi Jain"
-              />
-            </div>
-
-            <div className="about-me-caption">
-              ASMI / CURIOUS BY DEFAULT
-            </div>
-          </div>
-
-
-          <div className="about-me-copy">
-
-            <h2>
-              HI,
-              <br />
-              I'M <em>ASMI.</em>
-            </h2>
-
-            <p>
-              I'm a curious person who likes asking
-              questions, making things, and going
-              slightly too far down internet rabbit holes.
-            </p>
-
-            <p>
-              I'm currently pursuing my B.S. in Data Science at
-              UC Irvine, where I'm interested in the
-              intersection of technology, design, data,
-              and the way people interact with information.
-            </p>
-
-            <p>
-              I have experience in various fields including 
-              work in volunteering, activism, child development, 
-              UI/UX development, and mental psychology.
-            </p>
-
-            <p>
-              CURIOUSLY is my little corner of the internet
-              for exploring those interests — one question,
-              experiment, and obsession at a time.
-            </p>
-
-            <div className="about-me-signoff">
-              <span>KEEP WONDERING.</span>
-              <strong>♡</strong>
-            </div>
-
-          </div>
-
-        </div>
 
       </section>
 
 
-      <section className="contact-note">
+      {/* EMAIL CTA */}
 
-        <div className="stamp">
+      <section className="contact-cta">
+
+        <div className="contact-cta-mark">
+          <Mail size={25} />
+        </div>
+
+        <span className="section-kicker">
+          THE EASIEST WAY TO FIND ME
+        </span>
+
+        <a
+          href="mailto:asmijainj@gmail.com"
+          className="contact-email"
+        >
+          asmijainj@gmail.com
+        </a>
+
+        <p>
+          NO FORM. NO MYSTERY.
+          <br />
+          JUST SEND THE EMAIL.
+        </p>
+
+      </section>
+
+
+      {/* END */}
+
+      <section className="contact-end">
+
+        <div className="contact-end-star">
           ✦
         </div>
 
-        <div>
-          <div className="section-kicker">
-            ONE LAST THING
-          </div>
+        <h2>
+          KEEP
+          <br />
+          <em>IN TOUCH.</em>
+        </h2>
 
-          <h2>
-            STAY
-            <br />
-            <em>CURIOUS.</em>
-          </h2>
-
-          <p>
-            The best conversations usually start
-            with a good question.
-          </p>
-        </div>
+        <span>
+          CURIOUSLY / 2026
+        </span>
 
       </section>
 
