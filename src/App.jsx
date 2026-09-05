@@ -19,25 +19,43 @@ export default function App() {
       <Navbar />
 
       <Routes>
+        {/* PUBLIC PAGES */}
         <Route path="/" element={<Home />} />
         <Route path="/articles" element={<Articles />} />
         <Route path="/article/:id" element={<Article />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
 
-        <Route path="/admin-login" element={<AdminLogin />} />
-        <Route path="/admin" element={<Admin />} />
+        {/* ADMIN LOGIN */}
+        <Route
+          path="/admin-login"
+          element={<AdminLogin />}
+        />
 
+        <Route
+          path="/admin/login"
+          element={<AdminLogin />}
+        />
+
+        {/* ADMIN DASHBOARD */}
+        <Route
+          path="/admin"
+          element={<Admin />}
+        />
+
+        {/* ARTICLE INSIGHTS */}
         <Route
           path="/admin/insights/:id"
           element={<AdminInsights />}
         />
 
+        {/* NEW ARTICLE */}
         <Route
           path="/admin/new"
           element={<AdminArticleEditor />}
         />
 
+        {/* EDIT ARTICLE */}
         <Route
           path="/admin/edit/:slug"
           element={<AdminArticleEditor />}

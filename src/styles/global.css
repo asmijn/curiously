@@ -8105,3 +8105,1301 @@ button {
       padding: 40px 10px;
     }
   }
+
+  /* =========================================================
+   CURIOUSLY — ADMIN VISUAL REFRESH
+   Editorial dashboard / no public-site changes
+   ========================================================= */
+
+.admin-page {
+  padding: 48px 5vw 100px;
+}
+
+/* ---------------------------------------------------------
+   ADMIN HEADER
+   --------------------------------------------------------- */
+
+.admin-header {
+  max-width: 1280px;
+  padding: 35px 0 42px;
+  align-items: flex-end;
+  border-bottom: 1px solid var(--rule);
+}
+
+.admin-header-main {
+  max-width: 850px;
+}
+
+.admin-header h1 {
+  margin: 18px 0 16px;
+  font-size: clamp(64px, 8vw, 118px);
+  line-height: 0.82;
+  letter-spacing: -0.06em;
+}
+
+.admin-header-description {
+  max-width: 520px;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+/* ---------------------------------------------------------
+   ACCOUNT / LOGOUT
+   --------------------------------------------------------- */
+
+.admin-account {
+  align-items: flex-end;
+  gap: 16px;
+}
+
+.admin-account-info {
+  gap: 5px;
+}
+
+.admin-account-label {
+  color: var(--red);
+  font-size: 8px;
+  letter-spacing: 0.14em;
+}
+
+.admin-account-email {
+  font-size: 10px;
+}
+
+.admin-logout-button {
+  min-height: 38px;
+  padding: 0 14px;
+  background: var(--paper2);
+  transition:
+    background 160ms ease,
+    color 160ms ease,
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.admin-logout-button:hover {
+  background: var(--pink);
+  color: var(--ink);
+  transform: translate(-2px, -2px);
+  box-shadow: 3px 3px 0 var(--rule);
+}
+
+/* ---------------------------------------------------------
+   ADMIN OVERVIEW / STATS
+   --------------------------------------------------------- */
+
+.admin-overview {
+  max-width: 1280px;
+  margin-top: 38px;
+  border: 1px solid var(--rule);
+  background: var(--paper2);
+}
+
+.admin-stat {
+  min-height: 125px;
+  padding: 22px 24px;
+  border-right: 1px solid var(--rule);
+  position: relative;
+  transition: background 160ms ease;
+}
+
+.admin-stat:last-child {
+  border-right: 0;
+}
+
+.admin-stat:hover {
+  background: rgba(237, 171, 196, 0.16);
+}
+
+.admin-stat-number {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 48px;
+  line-height: 1;
+  font-weight: 400;
+}
+
+.admin-stat-label {
+  font-family: "DM Mono", monospace;
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+
+/* ---------------------------------------------------------
+   ADMIN SECTIONS
+   --------------------------------------------------------- */
+
+.admin-section {
+  max-width: 1280px;
+  margin: 78px auto 0;
+}
+
+.admin-section:first-of-type {
+  margin-top: 55px;
+}
+
+.admin-section-heading {
+  margin-bottom: 28px;
+}
+
+.admin-section-title {
+  gap: 18px;
+}
+
+.admin-section-title .page-no {
+  color: var(--red);
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
+
+.admin-section-title h2 {
+  margin: 4px 0 5px;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: clamp(34px, 4vw, 58px);
+  line-height: 0.95;
+  font-weight: 400;
+  letter-spacing: -0.035em;
+}
+
+.admin-section-title p {
+  margin: 0;
+  font-family: "Libre Baskerville", Georgia, serif;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+/* ---------------------------------------------------------
+   ARTICLE LIST
+   --------------------------------------------------------- */
+
+.admin-article-list {
+  border-top: 2px solid var(--rule);
+}
+
+.admin-article-row {
+  min-height: 135px;
+  padding: 22px 0;
+  grid-template-columns: 48px minmax(0, 1fr) auto auto;
+  gap: 22px;
+  transition:
+    background 160ms ease,
+    padding-left 160ms ease,
+    padding-right 160ms ease;
+}
+
+.admin-article-row:hover {
+  background: rgba(237, 171, 196, 0.13);
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+.admin-number {
+  color: var(--red);
+  font-size: 9px;
+}
+
+.admin-article-meta {
+  margin-bottom: 6px;
+  font-size: 8px;
+}
+
+.admin-article-info h3 {
+  font-size: clamp(21px, 2.1vw, 30px);
+  line-height: 1.05;
+  margin-bottom: 6px;
+}
+
+.admin-article-subtitle {
+  max-width: 720px;
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.admin-slug {
+  max-width: 430px;
+  font-size: 8px;
+}
+
+/* ---------------------------------------------------------
+   PUBLISHED / DRAFT
+   --------------------------------------------------------- */
+
+.status-published,
+.status-draft {
+  padding: 7px 10px;
+  font-size: 8px;
+  white-space: nowrap;
+}
+
+.status-published {
+  color: #35694b;
+  background: rgba(185, 213, 196, 0.45);
+}
+
+.status-draft {
+  color: #7c641c;
+  background: rgba(239, 213, 121, 0.38);
+}
+
+/* ---------------------------------------------------------
+   ARTICLE ACTIONS
+   --------------------------------------------------------- */
+
+.admin-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.admin-action-button {
+  min-height: 32px;
+  padding: 0 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  font-size: 8px;
+  letter-spacing: 0.06em;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.admin-action-button:hover {
+  border-color: var(--rule);
+  background: var(--paper2);
+  transform: translate(-1px, -1px);
+  box-shadow: 2px 2px 0 var(--rule);
+}
+
+.admin-delete-button {
+  color: var(--red);
+}
+
+.admin-delete-button:hover {
+  border-color: var(--red);
+  background: rgba(185, 65, 77, 0.08);
+  box-shadow: 2px 2px 0 var(--red);
+}
+
+/* INSIGHTS gets a little more personality */
+
+.admin-row-actions .admin-action-button:first-child {
+  background: var(--lav);
+  border-color: var(--rule);
+}
+
+.admin-row-actions .admin-action-button:first-child:hover {
+  background: var(--pink);
+}
+
+/* ---------------------------------------------------------
+   CATEGORIES
+   --------------------------------------------------------- */
+
+.admin-categories-section {
+  margin-top: 75px;
+}
+
+.admin-category-list {
+  padding: 22px 0 0;
+  border-top: 2px solid var(--rule);
+  gap: 10px;
+}
+
+.admin-category-pill {
+  padding: 10px 15px;
+  border: 1px solid var(--rule);
+  font-size: 9px;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.admin-category-pill:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 3px 3px 0 var(--rule);
+}
+
+/* ---------------------------------------------------------
+   COMMENTS
+   --------------------------------------------------------- */
+
+.admin-comments-section {
+  margin-top: 75px;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.admin-comments-summary {
+  margin-bottom: 22px;
+  padding: 8px 12px;
+  background: var(--pink);
+  border: 1px solid var(--rule);
+}
+
+.admin-comments-block {
+  border-top: 2px solid var(--rule);
+}
+
+.admin-comments-block-heading {
+  padding: 13px 0;
+  font-family: "DM Mono", monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+}
+
+.admin-comment-row {
+  padding: 20px 0;
+}
+
+.admin-comment-text {
+  max-width: 700px;
+}
+
+/* ---------------------------------------------------------
+   SUBSCRIBERS
+   --------------------------------------------------------- */
+
+.admin-subscriber-list {
+  border-top: 2px solid var(--rule);
+}
+
+.admin-subscriber-row {
+  padding: 17px 0;
+  border-bottom: 1px solid rgba(41, 36, 40, 0.25);
+  transition: background 160ms ease;
+}
+
+.admin-subscriber-row:hover {
+  background: rgba(169, 212, 220, 0.14);
+}
+
+/* ---------------------------------------------------------
+   EMPTY STATES
+   --------------------------------------------------------- */
+
+.admin-empty {
+  min-height: 300px;
+  border: 1px dashed var(--rule);
+  background: var(--paper2);
+}
+
+.admin-empty-mark {
+  width: 58px;
+  height: 58px;
+  background: var(--lav);
+  box-shadow: 4px 4px 0 var(--rule);
+}
+
+/* ---------------------------------------------------------
+   ADMIN BUTTONS
+   --------------------------------------------------------- */
+
+.admin-primary-button,
+.admin-secondary-button {
+  min-height: 42px;
+  padding: 0 17px;
+  border: 1px solid var(--rule);
+  font-family: "DM Mono", monospace;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  transition:
+    background 160ms ease,
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.admin-primary-button {
+  background: var(--pink);
+}
+
+.admin-secondary-button {
+  background: var(--paper2);
+}
+
+.admin-primary-button:hover,
+.admin-secondary-button:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 3px 3px 0 var(--rule);
+}
+
+/* ---------------------------------------------------------
+   MOBILE
+   --------------------------------------------------------- */
+
+@media (max-width: 1050px) {
+  .admin-page {
+    padding: 42px 5vw 85px;
+  }
+
+  .admin-header {
+    padding-bottom: 38px;
+  }
+
+  .admin-article-row {
+    grid-template-columns: 42px minmax(0, 1fr);
+    gap: 12px 18px;
+  }
+
+  .admin-status,
+  .admin-row-actions {
+    grid-column: 2;
+  }
+
+  .admin-row-actions {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 700px) {
+  .admin-page {
+    padding: 35px 5vw 70px;
+  }
+
+  .admin-header {
+    padding-top: 15px;
+    padding-bottom: 32px;
+  }
+
+  .admin-header h1 {
+    font-size: clamp(55px, 17vw, 82px);
+  }
+
+  .admin-account {
+    align-items: flex-start;
+  }
+
+  .admin-overview {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .admin-stat {
+    min-height: 105px;
+    padding: 18px;
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .admin-stat:nth-child(2n) {
+    border-right: 0;
+  }
+
+  .admin-stat:nth-last-child(-n + 2) {
+    border-bottom: 0;
+  }
+
+  .admin-stat-number {
+    font-size: 38px;
+  }
+
+  .admin-section {
+    margin-top: 60px;
+  }
+
+  .admin-section-title h2 {
+    font-size: 40px;
+  }
+
+  .admin-row-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  .admin-action-button {
+    min-height: 38px;
+  }
+
+  .admin-comments-section {
+    margin-top: 60px;
+  }
+}
+
+@media (max-width: 420px) {
+  .admin-overview {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-stat,
+  .admin-stat:nth-child(2n) {
+    border-right: 0;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .admin-stat:last-child {
+    border-bottom: 0;
+  }
+
+  .admin-article-row {
+    grid-template-columns: 30px minmax(0, 1fr);
+  }
+
+  .admin-account {
+    width: 100%;
+  }
+
+  .admin-logout-button {
+    width: 100%;
+  }
+}
+
+/* =========================================================
+   ADMIN — CATEGORY ROW FIX
+   ========================================================= */
+
+   .admin-category-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-top: 2px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    margin-top: 24px;
+  }
+  
+  .admin-category-item {
+    min-height: 90px;
+    padding: 20px 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    background: var(--paper2);
+    transition:
+      background 160ms ease,
+      transform 160ms ease;
+  }
+  
+  .admin-category-item:nth-child(3n) {
+    border-right: 0;
+  }
+  
+  .admin-category-item:hover {
+    background: var(--pink);
+  }
+  
+  .admin-category-number {
+    font-family: "DM Mono", monospace;
+    font-size: 9px;
+    color: var(--red);
+    flex-shrink: 0;
+  }
+  
+  .admin-category-name {
+    font-family: "Playfair Display", Georgia, serif;
+    font-size: 25px;
+    line-height: 1;
+    font-weight: 400;
+  }
+  
+  .admin-category-slug {
+    margin-left: auto;
+    font-family: "DM Mono", monospace;
+    font-size: 8px;
+    color: var(--muted);
+  }
+  
+  /* ---------------------------------------------------------
+     CATEGORY BUTTON
+     --------------------------------------------------------- */
+  
+  .admin-categories-section .admin-secondary-button {
+    margin-top: 18px;
+  }
+  
+  /* ---------------------------------------------------------
+     MOBILE
+     --------------------------------------------------------- */
+  
+  @media (max-width: 800px) {
+    .admin-category-list {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  
+    .admin-category-item:nth-child(3n) {
+      border-right: 1px solid var(--rule);
+    }
+  
+    .admin-category-item:nth-child(2n) {
+      border-right: 0;
+    }
+  }
+  
+  @media (max-width: 500px) {
+    .admin-category-list {
+      grid-template-columns: 1fr;
+    }
+  
+    .admin-category-item,
+    .admin-category-item:nth-child(3n),
+    .admin-category-item:nth-child(2n) {
+      border-right: 0;
+    }
+  }
+
+  /* =========================================================
+   CURIOUSLY ADMIN — FINAL VISUAL POLISH
+   Matches current Admin.jsx exactly
+   ========================================================= */
+
+/* ---------------------------------------------------------
+   MAIN ADMIN PAGE
+   --------------------------------------------------------- */
+
+.admin-page {
+  padding: 42px 5vw 90px;
+}
+
+/* ---------------------------------------------------------
+   HEADER
+   --------------------------------------------------------- */
+
+.admin-header {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 28px 0 48px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.admin-header-main {
+  max-width: 900px;
+}
+
+.admin-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.admin-header h1 {
+  margin: 20px 0 12px;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: clamp(70px, 9vw, 125px);
+  line-height: 0.82;
+  font-weight: 400;
+  letter-spacing: -0.065em;
+}
+
+.admin-header-description {
+  margin: 0 0 20px;
+  max-width: 600px;
+  font-family: "Libre Baskerville", Georgia, serif;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--muted);
+}
+
+/* Logout */
+
+.admin-logout-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid var(--rule);
+  background: var(--paper2);
+  font-family: "DM Mono", monospace;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all 160ms ease;
+}
+
+.admin-logout-button:hover {
+  background: var(--pink);
+  transform: translate(-2px, -2px);
+  box-shadow: 3px 3px 0 var(--rule);
+}
+
+/* New article */
+
+.admin-new-article {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid var(--rule);
+  background: var(--pink);
+  font-family: "DM Mono", monospace;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all 160ms ease;
+}
+
+.admin-new-article:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 3px 3px 0 var(--rule);
+}
+
+/* ---------------------------------------------------------
+   SECTIONS
+   --------------------------------------------------------- */
+
+.admin-section {
+  max-width: 1280px;
+  margin: 70px auto 0;
+}
+
+.admin-section-heading {
+  margin-bottom: 28px;
+}
+
+.admin-section-title {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+}
+
+.admin-section-title .page-no {
+  flex-shrink: 0;
+  padding-top: 8px;
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  color: var(--red);
+}
+
+.admin-section-title h2 {
+  margin: 4px 0 5px;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: clamp(38px, 4.5vw, 60px);
+  line-height: 0.95;
+  font-weight: 400;
+  letter-spacing: -0.04em;
+}
+
+.admin-section-title p {
+  margin: 0;
+  font-family: "Libre Baskerville", Georgia, serif;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.admin-section-count {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 38px;
+}
+
+/* ---------------------------------------------------------
+   ARTICLES
+   --------------------------------------------------------- */
+
+.admin-article-list {
+  border-top: 2px solid var(--rule);
+}
+
+.admin-row {
+  display: grid;
+  grid-template-columns: 45px minmax(0, 1fr) auto;
+  gap: 22px;
+  padding: 25px 0;
+  border-bottom: 1px solid rgba(41, 36, 40, 0.28);
+  transition:
+    background 160ms ease,
+    padding 160ms ease;
+}
+
+.admin-row:hover {
+  background: rgba(237, 171, 196, 0.12);
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+.admin-row-number {
+  padding-top: 3px;
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  color: var(--red);
+}
+
+.admin-row-main {
+  min-width: 0;
+}
+
+.admin-row-meta {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 7px;
+  font-family: "DM Mono", monospace;
+  font-size: 8px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.admin-row-main h3 {
+  margin: 0 0 7px;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: clamp(24px, 2.4vw, 34px);
+  line-height: 1.05;
+  font-weight: 400;
+  letter-spacing: -0.025em;
+}
+
+.admin-row-slug {
+  margin: 0;
+  font-family: "DM Mono", monospace;
+  font-size: 8px;
+  color: var(--muted);
+}
+
+/* Status */
+
+.admin-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 13px;
+  padding: 6px 9px;
+  border: 1px solid var(--rule);
+  background: rgba(239, 213, 121, 0.28);
+  font-family: "DM Mono", monospace;
+  font-size: 8px;
+  letter-spacing: 0.08em;
+}
+
+.admin-status.published {
+  background: rgba(185, 213, 196, 0.5);
+}
+
+/* Article actions */
+
+.admin-row-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+  flex-wrap: wrap;
+  align-self: center;
+}
+
+.admin-action-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 11px;
+  border: 1px solid var(--rule);
+  background: var(--paper2);
+  font-family: "DM Mono", monospace;
+  font-size: 8px;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: all 160ms ease;
+}
+
+.admin-action-button:hover:not(:disabled) {
+  background: var(--pink);
+  transform: translate(-2px, -2px);
+  box-shadow: 2px 2px 0 var(--rule);
+}
+
+.admin-action-button:first-child {
+  background: var(--lav);
+}
+
+.admin-action-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.admin-delete-button {
+  color: var(--red);
+}
+
+.admin-delete-button:hover:not(:disabled) {
+  background: rgba(185, 65, 77, 0.08);
+  border-color: var(--red);
+  box-shadow: 2px 2px 0 var(--red);
+}
+
+/* ---------------------------------------------------------
+   EMPTY STATE
+   --------------------------------------------------------- */
+
+.admin-empty {
+  border: 1px dashed var(--rule);
+  background: var(--paper2);
+  padding: 55px 30px;
+  text-align: center;
+}
+
+.admin-empty-mark {
+  margin: 0 auto 22px;
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  background: var(--yellow);
+  border: 1px solid var(--rule);
+  box-shadow: 4px 4px 0 var(--rule);
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 30px;
+}
+
+.admin-empty h3 {
+  margin: 0 0 8px;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 30px;
+  font-weight: 400;
+}
+
+.admin-empty p {
+  margin: 0 0 22px;
+  font-family: "DM Mono", monospace;
+  font-size: 9px;
+  color: var(--muted);
+}
+
+/* ---------------------------------------------------------
+   COMMENTS
+   --------------------------------------------------------- */
+
+.admin-comments-summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 13px;
+  border: 1px solid var(--rule);
+  background: var(--pink);
+  font-family: "DM Mono", monospace;
+  font-size: 8px;
+  letter-spacing: 0.08em;
+}
+
+.admin-comments-block {
+  border-top: 2px solid var(--rule);
+}
+
+.admin-comments-block-heading {
+  display: flex;
+  justify-content: space-between;
+  padding: 13px 0;
+  border-bottom: 1px solid rgba(41, 36, 40, 0.28);
+  font-family: "DM Mono", monospace;
+  font-size: 8px;
+  letter-spacing: 0.1em;
+}
+
+.admin-comment-row {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  gap: 18px;
+  padding: 22px 0;
+  border-bottom: 1px solid rgba(41, 36, 40, 0.2);
+}
+
+.admin-comment-number {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--rule);
+  background: var(--yellow);
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+}
+
+.admin-comment-number.approved {
+  background: var(--mint);
+}
+
+.admin-comment-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-family: "DM Mono", monospace;
+  font-size: 9px;
+}
+
+.admin-comment-text {
+  max-width: 700px;
+  margin: 0 0 9px;
+  font-family: "Libre Baskerville", Georgia, serif;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.admin-comment-article {
+  font-family: "DM Mono", monospace;
+  font-size: 8px;
+  color: var(--muted);
+}
+
+.admin-comment-actions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.admin-comment-approve,
+.admin-comment-delete {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--rule);
+  background: var(--paper2);
+  font-family: "DM Mono", monospace;
+  font-size: 8px;
+  cursor: pointer;
+}
+
+.admin-comment-approve {
+  background: var(--mint);
+}
+
+.admin-comment-delete {
+  color: var(--red);
+}
+
+.admin-comments-empty {
+  min-height: 130px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  border-bottom: 1px solid rgba(41, 36, 40, 0.2);
+  text-align: center;
+}
+
+.admin-comments-empty p {
+  font-family: "DM Mono", monospace;
+  font-size: 9px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+/* ---------------------------------------------------------
+   CATEGORIES — THIS FIXES YOUR SCREENSHOT
+   --------------------------------------------------------- */
+
+.admin-category-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 2px solid var(--rule);
+  border-left: 1px solid var(--rule);
+  background: var(--paper2);
+}
+
+.admin-category-row {
+  min-height: 105px;
+  padding: 20px;
+  display: grid;
+  grid-template-columns: 30px 1fr;
+  grid-template-rows: auto auto;
+  align-content: center;
+  gap: 6px 12px;
+  border-right: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  transition: background 160ms ease;
+}
+
+.admin-category-row:hover {
+  background: var(--pink);
+}
+
+.admin-category-row > span:first-child {
+  grid-row: 1 / 3;
+  align-self: center;
+  font-family: "DM Mono", monospace;
+  font-size: 9px;
+  color: var(--red);
+}
+
+.admin-category-row strong {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 25px;
+  line-height: 1;
+  font-weight: 400;
+}
+
+.admin-category-row > span:last-child {
+  font-family: "DM Mono", monospace;
+  font-size: 8px;
+  color: var(--muted);
+}
+
+.admin-section > .admin-secondary-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 40px;
+  margin-top: 18px;
+  padding: 0 15px;
+  border: 1px solid var(--rule);
+  background: var(--paper2);
+  font-family: "DM Mono", monospace;
+  font-size: 8px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all 160ms ease;
+}
+
+.admin-section > .admin-secondary-button:hover {
+  background: var(--blue);
+  transform: translate(-2px, -2px);
+  box-shadow: 3px 3px 0 var(--rule);
+}
+
+/* ---------------------------------------------------------
+   SUBSCRIBERS
+   --------------------------------------------------------- */
+
+.admin-subscriber-list {
+  border-top: 2px solid var(--rule);
+}
+
+.admin-subscriber-row {
+  display: grid;
+  grid-template-columns: 45px minmax(0, 1fr) 150px 90px;
+  align-items: center;
+  gap: 18px;
+  min-height: 65px;
+  padding: 0;
+  border-bottom: 1px solid rgba(41, 36, 40, 0.22);
+  transition: background 160ms ease;
+}
+
+.admin-subscriber-row:hover {
+  background: rgba(169, 212, 220, 0.14);
+}
+
+.admin-subscriber-number {
+  font-family: "DM Mono", monospace;
+  font-size: 9px;
+  color: var(--red);
+}
+
+.admin-subscriber-email {
+  font-family: "DM Mono", monospace;
+  font-size: 11px;
+}
+
+.admin-subscriber-date {
+  font-family: "DM Mono", monospace;
+  font-size: 9px;
+  color: var(--muted);
+}
+
+.admin-subscriber-status {
+  justify-self: start;
+  padding: 6px 8px;
+  border: 1px solid var(--rule);
+  font-family: "DM Mono", monospace;
+  font-size: 7px;
+}
+
+.admin-subscriber-status.active {
+  background: var(--mint);
+}
+
+/* ---------------------------------------------------------
+   MOBILE
+   --------------------------------------------------------- */
+
+@media (max-width: 900px) {
+  .admin-row {
+    grid-template-columns: 35px minmax(0, 1fr);
+  }
+
+  .admin-row-actions {
+    grid-column: 2;
+    justify-content: flex-start;
+  }
+
+  .admin-comment-row {
+    grid-template-columns: 35px minmax(0, 1fr);
+  }
+
+  .admin-comment-actions {
+    grid-column: 2;
+  }
+
+  .admin-subscriber-row {
+    grid-template-columns: 35px minmax(0, 1fr);
+    padding: 14px 0;
+  }
+
+  .admin-subscriber-date,
+  .admin-subscriber-status {
+    grid-column: 2;
+  }
+}
+
+@media (max-width: 700px) {
+  .admin-page {
+    padding: 30px 5vw 70px;
+  }
+
+  .admin-header {
+    padding-top: 15px;
+    padding-bottom: 35px;
+  }
+
+  .admin-header-top {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .admin-header h1 {
+    font-size: clamp(58px, 17vw, 90px);
+  }
+
+  .admin-section {
+    margin-top: 58px;
+  }
+
+  .admin-section-title h2 {
+    font-size: 40px;
+  }
+
+  .admin-category-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .admin-category-row {
+    min-height: 90px;
+  }
+
+  .admin-row-actions {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    width: 100%;
+  }
+
+  .admin-action-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-category-list {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-category-row {
+    min-height: 78px;
+  }
+
+  .admin-comment-row {
+    gap: 12px;
+  }
+
+  .admin-comment-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+  }
+}
