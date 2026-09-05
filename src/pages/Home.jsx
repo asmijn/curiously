@@ -7,6 +7,10 @@ export default function Home() {
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // EMAIL SUBSCRIPTION
+  const [email, setEmail] = useState("");
+  const [subscribeStatus, setSubscribeStatus] = useState("");
+
   useEffect(() => {
     async function loadArticles() {
       const { data, error } = await supabase
@@ -46,6 +50,53 @@ export default function Home() {
 
     loadArticles();
   }, []);
+
+  async function handleSubscribe(event) {
+    event.preventDefault();
+
+    const normalizedEmail =
+      email.trim().toLowerCase();
+
+    if (!normalizedEmail) {
+      setSubscribeStatus(
+        "PLEASE ENTER YOUR EMAIL."
+      );
+      return;
+    }
+
+    setSubscribeStatus("SUBSCRIBING...");
+
+    const { error } = await supabase
+      .from("subscribers")
+      .insert({
+        email: normalizedEmail,
+      });
+
+    if (error) {
+      console.error(
+        "Subscription error:",
+        error
+      );
+
+      if (error.code === "23505") {
+        setSubscribeStatus(
+          "YOU'RE ALREADY ON THE LIST ✦"
+        );
+      } else {
+        setSubscribeStatus(
+          "SOMETHING WENT WRONG. PLEASE TRY AGAIN."
+        );
+      }
+
+      return;
+    }
+
+    setEmail("");
+
+    setSubscribeStatus(
+      "YOU'RE ON THE LIST ✦"
+    );
+  }
 
   const featured = articles[0];
 
@@ -464,9 +515,7 @@ export default function Home() {
 
         <form
           className="home-newsletter-form"
-          onSubmit={(event) =>
-            event.preventDefault()
-          }
+          onSubmit={handleSubscribe}
         >
 
           <label htmlFor="home-email">
@@ -478,15 +527,39 @@ export default function Home() {
             <input
               id="home-email"
               type="email"
+              value={email}
+              onChange={(event) =>
+                setEmail(event.target.value)
+              }
               placeholder="hello@example.com"
               required
+              autoComplete="email"
+              disabled={
+                subscribeStatus ===
+                "SUBSCRIBING..."
+              }
             />
 
-            <button type="submit">
-              →
+            <button
+              type="submit"
+              disabled={
+                subscribeStatus ===
+                "SUBSCRIBING..."
+              }
+            >
+              {subscribeStatus ===
+              "SUBSCRIBING..."
+                ? "..."
+                : "→"}
             </button>
 
           </div>
+
+          {subscribeStatus && (
+            <p className="home-newsletter-status">
+              {subscribeStatus}
+            </p>
+          )}
 
         </form>
 

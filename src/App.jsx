@@ -11,6 +11,7 @@ import Contact from "./pages/Contact";
 import AdminLogin from "./pages/AdminLogin";
 import Admin from "./pages/Admin";
 import AdminArticleEditor from "./pages/AdminArticleEditor";
+import AdminInsights from "./pages/AdminInsights";
 
 export default function App() {
   return (
@@ -26,6 +27,11 @@ export default function App() {
 
         <Route path="/admin-login" element={<AdminLogin />} />
         <Route path="/admin" element={<Admin />} />
+
+        <Route
+          path="/admin/insights/:id"
+          element={<AdminInsights />}
+        />
 
         <Route
           path="/admin/new"
