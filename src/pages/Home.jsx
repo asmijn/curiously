@@ -9,7 +9,8 @@ export default function Home() {
 
   // EMAIL SUBSCRIPTION
   const [email, setEmail] = useState("");
-  const [subscribeStatus, setSubscribeStatus] = useState("");
+  const [subscribeStatus, setSubscribeStatus] =
+    useState("");
 
   useEffect(() => {
     async function loadArticles() {
@@ -25,22 +26,31 @@ export default function Home() {
         .order("created_at", {
           ascending: false,
         })
-        .limit(8);
+        .limit(20);
 
       if (error) {
-        console.error("Homepage articles error:", error);
+        console.error(
+          "Homepage articles error:",
+          error
+        );
         setArticles([]);
       } else {
         setArticles(
           (data || []).map((article) => ({
             ...article,
+
             category:
               article.categories?.name ||
               "UNCATEGORIZED",
+
             readTime:
               article.read_time || "",
+
             coverImage:
               article.cover_image || "",
+
+            sections:
+              article.sections || [],
           }))
         );
       }
@@ -98,9 +108,46 @@ export default function Home() {
     );
   }
 
-  const featured = articles[0];
+  /*
+   * FEATURED STORIES
+   *
+   * These are controlled from the Admin dashboard.
+   * Multiple articles can be featured.
+   */
 
-  const latest = articles.slice(1, 7);
+  const featuredArticles = articles.filter(
+    (article) => article.featured
+  );
+
+  /*
+   * If nothing has been manually featured yet,
+   * use the newest article as the fallback feature.
+   */
+
+  const featured =
+    featuredArticles.length > 0
+      ? featuredArticles[0]
+      : articles[0];
+
+  /*
+   * Stories that should appear in Latest Stories.
+   *
+   * Remove all featured stories so they don't
+   * immediately repeat underneath the feature.
+   */
+
+  const featuredIds = new Set(
+    featuredArticles.map(
+      (article) => article.id
+    )
+  );
+
+  const latest = articles
+    .filter(
+      (article) =>
+        !featuredIds.has(article.id)
+    )
+    .slice(0, 6);
 
   return (
     <main className="home-page">
@@ -110,7 +157,10 @@ export default function Home() {
       <section className="home-cover">
 
         <div className="home-cover-top">
-          <span>VOL. 01 / 2026</span>
+
+          <span>
+            VOL. 01 / 2026
+          </span>
 
           <span>
             QUESTIONS, EXPERIMENTS &
@@ -118,19 +168,26 @@ export default function Home() {
             TINY OBSESSIONS
           </span>
 
-          <span>NO. 001</span>
+          <span>
+            NO. 001
+          </span>
+
         </div>
 
         <div className="home-cover-title">
+
           <span className="cover-small-word">
             THE
           </span>
 
-          <h1>CURIOUSLY</h1>
+          <h1>
+            CURIOUSLY
+          </h1>
 
           <span className="cover-heart">
             ♡
           </span>
+
         </div>
 
         <div className="home-cover-bottom">
@@ -171,7 +228,9 @@ export default function Home() {
           <h2>
             FOR PEOPLE WHO
             <br />
-            <em>CAN'T LEAVE A QUESTION</em>
+            <em>
+              CAN'T LEAVE A QUESTION
+            </em>
             <br />
             ALONE.
           </h2>
@@ -210,6 +269,7 @@ export default function Home() {
           <div className="home-section-header">
 
             <div>
+
               <span className="section-kicker">
                 THE FEATURE
               </span>
@@ -217,6 +277,7 @@ export default function Home() {
               <span className="section-number">
                 01 / 01
               </span>
+
             </div>
 
             <span>
@@ -225,6 +286,8 @@ export default function Home() {
 
           </div>
 
+
+          {/* MAIN FEATURE */}
 
           <Link
             to={`/article/${featured.slug}`}
@@ -236,14 +299,18 @@ export default function Home() {
             <div className="home-featured-image">
 
               {featured.coverImage ? (
+
                 <img
                   src={featured.coverImage}
                   alt={featured.title}
                 />
+
               ) : (
+
                 <div className="home-featured-placeholder">
                   {featured.category}
                 </div>
+
               )}
 
               <span className="home-featured-figure">
@@ -265,10 +332,13 @@ export default function Home() {
                   {featured.category}
                 </span>
 
-                <span>✦</span>
+                <span>
+                  ✦
+                </span>
 
                 <span>
-                  {featured.format || "FEATURE"}
+                  {featured.format ||
+                    "FEATURE"}
                 </span>
 
               </div>
@@ -297,6 +367,89 @@ export default function Home() {
 
           </Link>
 
+
+          {/* ADDITIONAL FEATURED STORIES */}
+
+          {featuredArticles.length > 1 && (
+
+            <div className="home-featured-secondary">
+
+              {featuredArticles
+                .slice(1)
+                .map(
+                  (article, index) => (
+
+                    <Link
+                      key={article.id}
+                      to={`/article/${article.slug}`}
+                      className={`home-story-card home-story-${
+                        article.color ||
+                        "pink"
+                      }`}
+                    >
+
+                      <div className="home-story-image">
+
+                        {article.coverImage ? (
+
+                          <img
+                            src={
+                              article.coverImage
+                            }
+                            alt={
+                              article.title
+                            }
+                          />
+
+                        ) : (
+
+                          <div className="home-story-placeholder">
+                            {article.category}
+                          </div>
+
+                        )}
+
+                        <span>
+                          {String(
+                            index + 2
+                          ).padStart(2, "0")}
+                        </span>
+
+                      </div>
+
+
+                      <div className="home-story-copy">
+
+                        <div className="home-story-meta">
+                          {article.category}
+                          {" · "}
+                          {article.format ||
+                            "FEATURE"}
+                        </div>
+
+                        <h3>
+                          {article.title}
+                        </h3>
+
+                        <p>
+                          {article.subtitle}
+                        </p>
+
+                        <span className="home-story-read">
+                          READ →
+                        </span>
+
+                      </div>
+
+                    </Link>
+
+                  )
+                )}
+
+            </div>
+
+          )}
+
         </section>
       )}
 
@@ -318,29 +471,31 @@ export default function Home() {
             "MEDIA",
             "POLITICS",
             "STEM",
-          ].map((category, index) => (
+          ].map(
+            (category, index) => (
 
-            <Link
-              key={category}
-              to={`/articles?category=${category}`}
-              className={`home-category home-category-${
-                index + 1
-              }`}
-            >
+              <Link
+                key={category}
+                to={`/articles?category=${category}`}
+                className={`home-category home-category-${
+                  index + 1
+                }`}
+              >
 
-              <span>
-                0{index + 1}
-              </span>
+                <span>
+                  0{index + 1}
+                </span>
 
-              <strong>
-                {category}
-              </strong>
+                <strong>
+                  {category}
+                </strong>
 
-              <ArrowRight size={15} />
+                <ArrowRight size={15} />
 
-            </Link>
+              </Link>
 
-          ))}
+            )
+          )}
 
         </div>
 
@@ -382,64 +537,75 @@ export default function Home() {
 
           <div className="home-latest-grid">
 
-            {latest.map((article, index) => (
+            {latest.map(
+              (article, index) => (
 
-              <Link
-                to={`/article/${article.slug}`}
-                className={`home-story-card home-story-${
-                  article.color || "pink"
-                }`}
-                key={article.slug}
-              >
+                <Link
+                  to={`/article/${article.slug}`}
+                  className={`home-story-card home-story-${
+                    article.color ||
+                    "pink"
+                  }`}
+                  key={article.slug}
+                >
 
-                <div className="home-story-image">
+                  <div className="home-story-image">
 
-                  {article.coverImage ? (
-                    <img
-                      src={article.coverImage}
-                      alt={article.title}
-                    />
-                  ) : (
-                    <div className="home-story-placeholder">
-                      {article.category}
-                    </div>
-                  )}
+                    {article.coverImage ? (
 
-                  <span>
-                    {String(index + 1).padStart(
-                      2,
-                      "0"
+                      <img
+                        src={
+                          article.coverImage
+                        }
+                        alt={
+                          article.title
+                        }
+                      />
+
+                    ) : (
+
+                      <div className="home-story-placeholder">
+                        {article.category}
+                      </div>
+
                     )}
-                  </span>
 
-                </div>
+                    <span>
+                      {String(
+                        index + 1
+                      ).padStart(2, "0")}
+                    </span>
 
-
-                <div className="home-story-copy">
-
-                  <div className="home-story-meta">
-                    {article.category}
-                    {" · "}
-                    {article.format || "STORY"}
                   </div>
 
-                  <h3>
-                    {article.title}
-                  </h3>
 
-                  <p>
-                    {article.subtitle}
-                  </p>
+                  <div className="home-story-copy">
 
-                  <span className="home-story-read">
-                    READ →
-                  </span>
+                    <div className="home-story-meta">
+                      {article.category}
+                      {" · "}
+                      {article.format ||
+                        "STORY"}
+                    </div>
 
-                </div>
+                    <h3>
+                      {article.title}
+                    </h3>
 
-              </Link>
+                    <p>
+                      {article.subtitle}
+                    </p>
 
-            ))}
+                    <span className="home-story-read">
+                      READ →
+                    </span>
+
+                  </div>
+
+                </Link>
+
+              )
+            )}
 
           </div>
 
@@ -463,7 +629,9 @@ export default function Home() {
         <h2>
           WHAT'S SOMETHING
           <br />
-          <em>YOU'VE ALWAYS WONDERED?</em>
+          <em>
+            YOU'VE ALWAYS WONDERED?
+          </em>
         </h2>
 
         <p>
@@ -472,7 +640,7 @@ export default function Home() {
         </p>
 
         <Link
-          to="/contact"
+          to="/ask"
           className="home-curiosity-button"
         >
           SEND A QUESTION →
@@ -501,7 +669,9 @@ export default function Home() {
           <h2>
             A FEW GOOD
             <br />
-            <em>RABBIT HOLES.</em>
+            <em>
+              RABBIT HOLES.
+            </em>
           </h2>
 
           <p>
@@ -529,7 +699,9 @@ export default function Home() {
               type="email"
               value={email}
               onChange={(event) =>
-                setEmail(event.target.value)
+                setEmail(
+                  event.target.value
+                )
               }
               placeholder="hello@example.com"
               required

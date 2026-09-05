@@ -9403,3 +9403,2130 @@ button {
     width: 100%;
   }
 }
+
+/* =========================================================
+   ARTICLE HEADER — CLEAN EDITORIAL SPACING
+   ========================================================= */
+
+   .article-hero {
+    text-align: center;
+  }
+  
+  /* BACK TO ARCHIVE */
+  
+  .article-back {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+  
+    margin-bottom: 24px !important;
+  
+    line-height: 1.4;
+  }
+  
+  
+  /* CURIOUSLY / CATEGORY */
+  
+  .article-kicker {
+    display: block !important;
+  
+    margin-bottom: 9px !important;
+  
+    line-height: 1.5;
+    letter-spacing: 0.02em;
+  }
+  
+  
+  /* DATE / FORMAT */
+  
+  .article-meta {
+    display: block !important;
+  
+    margin-top: 0 !important;
+    margin-bottom: 34px !important;
+  
+    line-height: 1.5;
+    letter-spacing: 0.015em;
+  }
+  
+  
+  /* TITLE */
+  
+  .article-hero h1 {
+    margin-top: 0 !important;
+  }
+  
+  
+  /* =========================================================
+     ARTICLE SIDEBAR
+     ========================================================= */
+  
+  .article-sidebar-item {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  
+    gap: 8px !important;
+  
+    margin-bottom: 28px !important;
+  }
+  
+  
+  /* CATEGORY / FORMAT / TAG labels */
+  
+  .article-sidebar-label {
+    display: block !important;
+  
+    line-height: 1.3;
+    letter-spacing: 0.08em;
+  }
+  
+  
+  /* CATEGORY / FORMAT / TAG values */
+  
+  .article-sidebar-item strong {
+    display: block !important;
+  
+    line-height: 1.2;
+  }
+  
+  
+  /* SAVE STORY stays separated */
+  
+  .article-sidebar .article-save {
+    margin-top: 8px !important;
+  }
+  
+  
+  /* =========================================================
+     MOBILE
+     ========================================================= */
+  
+  @media (max-width: 600px) {
+  
+    .article-back {
+      margin-bottom: 20px !important;
+    }
+  
+    .article-kicker {
+      margin-bottom: 8px !important;
+    }
+  
+    .article-meta {
+      margin-bottom: 26px !important;
+    }
+  
+    .article-sidebar-item {
+      gap: 7px !important;
+      margin-bottom: 24px !important;
+    }
+  
+  }
+
+  /* =========================================================
+   BACK TO ARCHIVE BUTTON
+   ========================================================= */
+
+.article-back {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  padding: 11px 18px;
+
+  border: 1px solid var(--ink);
+  background: transparent;
+
+  color: var(--ink);
+
+  text-decoration: none;
+
+  font-family: "DM Mono", monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+
+  margin-bottom: 28px !important;
+
+  transition:
+    background-color 180ms ease,
+    color 180ms ease,
+    transform 180ms ease;
+}
+
+.article-back:hover {
+  background: var(--ink);
+  color: var(--paper);
+  transform: translateY(-2px);
+}
+
+.article-back svg {
+  flex-shrink: 0;
+}
+
+
+/* Keep the header spacing clean */
+
+.article-kicker {
+  margin-bottom: 9px !important;
+}
+
+.article-meta {
+  margin-bottom: 34px !important;
+}
+
+
+/* Mobile */
+
+@media (max-width: 600px) {
+  .article-back {
+    padding: 10px 15px;
+    font-size: 0.62rem;
+    margin-bottom: 22px !important;
+  }
+
+  .article-meta {
+    margin-bottom: 26px !important;
+  }
+}
+
+/* =========================================================
+   SIDEBAR CATEGORY COLORS
+   ========================================================= */
+
+   .article-sidebar-item:first-child strong {
+    color: var(--ink);
+  }
+  
+  /* FASHION */
+  .article-sidebar-item.category-fashion strong {
+    color: var(--pink);
+  }
+  
+  /* MUSIC */
+  .article-sidebar-item.category-music strong {
+    color: var(--yellow);
+  }
+  
+  /* ART */
+  .article-sidebar-item.category-art strong {
+    color: var(--lav);
+  }
+  
+  /* MEDIA */
+  .article-sidebar-item.category-media strong {
+    color: var(--blue);
+  }
+  
+  /* POLITICS */
+  .article-sidebar-item.category-politics strong {
+    color: var(--red);
+  }
+  
+  /* STEM */
+  .article-sidebar-item.category-stem strong {
+    color: var(--mint);
+  }
+
+  /* =========================================================
+   FEATURED STORIES — ADMIN
+   ========================================================= */
+
+.admin-featured-summary {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0 0 28px;
+  padding: 16px 18px;
+  border: 1px solid var(--ink);
+  background: var(--paper2);
+}
+
+.admin-featured-summary-icon {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--yellow);
+  flex-shrink: 0;
+}
+
+.admin-featured-summary strong {
+  display: block;
+  font-family: "DM Mono", monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+}
+
+.admin-featured-summary span {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-family: "DM Mono", monospace;
+  font-size: 0.62rem;
+  line-height: 1.5;
+}
+
+.admin-row-featured {
+  border-left: 3px solid var(--yellow) !important;
+}
+
+.admin-featured-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  width: fit-content;
+  margin-top: 10px;
+  padding: 5px 8px;
+  background: var(--yellow);
+  color: var(--ink);
+  font-family: "DM Mono", monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+}
+
+.admin-feature-button {
+  transition:
+    background-color 180ms ease,
+    color 180ms ease,
+    border-color 180ms ease,
+    transform 180ms ease;
+}
+
+.admin-feature-button:hover {
+  transform: translateY(-1px);
+}
+
+.admin-feature-button.featured {
+  background: var(--yellow);
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+.admin-feature-button.featured:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+@media (max-width: 700px) {
+  .admin-featured-summary {
+    align-items: flex-start;
+  }
+
+  .admin-featured-summary span {
+    max-width: 100%;
+  }
+}
+
+/* =========================================================
+   MULTIPLE FEATURED STORIES
+   ========================================================= */
+
+   .home-featured-secondary {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+    margin-top: 24px;
+  }
+  
+  @media (max-width: 700px) {
+    .home-featured-secondary {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* =========================================================
+   HOMEPAGE — MAKE LATEST STORY BOXES UNIFORM
+   ========================================================= */
+
+.home-latest-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 26px;
+  align-items: start;
+}
+
+.home-story-card {
+  width: 100%;
+  min-width: 0;
+}
+
+.home-story-image {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  height: auto;
+  overflow: hidden;
+}
+
+.home-story-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.home-story-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Keep featured secondary cards uniform too */
+
+.home-featured-secondary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 26px;
+}
+
+.home-featured-secondary .home-story-image {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  height: auto;
+}
+
+@media (max-width: 700px) {
+  .home-latest-grid,
+  .home-featured-secondary {
+    grid-template-columns: 1fr;
+  }
+}
+
+ /* =========================================================
+    ASK CURIOUSLY
+    ========================================================= */
+
+    .ask-page {
+      background: var(--paper);
+      color: var(--ink);
+      min-height: 100vh;
+      padding-bottom: 0;
+    }
+    
+    /* HEADER */
+    
+    .ask-header {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 70px 6vw 80px;
+      border-bottom: 1px solid var(--rule);
+    }
+    
+    .ask-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--ink);
+      text-decoration: none;
+      font-family: "DM Mono", monospace;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      margin-bottom: 65px;
+      transition: opacity 0.2s ease;
+    }
+    
+    .ask-back:hover {
+      opacity: 0.55;
+    }
+    
+    .ask-kicker {
+      font-family: "DM Mono", monospace;
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      margin-bottom: 22px;
+    }
+    
+    .ask-header h1 {
+      margin: 0;
+      max-width: 850px;
+      font-family: "Libre Baskerville", Georgia, serif;
+      font-size: clamp(58px, 9vw, 125px);
+      line-height: 0.9;
+      letter-spacing: -0.055em;
+      font-weight: 400;
+    }
+    
+    .ask-header h1 em {
+      font-family: "Playfair Display", Georgia, serif;
+      font-style: italic;
+      font-weight: 400;
+    }
+    
+    .ask-intro {
+      max-width: 570px;
+      margin: 38px 0 0;
+      font-family: "Libre Baskerville", Georgia, serif;
+      font-size: 17px;
+      line-height: 1.75;
+    }
+    
+    .ask-intro + .ask-intro {
+      margin-top: 8px;
+    }
+    
+    
+    /* FORM AREA */
+    
+    .ask-form-section {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 75px 6vw 90px;
+    }
+    
+    .ask-form-label {
+      font-family: "DM Mono", monospace;
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      margin-bottom: 32px;
+    }
+    
+    .ask-form {
+      max-width: 820px;
+    }
+    
+    .ask-field {
+      margin-bottom: 34px;
+    }
+    
+    .ask-field label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      font-family: "DM Mono", monospace;
+      font-size: 10px;
+      letter-spacing: 0.13em;
+    }
+    
+    .ask-field label span {
+      color: var(--muted);
+      font-size: 8px;
+      letter-spacing: 0.08em;
+    }
+    
+    .ask-field input,
+    .ask-field select,
+    .ask-field textarea {
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid var(--rule);
+      border-radius: 0;
+      background: var(--paper2);
+      color: var(--ink);
+      padding: 17px 18px;
+      font-family: "Libre Baskerville", Georgia, serif;
+      font-size: 14px;
+      outline: none;
+      transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+    }
+    
+    .ask-field input,
+    .ask-field select {
+      height: 54px;
+    }
+    
+    .ask-field textarea {
+      min-height: 190px;
+      resize: vertical;
+      line-height: 1.7;
+    }
+    
+    .ask-field input::placeholder,
+    .ask-field textarea::placeholder {
+      color: var(--muted);
+      opacity: 0.7;
+    }
+    
+    .ask-field input:focus,
+    .ask-field select:focus,
+    .ask-field textarea:focus {
+      border-color: var(--ink);
+      box-shadow: 4px 4px 0 var(--pink);
+      background: #fffdf7;
+    }
+    
+    .ask-field select {
+      appearance: none;
+      cursor: pointer;
+    }
+    
+    
+    /* SUBMIT */
+    
+    .ask-submit-row {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      margin-top: 45px;
+    }
+    
+    .ask-submit {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-width: 155px;
+      height: 52px;
+      padding: 0 24px;
+      border: 1px solid var(--ink);
+      border-radius: 0;
+      background: var(--ink);
+      color: var(--paper);
+      font-family: "DM Mono", monospace;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      cursor: pointer;
+      transition:
+        transform 0.2s ease,
+        background 0.2s ease,
+        color 0.2s ease;
+    }
+    
+    .ask-submit:hover:not(:disabled) {
+      background: var(--pink);
+      color: var(--ink);
+      transform: translateY(-2px);
+    }
+    
+    .ask-submit:disabled {
+      opacity: 0.55;
+      cursor: wait;
+    }
+    
+    .ask-note {
+      max-width: 190px;
+      font-family: "DM Mono", monospace;
+      font-size: 8px;
+      line-height: 1.6;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+    
+    
+    /* STATUS */
+    
+    .ask-status {
+      margin-top: 28px;
+      padding: 17px 18px;
+      border: 1px solid var(--rule);
+      background: var(--paper2);
+      font-family: "DM Mono", monospace;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      line-height: 1.5;
+    }
+    
+    .ask-status.success {
+      background: var(--pink);
+    }
+    
+    
+    /* FOOTER STRIP */
+    
+    .ask-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 22px 6vw;
+      border-top: 1px solid var(--rule);
+      font-family: "DM Mono", monospace;
+      font-size: 9px;
+      letter-spacing: 0.12em;
+    }
+    
+    
+    /* MOBILE */
+    
+    @media (max-width: 700px) {
+    
+      .ask-header {
+        padding: 45px 6vw 60px;
+      }
+    
+      .ask-back {
+        margin-bottom: 45px;
+      }
+    
+      .ask-header h1 {
+        font-size: clamp(52px, 15vw, 82px);
+      }
+    
+      .ask-intro {
+        font-size: 15px;
+        line-height: 1.65;
+      }
+    
+      .ask-form-section {
+        padding: 55px 6vw 65px;
+      }
+    
+      .ask-field {
+        margin-bottom: 27px;
+      }
+    
+      .ask-submit-row {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 18px;
+      }
+    
+      .ask-submit {
+        width: 100%;
+      }
+    
+      .ask-note {
+        max-width: none;
+      }
+    
+      .ask-footer {
+        flex-wrap: wrap;
+        justify-content: center;
+        text-align: center;
+        padding: 20px 6vw;
+      }
+    }
+
+    /* =========================================================
+   ADMIN — SUBMISSIONS
+   ========================================================= */
+
+.admin-submission-list {
+  border-top: 1px solid var(--rule);
+}
+
+.admin-submission-row {
+  display: grid;
+  grid-template-columns: 50px minmax(0, 1fr) auto;
+  gap: 24px;
+  align-items: start;
+  padding: 28px 0;
+  border-bottom: 1px solid rgba(41, 36, 40, 0.25);
+}
+
+.admin-submission-number {
+  font-family: "DM Mono", monospace;
+  font-size: 11px;
+  color: var(--muted);
+  padding-top: 3px;
+}
+
+.admin-submission-content {
+  min-width: 0;
+}
+
+.admin-submission-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-family: "DM Mono", monospace;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.admin-submission-type {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.admin-submission-message {
+  max-width: 720px;
+  margin: 0 0 14px;
+  font-family: "Libre Baskerville", Georgia, serif;
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.admin-submission-from {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: "DM Mono", monospace;
+  font-size: 9px;
+  color: var(--muted);
+}
+
+.admin-submission-from strong {
+  color: var(--ink);
+  letter-spacing: 0.06em;
+}
+
+.admin-submission-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-submission-status-select {
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--rule);
+  border-radius: 0;
+  background: var(--paper2);
+  color: var(--ink);
+  font-family: "DM Mono", monospace;
+  font-size: 8px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+}
+
+.admin-submission-status-select:focus {
+  outline: none;
+  box-shadow: 3px 3px 0 var(--pink);
+}
+
+.admin-submission-row.status-new {
+  border-left: 3px solid var(--pink);
+  padding-left: 18px;
+}
+
+.admin-submission-row.status-reviewed {
+  border-left: 3px solid var(--yellow);
+  padding-left: 18px;
+}
+
+.admin-submission-row.status-used {
+  border-left: 3px solid var(--mint);
+  padding-left: 18px;
+}
+
+.admin-submission-row.status-archived {
+  opacity: 0.55;
+}
+
+@media (max-width: 800px) {
+  .admin-submission-row {
+    grid-template-columns: 35px 1fr;
+    gap: 14px;
+  }
+
+  .admin-submission-actions {
+    grid-column: 2;
+    flex-wrap: wrap;
+  }
+
+  .admin-submission-message {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 500px) {
+  .admin-submission-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .admin-submission-actions {
+    grid-column: auto;
+  }
+
+  .admin-submission-number {
+    display: none;
+  }
+
+  .admin-submission-from {
+    flex-wrap: wrap;
+  }
+}
+
+/* =========================================================
+   CURIOUSLY ADMIN — SUBMISSIONS EDITORIAL REDESIGN
+   ========================================================= */
+
+   .admin-submissions-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 70px 6vw 90px;
+  }
+  
+  /* SECTION HEADER */
+  
+  .admin-submissions-section .admin-section-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 40px;
+    margin-bottom: 55px;
+  }
+  
+  .admin-submissions-section .admin-section-title {
+    display: flex;
+    align-items: flex-start;
+    gap: 22px;
+  }
+  
+  .admin-submissions-section .page-no {
+    display: block;
+    flex-shrink: 0;
+    padding-top: 8px;
+    font-family: "DM Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+  
+  .admin-submissions-section .section-kicker {
+    margin-bottom: 14px;
+    font-family: "DM Mono", monospace;
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    color: var(--red);
+  }
+  
+  .admin-submissions-section h2 {
+    margin: 0;
+    font-family: "Libre Baskerville", Georgia, serif;
+    font-size: clamp(48px, 6vw, 78px);
+    line-height: 0.95;
+    font-weight: 400;
+    letter-spacing: -0.055em;
+  }
+  
+  .admin-submissions-section .admin-section-title p {
+    max-width: 620px;
+    margin: 15px 0 0;
+    font-family: "Libre Baskerville", Georgia, serif;
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+  
+  
+  /* NEW COUNT */
+  
+  .admin-submissions-section .admin-comments-summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 13px;
+    flex-shrink: 0;
+    min-width: 145px;
+    height: 70px;
+    padding: 0 20px;
+    box-sizing: border-box;
+    border: 1px solid var(--rule);
+    background: var(--pink);
+  }
+  
+  .admin-submissions-section .admin-comments-summary svg {
+    width: 24px;
+    height: 24px;
+    stroke-width: 1.5;
+  }
+  
+  .admin-submissions-section .admin-comments-summary strong {
+    font-family: "DM Mono", monospace;
+    font-size: 14px;
+    font-weight: 400;
+  }
+  
+  .admin-submissions-section .admin-comments-summary span {
+    font-family: "DM Mono", monospace;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+  }
+  
+  
+  /* SUBMISSION LIST */
+  
+  .admin-submission-list {
+    border-top: 1px solid var(--rule);
+  }
+  
+  
+  /* INDIVIDUAL SUBMISSION */
+  
+  .admin-submission-row {
+    display: grid !important;
+    grid-template-columns: 52px minmax(0, 1fr) auto !important;
+    gap: 28px !important;
+    align-items: start !important;
+  
+    position: relative;
+  
+    padding: 30px 0 !important;
+  
+    border-bottom: 1px solid rgba(41, 36, 40, 0.28) !important;
+    border-left: 0 !important;
+  
+    background: transparent;
+  
+    transition:
+      background 0.2s ease,
+      padding-left 0.2s ease;
+  }
+  
+  .admin-submission-row:hover {
+    background: rgba(255, 249, 237, 0.55);
+  }
+  
+  
+  /* LEFT NUMBER */
+  
+  .admin-submission-number {
+    padding-top: 4px;
+  
+    font-family: "DM Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+  
+  
+  /* CONTENT */
+  
+  .admin-submission-content {
+    min-width: 0;
+  }
+  
+  .admin-submission-meta {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  
+    margin-bottom: 13px;
+  
+    font-family: "DM Mono", monospace;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+  
+  .admin-submission-type {
+    color: var(--red) !important;
+    font-weight: 600;
+  }
+  
+  .admin-submission-message {
+    max-width: 760px;
+  
+    margin: 0 0 17px !important;
+  
+    font-family: "Libre Baskerville", Georgia, serif !important;
+    font-size: 19px !important;
+    line-height: 1.55 !important;
+    letter-spacing: -0.015em;
+    color: var(--ink);
+  }
+  
+  .admin-submission-from {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  
+    font-family: "DM Mono", monospace;
+    font-size: 9px;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+  }
+  
+  .admin-submission-from strong {
+    color: var(--ink);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+  }
+  
+  
+  /* ACTIONS */
+  
+  .admin-submission-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+  
+    padding-top: 1px;
+  }
+  
+  
+  /* STATUS SELECT */
+  
+  .admin-submission-status-select {
+    width: 120px;
+    height: 38px;
+  
+    padding: 0 10px;
+  
+    border: 1px solid var(--rule);
+    border-radius: 0;
+  
+    background: var(--paper2);
+    color: var(--ink);
+  
+    font-family: "DM Mono", monospace;
+    font-size: 8px;
+    letter-spacing: 0.1em;
+  
+    cursor: pointer;
+  }
+  
+  .admin-submission-status-select:hover {
+    background: var(--pink);
+  }
+  
+  .admin-submission-status-select:focus {
+    outline: none;
+    border-color: var(--ink);
+    box-shadow: 3px 3px 0 var(--pink);
+  }
+  
+  
+  /* DELETE */
+  
+  .admin-submission-actions .admin-comment-delete {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+  
+    height: 38px;
+    padding: 0 13px;
+  
+    border: 1px solid var(--rule);
+    border-radius: 0;
+  
+    background: transparent;
+    color: var(--red);
+  
+    font-family: "DM Mono", monospace;
+    font-size: 8px;
+    letter-spacing: 0.1em;
+  
+    cursor: pointer;
+  
+    transition:
+      background 0.2s ease,
+      color 0.2s ease,
+      transform 0.2s ease;
+  }
+  
+  .admin-submission-actions .admin-comment-delete:hover {
+    background: var(--red);
+    color: var(--paper);
+    transform: translateY(-1px);
+  }
+  
+  
+  /* STATUS ACCENTS */
+  
+  .admin-submission-row.status-new {
+    border-left: 3px solid var(--pink) !important;
+    padding-left: 18px !important;
+  }
+  
+  .admin-submission-row.status-reviewed {
+    border-left: 3px solid var(--yellow) !important;
+    padding-left: 18px !important;
+  }
+  
+  .admin-submission-row.status-used {
+    border-left: 3px solid var(--mint) !important;
+    padding-left: 18px !important;
+  }
+  
+  .admin-submission-row.status-archived {
+    opacity: 0.48;
+    border-left: 3px solid var(--muted) !important;
+    padding-left: 18px !important;
+  }
+  
+  
+  /* EMPTY STATE */
+  
+  .admin-submissions-section .admin-comments-empty {
+    min-height: 180px;
+    padding: 50px 30px;
+  
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+  
+    box-sizing: border-box;
+  
+    border-bottom: 1px solid var(--rule);
+    background: var(--paper2);
+  
+    text-align: center;
+  }
+  
+  .admin-submissions-section .admin-comments-empty p {
+    margin: 0;
+  
+    font-family: "DM Mono", monospace;
+    font-size: 9px;
+    line-height: 1.7;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+  }
+  
+  .admin-submissions-section .admin-comments-empty span {
+    font-family: "Libre Baskerville", Georgia, serif;
+    color: var(--pink);
+  }
+  
+  
+  /* MOBILE */
+  
+  @media (max-width: 850px) {
+  
+    .admin-submissions-section {
+      padding: 55px 6vw 70px;
+    }
+  
+    .admin-submissions-section .admin-section-heading {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 28px;
+      margin-bottom: 40px;
+    }
+  
+    .admin-submissions-section .admin-comments-summary {
+      height: 58px;
+      min-width: 130px;
+    }
+  
+    .admin-submission-row {
+      grid-template-columns: 38px minmax(0, 1fr) !important;
+      gap: 15px !important;
+    }
+  
+    .admin-submission-actions {
+      grid-column: 2;
+      justify-content: flex-start;
+      padding-top: 5px;
+    }
+  
+    .admin-submission-message {
+      font-size: 17px !important;
+    }
+  }
+  
+  
+  @media (max-width: 550px) {
+  
+    .admin-submissions-section {
+      padding: 45px 6vw 60px;
+    }
+  
+    .admin-submissions-section .admin-section-title {
+      gap: 12px;
+    }
+  
+    .admin-submissions-section h2 {
+      font-size: clamp(43px, 14vw, 65px);
+    }
+  
+    .admin-submissions-section .admin-section-title p {
+      font-size: 14px;
+    }
+  
+    .admin-submission-row {
+      grid-template-columns: 1fr !important;
+      gap: 10px !important;
+      padding: 24px 0 !important;
+    }
+  
+    .admin-submission-row.status-new,
+    .admin-submission-row.status-reviewed,
+    .admin-submission-row.status-used,
+    .admin-submission-row.status-archived {
+      padding-left: 14px !important;
+    }
+  
+    .admin-submission-number {
+      display: block;
+      padding-top: 0;
+    }
+  
+    .admin-submission-message {
+      font-size: 16px !important;
+    }
+  
+    .admin-submission-actions {
+      grid-column: auto;
+      flex-wrap: wrap;
+    }
+  
+    .admin-submission-status-select {
+      flex: 1;
+      min-width: 110px;
+    }
+  
+    .admin-submission-actions .admin-comment-delete {
+      flex: 1;
+    }
+  
+    .admin-submissions-section .admin-comments-empty {
+      min-height: 150px;
+      padding: 35px 15px;
+      gap: 15px;
+    }
+  }
+
+/* =========================================================
+   ARTICLE — LIKE / SHARE FIX
+   ========================================================= */
+
+   .article-reader-reaction {
+    position: relative;
+  }
+  
+  .article-reaction-label {
+    margin-bottom: 18px !important;
+  }
+  
+  .article-actions {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    margin: 0 !important;
+    position: relative;
+    z-index: 2;
+  }
+  
+  .article-like,
+  .article-share {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+  
+    width: auto !important;
+    min-width: 105px !important;
+    height: 42px !important;
+  
+    padding: 0 16px !important;
+  
+    box-sizing: border-box;
+  
+    border: 1px solid var(--rule) !important;
+    border-radius: 0 !important;
+  
+    background: var(--paper2) !important;
+    color: var(--ink) !important;
+  
+    font-family: "DM Mono", monospace !important;
+    font-size: 9px !important;
+    letter-spacing: 0.1em !important;
+  
+    cursor: pointer;
+  }
+  
+  .article-like svg,
+  .article-share svg {
+    width: 15px !important;
+    height: 15px !important;
+    flex-shrink: 0;
+  }
+  
+  .article-like:hover,
+  .article-share:hover {
+    background: var(--pink) !important;
+    color: var(--ink) !important;
+  }
+  
+  .article-like.liked {
+    background: var(--pink) !important;
+    color: var(--ink) !important;
+  }
+  
+  .like-count {
+    font-family: "DM Mono", monospace !important;
+    font-size: 9px !important;
+  }
+  
+  
+  /* MOBILE */
+  
+  @media (max-width: 600px) {
+    .article-actions {
+      width: 100%;
+    }
+  
+    .article-like,
+    .article-share {
+      min-width: 0 !important;
+      flex: 0 0 auto;
+    }
+  }
+
+/* =========================================================
+   ARTICLE — MOVE REACTION TEXT BELOW BUTTONS
+   ========================================================= */
+
+   .article-reader-reaction {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  
+  .article-actions {
+    order: 1 !important;
+  }
+  
+  .article-reaction-label {
+    order: 2 !important;
+  
+    margin-top: 22px !important;
+    margin-bottom: 0 !important;
+  
+    color: var(--red) !important;
+  
+    font-family: "DM Mono", monospace !important;
+    font-size: 9px !important;
+    letter-spacing: 0.14em !important;
+    line-height: 1.6 !important;
+  }
+
+  /* =========================================================
+   SAVED STORIES — CENTERED TOPLINE
+   ========================================================= */
+
+.saved-topline {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 180px !important;
+
+  width: 100%;
+  box-sizing: border-box;
+
+  padding: 24px 40px 28px !important;
+  margin-bottom: 42px !important;
+
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  line-height: 1.5;
+}
+
+.saved-topline > span {
+  white-space: nowrap;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.saved-topline > a {
+  white-space: nowrap;
+
+  margin: 0 !important;
+  padding: 0 !important;
+
+  color: var(--ink);
+  text-decoration: none;
+
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.saved-topline > a:hover {
+  color: var(--red);
+  transform: translateX(3px);
+}
+
+
+/* =========================================================
+   SAVED STORIES — MOBILE
+   ========================================================= */
+
+@media (max-width: 600px) {
+  .saved-topline {
+    justify-content: space-between !important;
+    gap: 20px !important;
+
+    padding: 20px 15px 24px !important;
+  }
+
+  .saved-topline > span,
+  .saved-topline > a {
+    font-size: 9px;
+    letter-spacing: 0.08em;
+  }
+}
+
+/* =========================================================
+   ARTICLE READING PROGRESS — CURIOUSLY STYLE
+   RIGHT SIDE
+   ========================================================= */
+
+   .article-reading-progress {
+    position: fixed;
+    right: 32px;
+    left: auto;
+    top: 50%;
+    transform: translateY(-50%);
+  
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  
+    z-index: 50;
+    pointer-events: none;
+  }
+  
+  
+  /* =========================================================
+     PROGRESS TRACK
+     ========================================================= */
+  
+  .article-reading-progress-line {
+    position: relative;
+  
+    width: 5px;
+    height: 190px;
+  
+    background: rgba(237, 171, 196, 0.28);
+  
+    border-radius: 10px;
+  
+    overflow: hidden;
+  
+    box-shadow:
+      0 0 0 1px rgba(237, 171, 196, 0.15);
+  }
+  
+  
+  /* =========================================================
+     PINK PROGRESS FILL
+     ========================================================= */
+  
+  .article-reading-progress-fill {
+    position: absolute;
+  
+    left: 0;
+    bottom: 0;
+  
+    width: 100%;
+    height: var(--reading-progress);
+  
+    background: var(--pink);
+  
+    border-radius: 10px;
+  
+    transition: height 0.08s linear;
+  }
+  
+  
+  /* =========================================================
+     PERCENTAGE LABEL
+     ========================================================= */
+  
+  .article-reading-progress-percent {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  
+    min-width: 38px;
+    min-height: 24px;
+  
+    padding: 4px 6px;
+  
+    box-sizing: border-box;
+  
+    background: var(--pink);
+    color: var(--ink);
+  
+    border: 1px solid var(--ink);
+    border-radius: 20px;
+  
+    font-family: "DM Mono", monospace;
+  
+    font-size: 8px;
+    font-weight: 600;
+  
+    letter-spacing: 0.05em;
+  
+    writing-mode: horizontal-tb;
+    transform: none;
+  
+    box-shadow: 2px 2px 0 var(--ink);
+  }
+  
+  
+  /* =========================================================
+     LITTLE STAR
+     ========================================================= */
+  
+  .article-reading-progress::before {
+    content: "✦";
+  
+    position: absolute;
+    top: -24px;
+  
+    font-family: Georgia, serif;
+  
+    font-size: 13px;
+  
+    color: var(--pink);
+  }
+  
+  
+  /* =========================================================
+     LARGE DESKTOP
+     ========================================================= */
+  
+  @media (min-width: 1200px) {
+    .article-reading-progress {
+      right: 34px;
+      left: auto;
+    }
+  
+    .article-reading-progress-line {
+      height: 210px;
+    }
+  }
+  
+  
+  /* =========================================================
+     TABLET
+     ========================================================= */
+  
+  @media (max-width: 1199px) {
+    .article-reading-progress {
+      right: 16px;
+      left: auto;
+    }
+  
+    .article-reading-progress-line {
+      height: 160px;
+    }
+  }
+  
+  
+  /* =========================================================
+     MOBILE
+     ========================================================= */
+  
+  @media (max-width: 800px) {
+    .article-reading-progress {
+      right: 10px;
+      left: auto;
+    }
+  
+    .article-reading-progress-line {
+      width: 4px;
+      height: 120px;
+    }
+  
+    .article-reading-progress-percent {
+      min-width: 34px;
+      min-height: 22px;
+  
+      font-size: 7px;
+    }
+  }
+  
+  
+  /* =========================================================
+     SMALL MOBILE
+     ========================================================= */
+  
+  @media (max-width: 600px) {
+    .article-reading-progress {
+      right: 6px;
+      left: auto;
+    }
+  
+    .article-reading-progress-line {
+      height: 90px;
+    }
+  
+    .article-reading-progress-percent {
+      min-width: 32px;
+      min-height: 20px;
+  
+      font-size: 7px;
+    }
+  
+    .article-reading-progress::before {
+      font-size: 10px;
+      top: -20px;
+    }
+  }
+
+  /* =========================================================
+   ARTICLE READING PROGRESS — CURIOUSLY
+   RIGHT SIDE + HIDE / SHOW
+   ========================================================= */
+
+.article-reading-progress {
+  position: fixed;
+
+  right: 32px;
+  left: auto;
+
+  top: 50%;
+  transform: translateY(-50%);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  gap: 12px;
+
+  z-index: 50;
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   CLOSE BUTTON
+   ========================================================= */
+
+.article-reading-progress-close {
+  position: absolute;
+
+  top: -18px;
+  right: -12px;
+
+  width: 22px;
+  height: 22px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  background: var(--paper2);
+  color: var(--ink);
+
+  border: 1px solid var(--ink);
+  border-radius: 50%;
+
+  cursor: pointer;
+
+  pointer-events: auto;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.article-reading-progress-close:hover {
+  background: var(--pink);
+  color: var(--ink);
+
+  transform: rotate(90deg);
+}
+
+.article-reading-progress-close svg {
+  width: 12px;
+  height: 12px;
+}
+
+
+/* =========================================================
+   PROGRESS TRACK
+   ========================================================= */
+
+.article-reading-progress-line {
+  position: relative;
+
+  width: 5px;
+  height: 190px;
+
+  background: rgba(237, 171, 196, 0.28);
+
+  border-radius: 10px;
+
+  overflow: hidden;
+
+  box-shadow:
+    0 0 0 1px rgba(237, 171, 196, 0.15);
+}
+
+
+/* =========================================================
+   PINK FILL
+   ========================================================= */
+
+.article-reading-progress-fill {
+  position: absolute;
+
+  left: 0;
+  bottom: 0;
+
+  width: 100%;
+  height: var(--reading-progress);
+
+  background: var(--pink);
+
+  border-radius: 10px;
+
+  transition: height 0.08s linear;
+}
+
+
+/* =========================================================
+   PERCENTAGE
+   ========================================================= */
+
+.article-reading-progress-percent {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  min-width: 38px;
+  min-height: 24px;
+
+  padding: 4px 6px;
+
+  box-sizing: border-box;
+
+  background: var(--pink);
+  color: var(--ink);
+
+  border: 1px solid var(--ink);
+
+  border-radius: 20px;
+
+  font-family: "DM Mono", monospace;
+
+  font-size: 8px;
+  font-weight: 600;
+
+  letter-spacing: 0.05em;
+
+  writing-mode: horizontal-tb;
+
+  box-shadow: 2px 2px 0 var(--ink);
+}
+
+
+/* =========================================================
+   LITTLE STAR
+   ========================================================= */
+
+.article-reading-progress::before {
+  content: "✦";
+
+  position: absolute;
+
+  top: -24px;
+
+  font-family: Georgia, serif;
+
+  font-size: 13px;
+
+  color: var(--pink);
+}
+
+
+/* =========================================================
+   REOPEN BUTTON
+   ========================================================= */
+
+.article-reading-progress-reopen {
+  position: fixed;
+
+  right: 0;
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  width: 32px;
+  min-height: 105px;
+
+  padding: 10px 5px;
+
+  box-sizing: border-box;
+
+  background: var(--pink);
+  color: var(--ink);
+
+  border: 1px solid var(--ink);
+  border-right: none;
+
+  cursor: pointer;
+
+  z-index: 50;
+
+  font-family: "DM Mono", monospace;
+
+  font-size: 7px;
+  font-weight: 600;
+
+  letter-spacing: 0.08em;
+
+  line-height: 1.4;
+
+  box-shadow: -2px 2px 0 var(--ink);
+
+  transition:
+    width 0.2s ease,
+    background 0.2s ease;
+}
+
+.article-reading-progress-reopen:hover {
+  width: 42px;
+
+  background: var(--paper2);
+}
+
+.article-reading-progress-reopen span {
+  display: block;
+}
+
+.article-reading-progress-reopen span:last-child {
+  margin-top: 6px;
+
+  font-family: Georgia, serif;
+
+  font-size: 15px;
+}
+
+
+/* =========================================================
+   LARGE DESKTOP
+   ========================================================= */
+
+@media (min-width: 1200px) {
+  .article-reading-progress {
+    right: 34px;
+  }
+
+  .article-reading-progress-line {
+    height: 210px;
+  }
+}
+
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 1199px) {
+  .article-reading-progress {
+    right: 16px;
+  }
+
+  .article-reading-progress-line {
+    height: 160px;
+  }
+
+  .article-reading-progress-reopen {
+    width: 30px;
+    min-height: 100px;
+  }
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 800px) {
+  .article-reading-progress {
+    right: 10px;
+  }
+
+  .article-reading-progress-line {
+    width: 4px;
+    height: 120px;
+  }
+
+  .article-reading-progress-percent {
+    min-width: 34px;
+    min-height: 22px;
+
+    font-size: 7px;
+  }
+
+  .article-reading-progress-close {
+    width: 21px;
+    height: 21px;
+
+    top: -17px;
+    right: -10px;
+  }
+
+  .article-reading-progress-reopen {
+    right: 0;
+
+    width: 29px;
+    min-height: 92px;
+
+    font-size: 6px;
+  }
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 600px) {
+  .article-reading-progress {
+    right: 6px;
+  }
+
+  .article-reading-progress-line {
+    height: 90px;
+  }
+
+  .article-reading-progress-percent {
+    min-width: 32px;
+    min-height: 20px;
+
+    font-size: 7px;
+  }
+
+  .article-reading-progress::before {
+    font-size: 10px;
+    top: -20px;
+  }
+
+  .article-reading-progress-close {
+    width: 20px;
+    height: 20px;
+
+    top: -16px;
+    right: -9px;
+  }
+
+  .article-reading-progress-close svg {
+    width: 10px;
+    height: 10px;
+  }
+
+  .article-reading-progress-reopen {
+    width: 27px;
+    min-height: 82px;
+
+    font-size: 6px;
+  }
+
+  .article-reading-progress-reopen span:last-child {
+    font-size: 13px;
+  }
+}
+
+/* =========================================================
+   CURIOUSLY — RELATED STORIES EDITORIAL HEADER
+   ========================================================= */
+
+   .article-related {
+    max-width: 1200px;
+    margin: 110px auto 0;
+    padding: 70px 6vw 100px;
+    box-sizing: border-box;
+    border-top: 1px solid var(--rule);
+  }
+  
+  .article-related-header {
+    display: grid;
+    grid-template-columns: minmax(180px, 0.45fr) minmax(0, 1.55fr);
+    gap: 50px;
+    align-items: end;
+    margin-bottom: 55px;
+  }
+  
+  .article-related-header .section-kicker {
+    color: var(--red);
+    font-family: "DM Mono", monospace;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    line-height: 1.5;
+    text-transform: uppercase;
+    margin: 0;
+  }
+  
+  .article-related-header h2 {
+    margin: 0;
+    max-width: 700px;
+    font-family: "Libre Baskerville", Georgia, serif;
+    font-size: clamp(42px, 6vw, 76px);
+    font-weight: 400;
+    line-height: 0.92;
+    letter-spacing: -0.055em;
+    color: var(--ink);
+    text-transform: uppercase;
+  }
+  
+  .article-related-header h2::after {
+    content: "✦";
+    display: inline-block;
+    margin-left: 18px;
+    color: var(--red);
+    font-family: Georgia, serif;
+    font-size: 0.42em;
+    vertical-align: top;
+    transform: translateY(-4px);
+  }
+  
+  .article-related .archive-grid {
+    margin-top: 0;
+  }
+  
+  /* Tablet */
+  
+  @media (max-width: 800px) {
+    .article-related {
+      margin-top: 80px;
+      padding: 55px 6vw 80px;
+    }
+  
+    .article-related-header {
+      grid-template-columns: 1fr;
+      gap: 18px;
+      margin-bottom: 40px;
+    }
+  
+    .article-related-header h2 {
+      font-size: clamp(42px, 10vw, 64px);
+    }
+  }
+  
+  /* Mobile */
+  
+  @media (max-width: 600px) {
+    .article-related {
+      margin-top: 65px;
+      padding: 45px 18px 70px;
+    }
+  
+    .article-related-header {
+      gap: 14px;
+      margin-bottom: 32px;
+    }
+  
+    .article-related-header .section-kicker {
+      font-size: 8px;
+    }
+  
+    .article-related-header h2 {
+      font-size: 42px;
+      line-height: 0.94;
+    }
+  
+    .article-related-header h2::after {
+      margin-left: 10px;
+      font-size: 0.4em;
+    }
+  }

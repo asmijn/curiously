@@ -4,26 +4,39 @@ import {
   ArrowLeft,
   Bookmark,
   Heart,
-  MessageCircle,
   Share2,
+  Send,
+  X,
 } from "lucide-react";
 import { supabase } from "../supabase";
+import ArticleCard from "../components/ArticleCard";
 
 function getVisitorId() {
-  let visitorId = localStorage.getItem(
-    "curiously_visitor_id"
-  );
+  const key = "curiously_visitor_id";
+
+  let visitorId = localStorage.getItem(key);
 
   if (!visitorId) {
     visitorId = crypto.randomUUID();
-
-    localStorage.setItem(
-      "curiously_visitor_id",
-      visitorId
-    );
+    localStorage.setItem(key, visitorId);
   }
 
   return visitorId;
+}
+
+function formatDate(dateString) {
+  if (!dateString) return "";
+
+  const date = new Date(dateString);
+
+  if (Number.isNaN(date.getTime())) {
+    return dateString;
+  }
+
+  return date.toLocaleDateString("en-US", {
+    month: "long",
+    year: "numeric",
+  });
 }
 
 export default function Article() {
@@ -33,18 +46,12 @@ export default function Article() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // LIKE
+  const [saved, setSaved] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [liked, setLiked] = useState(false);
 
-  // SAVE
-  const [saved, setSaved] = useState(false);
+  const [relatedStories, setRelatedStories] = useState([]);
 
-  // QUICK REACTION
-  const [selectedReaction, setSelectedReaction] =
-    useState(null);
-
-  // COMMENTS
   const [comments, setComments] = useState([]);
   const [commentName, setCommentName] = useState("");
   const [commentText, setCommentText] = useState("");
@@ -54,103 +61,329 @@ export default function Article() {
     useState(false);
   const [commentError, setCommentError] = useState("");
 
+  const [readingProgress, setReadingProgress] =
+    useState(0);
+
+  const [showReadingProgress, setShowReadingProgress] =
+    useState(() => {
+      return (
+        localStorage.getItem(
+          "curiously_hide_reading_progress"
+        ) !== "true"
+      );
+    });
+
+  /* =========================================================
+     LOAD ARTICLE
+     ========================================================= */
+
   useEffect(() => {
     async function loadArticle() {
       setLoading(true);
       setError("");
 
-      const { data, error } = await supabase
-        .from("articles")
-        .select(`
-          *,
-          categories (
-            name
-          )
-        `)
-        .eq("slug", id)
-        .eq("published", true)
-        .single();
+      try {
+        const { data, error } = await supabase
+          .from("articles")
+          .select(`
+            *,
+            categories (
+              name
+            )
+          `)
+          .eq("slug", id)
+          .eq("published", true)
+          .maybeSingle();
 
-      if (error) {
-        console.error("Article error:", error);
+        if (error) {
+          throw error;
+        }
 
-        setError(
-          "WE COULDN'T FIND THAT RABBIT HOLE."
+        if (!data) {
+          setError("STORY NOT FOUND.");
+          setArticle(null);
+          return;
+        }
+
+        const formattedArticle = {
+          ...data,
+
+          category:
+            data.categories?.name ||
+            "CURIOUSLY",
+
+          readTime:
+            data.read_time ||
+            "",
+
+          coverImage:
+            data.cover_image ||
+            "",
+
+          sections:
+            data.sections ||
+            [],
+        };
+
+        setArticle(formattedArticle);
+
+        loadLikes(data.id);
+        loadBookmark(data.id);
+        loadComments(data.id);
+        loadRelatedStories(data);
+      } catch (err) {
+        console.error(
+          "Error loading article:",
+          err
         );
 
+        setError(
+          "WE COULDN'T LOAD THIS STORY. PLEASE TRY AGAIN."
+        );
+      } finally {
         setLoading(false);
+      }
+    }
+
+    if (id) {
+      loadArticle();
+    }
+  }, [id]);
+
+  /* =========================================================
+     READING PROGRESS
+     ========================================================= */
+
+  useEffect(() => {
+    function updateReadingProgress() {
+      const scrollTop = window.scrollY;
+
+      const documentHeight =
+        document.documentElement.scrollHeight -
+        window.innerHeight;
+
+      if (documentHeight <= 0) {
+        setReadingProgress(0);
         return;
       }
 
-      setArticle(data);
+      const progress =
+        (scrollTop / documentHeight) * 100;
 
-      await Promise.all([
-        recordArticleView(data.id),
-        loadLikes(data.id),
-        loadComments(data.id),
-      ]);
-
-      setLoading(false);
+      setReadingProgress(
+        Math.min(100, Math.max(0, progress))
+      );
     }
 
-    // =========================================================
-    // ARTICLE VIEW
-    // =========================================================
+    window.addEventListener(
+      "scroll",
+      updateReadingProgress,
+      { passive: true }
+    );
 
-    async function recordArticleView(articleId) {
+    updateReadingProgress();
+
+    return () => {
+      window.removeEventListener(
+        "scroll",
+        updateReadingProgress
+      );
+    };
+  }, []);
+
+  function closeReadingProgress() {
+    setShowReadingProgress(false);
+
+    localStorage.setItem(
+      "curiously_hide_reading_progress",
+      "true"
+    );
+  }
+
+  function reopenReadingProgress() {
+    setShowReadingProgress(true);
+
+    localStorage.removeItem(
+      "curiously_hide_reading_progress"
+    );
+  }
+
+  /* =========================================================
+     LIKES
+     ========================================================= */
+
+  async function loadLikes(articleId) {
+    try {
       const visitorId = getVisitorId();
 
-      const { error } = await supabase
-        .from("article_views")
-        .insert({
-          article_id: articleId,
-          visitor_id: visitorId,
-        });
-
-      if (error) {
-        console.error(
-          "Article view error:",
-          error
-        );
-      }
-    }
-
-    // =========================================================
-    // LIKES
-    // =========================================================
-
-    async function loadLikes(articleId) {
-      const visitorId = getVisitorId();
-
-      const [
-        { count },
-        { data: existingLike },
-      ] = await Promise.all([
-        supabase
+      const { count, error: countError } =
+        await supabase
           .from("article_likes")
           .select("*", {
             count: "exact",
             head: true,
           })
-          .eq("article_id", articleId),
+          .eq("article_id", articleId);
 
-        supabase
-          .from("article_likes")
-          .select("id")
-          .eq("article_id", articleId)
-          .eq("visitor_id", visitorId)
-          .maybeSingle(),
-      ]);
+      if (countError) {
+        console.error(
+          "Error loading like count:",
+          countError
+        );
+      } else {
+        setLikeCount(count || 0);
+      }
 
-      setLikeCount(count || 0);
-      setLiked(!!existingLike);
+      const { data, error } = await supabase
+        .from("article_likes")
+        .select("id")
+        .eq("article_id", articleId)
+        .eq("visitor_id", visitorId)
+        .maybeSingle();
+
+      if (error) {
+        console.error(
+          "Error checking like:",
+          error
+        );
+      }
+
+      setLiked(!!data);
+    } catch (err) {
+      console.error(
+        "Like loading error:",
+        err
+      );
     }
+  }
 
-    // =========================================================
-    // COMMENTS
-    // =========================================================
+  async function toggleLike() {
+    if (!article) return;
 
-    async function loadComments(articleId) {
+    try {
+      const visitorId = getVisitorId();
+
+      if (liked) {
+        const { error } = await supabase
+          .from("article_likes")
+          .delete()
+          .eq("article_id", article.id)
+          .eq("visitor_id", visitorId);
+
+        if (error) {
+          throw error;
+        }
+
+        setLiked(false);
+
+        setLikeCount((count) =>
+          Math.max(0, count - 1)
+        );
+      } else {
+        const { error } = await supabase
+          .from("article_likes")
+          .insert({
+            article_id: article.id,
+            visitor_id: visitorId,
+          });
+
+        if (error) {
+          throw error;
+        }
+
+        setLiked(true);
+
+        setLikeCount((count) => count + 1);
+      }
+    } catch (err) {
+      console.error(
+        "Error toggling like:",
+        err
+      );
+
+      loadLikes(article.id);
+    }
+  }
+
+  /* =========================================================
+     BOOKMARKS
+     ========================================================= */
+
+  async function loadBookmark(articleId) {
+    try {
+      const visitorId = getVisitorId();
+
+      const { data, error } = await supabase
+        .from("article_bookmarks")
+        .select("id")
+        .eq("article_id", articleId)
+        .eq("visitor_id", visitorId)
+        .maybeSingle();
+
+      if (error) {
+        console.error(
+          "Error loading bookmark:",
+          error
+        );
+
+        return;
+      }
+
+      setSaved(!!data);
+    } catch (err) {
+      console.error(
+        "Bookmark loading error:",
+        err
+      );
+    }
+  }
+
+  async function toggleSave() {
+    if (!article) return;
+
+    try {
+      const visitorId = getVisitorId();
+
+      if (saved) {
+        const { error } = await supabase
+          .from("article_bookmarks")
+          .delete()
+          .eq("article_id", article.id)
+          .eq("visitor_id", visitorId);
+
+        if (error) {
+          throw error;
+        }
+
+        setSaved(false);
+      } else {
+        const { error } = await supabase
+          .from("article_bookmarks")
+          .insert({
+            article_id: article.id,
+            visitor_id: visitorId,
+          });
+
+        if (error) {
+          throw error;
+        }
+
+        setSaved(true);
+      }
+    } catch (err) {
+      console.error(
+        "Error toggling bookmark:",
+        err
+      );
+    }
+  }
+
+  /* =========================================================
+     COMMENTS
+     ========================================================= */
+
+  async function loadComments(articleId) {
+    try {
       const { data, error } = await supabase
         .from("article_comments")
         .select(`
@@ -167,7 +400,7 @@ export default function Article() {
 
       if (error) {
         console.error(
-          "Comments error:",
+          "Error loading comments:",
           error
         );
 
@@ -175,118 +408,13 @@ export default function Article() {
       }
 
       setComments(data || []);
-    }
-
-    loadArticle();
-  }, [id]);
-
-  // =========================================================
-  // LIKE
-  // =========================================================
-
-  async function toggleLike() {
-    if (!article) return;
-
-    const visitorId = getVisitorId();
-
-    if (liked) {
-      const { error } = await supabase
-        .from("article_likes")
-        .delete()
-        .eq("article_id", article.id)
-        .eq("visitor_id", visitorId);
-
-      if (error) {
-        console.error(
-          "Unlike error:",
-          error
-        );
-
-        return;
-      }
-
-      setLiked(false);
-
-      setLikeCount((current) =>
-        Math.max(0, current - 1)
-      );
-
-      return;
-    }
-
-    const { error } = await supabase
-      .from("article_likes")
-      .insert({
-        article_id: article.id,
-        visitor_id: visitorId,
-      });
-
-    if (error) {
+    } catch (err) {
       console.error(
-        "Like error:",
-        error
-      );
-
-      return;
-    }
-
-    setLiked(true);
-
-    setLikeCount((current) =>
-      current + 1
-    );
-  }
-
-  // =========================================================
-  // SHARE
-  // =========================================================
-
-  async function shareArticle() {
-    const shareData = {
-      title:
-        article?.title ||
-        "CURIOUSLY",
-
-      text:
-        article?.subtitle ||
-        "A rabbit hole from CURIOUSLY.",
-
-      url: window.location.href,
-    };
-
-    try {
-      if (navigator.share) {
-        await navigator.share(shareData);
-
-        return;
-      }
-
-      await navigator.clipboard.writeText(
-        window.location.href
-      );
-
-      window.alert("LINK COPIED.");
-    } catch (error) {
-      console.error(
-        "Share error:",
-        error
+        "Comments loading error:",
+        err
       );
     }
   }
-
-  // =========================================================
-  // SAVE
-  // =========================================================
-
-  function toggleSave() {
-    setSaved((current) =>
-      !current
-    );
-  }
-
-  // =========================================================
-  // COMMENTS
-  // =========================================================
 
   async function submitComment(event) {
     event.preventDefault();
@@ -315,7 +443,7 @@ export default function Article() {
 
     if (name.length > 60) {
       setCommentError(
-        "YOUR NAME MUST BE 60 CHARACTERS OR FEWER."
+        "NAME MUST BE 60 CHARACTERS OR LESS."
       );
 
       return;
@@ -323,106 +451,300 @@ export default function Article() {
 
     if (comment.length > 1000) {
       setCommentError(
-        "YOUR COMMENT MUST BE 1000 CHARACTERS OR FEWER."
+        "COMMENT MUST BE 1000 CHARACTERS OR LESS."
       );
 
       return;
     }
+
+    if (!article) return;
 
     setCommentSubmitting(true);
 
-    const { error } = await supabase
-      .from("article_comments")
-      .insert({
-        article_id: article.id,
-        name,
-        comment,
-        approved: false,
-      });
+    try {
+      const { error } = await supabase
+        .from("article_comments")
+        .insert({
+          article_id: article.id,
+          name,
+          comment,
+          approved: false,
+        });
 
-    if (error) {
+      if (error) {
+        throw error;
+      }
+
+      setCommentName("");
+      setCommentText("");
+      setCommentSubmitted(true);
+    } catch (err) {
       console.error(
-        "Comment submission error:",
-        error
+        "Error submitting comment:",
+        err
       );
 
       setCommentError(
-        "SOMETHING WENT WRONG. PLEASE TRY AGAIN."
+        "WE COULDN'T SUBMIT YOUR COMMENT. PLEASE TRY AGAIN."
+      );
+    } finally {
+      setCommentSubmitting(false);
+    }
+  }
+
+  /* =========================================================
+     RELATED STORIES
+     ========================================================= */
+
+  async function loadRelatedStories(
+    currentArticle
+  ) {
+    try {
+      console.log(
+        "Loading related stories for:",
+        currentArticle.title
       );
 
-      setCommentSubmitting(false);
+      const { data, error } = await supabase
+        .from("articles")
+        .select(`
+          *,
+          categories (
+            name
+          )
+        `)
+        .eq("published", true)
+        .order("created_at", {
+          ascending: false,
+        })
+        .limit(20);
 
-      return;
+      if (error) {
+        console.error(
+          "Error loading related stories:",
+          error
+        );
+
+        return;
+      }
+
+      console.log(
+        "Published articles found:",
+        data?.length || 0
+      );
+
+      const currentCategory =
+        currentArticle.categories?.name ||
+        "";
+
+      const otherArticles = (data || [])
+        .filter(
+          (story) =>
+            story.id !== currentArticle.id
+        )
+        .map((story) => ({
+          ...story,
+
+          category:
+            story.categories?.name ||
+            "UNCATEGORIZED",
+
+          readTime:
+            story.read_time ||
+            "",
+
+          coverImage:
+            story.cover_image ||
+            "",
+
+          sections:
+            story.sections ||
+            [],
+        }));
+
+      const sameCategory =
+        otherArticles.filter(
+          (story) =>
+            story.category ===
+            currentCategory
+        );
+
+      const differentCategory =
+        otherArticles.filter(
+          (story) =>
+            story.category !==
+            currentCategory
+        );
+
+      const selected = [
+        ...sameCategory,
+        ...differentCategory,
+      ].slice(0, 3);
+
+      console.log(
+        "Related stories selected:",
+        selected
+      );
+
+      setRelatedStories(selected);
+    } catch (err) {
+      console.error(
+        "Related stories error:",
+        err
+      );
     }
-
-    setCommentName("");
-    setCommentText("");
-    setCommentSubmitted(true);
-    setCommentSubmitting(false);
   }
 
-  function formatCommentDate(dateString) {
-    if (!dateString) return "";
+  /* =========================================================
+     SHARE
+     ========================================================= */
 
-    return new Date(
-      dateString
-    ).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
+  async function handleShare() {
+    if (!article) return;
+
+    const shareData = {
+      title: article.title,
+
+      text:
+        article.subtitle ||
+        "Read this story on CURIOUSLY.",
+
+      url: window.location.href,
+    };
+
+    try {
+      if (
+        navigator.share &&
+        typeof navigator.share === "function"
+      ) {
+        await navigator.share(shareData);
+      } else if (
+        navigator.clipboard &&
+        navigator.clipboard.writeText
+      ) {
+        await navigator.clipboard.writeText(
+          window.location.href
+        );
+      } else {
+        window.prompt(
+          "COPY THIS LINK:",
+          window.location.href
+        );
+      }
+    } catch (err) {
+      if (err?.name !== "AbortError") {
+        console.error(
+          "Error sharing article:",
+          err
+        );
+      }
+    }
   }
 
-  // =========================================================
-  // LOADING
-  // =========================================================
+  /* =========================================================
+     LOADING
+     ========================================================= */
 
   if (loading) {
     return (
       <main className="article-page">
-        <div className="empty">
-          FOLLOWING THE RABBIT HOLE...
-        </div>
+        <section className="article-loading">
+          <p>LOADING STORY...</p>
+        </section>
       </main>
     );
   }
 
-  // =========================================================
-  // ERROR
-  // =========================================================
+  /* =========================================================
+     ERROR
+     ========================================================= */
 
   if (error || !article) {
     return (
       <main className="article-page">
-        <div className="empty">
-          {error ||
-            "ARTICLE NOT FOUND."}
-        </div>
+        <section className="article-error">
+          <p>
+            {error || "STORY NOT FOUND."}
+          </p>
+
+          <Link
+            to="/articles"
+            className="article-back"
+          >
+            <ArrowLeft size={14} />
+            BACK TO THE ARCHIVE
+          </Link>
+        </section>
       </main>
     );
   }
 
+  /* =========================================================
+     ARTICLE DATA
+     ========================================================= */
+
   const category =
     article.categories?.name ||
+    article.category ||
     "CURIOUSLY";
-
-  const sections = Array.isArray(
-    article.sections
-  )
-    ? article.sections
-    : [];
 
   const cover =
     article.cover_image ||
     article.coverImage ||
     "";
 
-  // =========================================================
-  // PAGE
-  // =========================================================
+  const sections =
+    Array.isArray(article.sections) &&
+    article.sections.length > 0
+      ? article.sections
+      : [];
 
   return (
-    <main className="article-page">
+    <main
+      className="article-page"
+      style={{
+        "--reading-progress": `${readingProgress}%`,
+      }}
+    >
+      {/* =====================================================
+          READING PROGRESS
+          ===================================================== */}
+
+      {showReadingProgress ? (
+        <div className="article-reading-progress">
+
+          <button
+            type="button"
+            className="article-reading-progress-close"
+            onClick={closeReadingProgress}
+            aria-label="Hide reading progress"
+            title="Hide reading progress"
+          >
+            <X size={13} />
+          </button>
+
+          <div className="article-reading-progress-line">
+            <div className="article-reading-progress-fill" />
+          </div>
+
+          <span className="article-reading-progress-percent">
+            {Math.round(readingProgress)}%
+          </span>
+
+        </div>
+      ) : (
+        <button
+          type="button"
+          className="article-reading-progress-reopen"
+          onClick={reopenReadingProgress}
+          aria-label="Show reading progress"
+          title="Show reading progress"
+        >
+          <span>READING</span>
+          <span>PROGRESS</span>
+          <span>+</span>
+        </button>
+      )}
 
       {/* =====================================================
           HERO
@@ -444,28 +766,17 @@ export default function Article() {
 
         <div className="article-meta">
           {article.date ||
-            new Date(
-              article.created_at
-            ).toLocaleDateString(
-              "en-US",
-              {
-                month: "long",
-                year: "numeric",
-              }
-            )}
+            formatDate(article.created_at)}
 
           {" / "}
 
-          {article.format ||
-            "STORY"}
+          {article.format || "STORY"}
 
           {article.read_time &&
             ` / ${article.read_time}`}
         </div>
 
-        <h1>
-          {article.title}
-        </h1>
+        <h1>{article.title}</h1>
 
         {article.subtitle && (
           <p className="article-subtitle">
@@ -480,7 +791,6 @@ export default function Article() {
         )}
 
       </header>
-
 
       {/* =====================================================
           COVER
@@ -511,9 +821,8 @@ export default function Article() {
 
       </div>
 
-
       {/* =====================================================
-          ARTICLE CONTENT
+          ARTICLE LAYOUT
           ===================================================== */}
 
       <div className="article-layout">
@@ -522,7 +831,13 @@ export default function Article() {
 
         <aside className="article-sidebar">
 
-          <div className="article-sidebar-item">
+          {/* CATEGORY */}
+
+          <div
+            className={`article-sidebar-item category-${category
+              .toLowerCase()
+              .replace(/\s+/g, "-")}`}
+          >
             <span className="article-sidebar-label">
               CATEGORY
             </span>
@@ -532,8 +847,11 @@ export default function Article() {
             </strong>
           </div>
 
+          {/* FORMAT */}
+
           {article.format && (
             <div className="article-sidebar-item">
+
               <span className="article-sidebar-label">
                 FORMAT
               </span>
@@ -541,11 +859,15 @@ export default function Article() {
               <strong>
                 {article.format}
               </strong>
+
             </div>
           )}
 
+          {/* TAG */}
+
           {article.tag && (
             <div className="article-sidebar-item">
+
               <span className="article-sidebar-label">
                 TAG
               </span>
@@ -553,8 +875,11 @@ export default function Article() {
               <strong>
                 {article.tag}
               </strong>
+
             </div>
           )}
+
+          {/* SAVE */}
 
           <button
             type="button"
@@ -572,8 +897,9 @@ export default function Article() {
 
         </aside>
 
-
-        {/* BODY */}
+        {/* ===================================================
+            ARTICLE BODY
+            =================================================== */}
 
         <article className="article-body">
 
@@ -583,15 +909,15 @@ export default function Article() {
             </div>
           )}
 
-
-          {/* STORY SECTIONS */}
+          {/* SECTIONS */}
 
           {sections.length > 0 ? (
+
             sections.map(
               (section, index) => (
                 <section
-                  className="article-section"
                   key={index}
+                  className="article-section"
                 >
 
                   {section.heading && (
@@ -600,89 +926,64 @@ export default function Article() {
                     </h2>
                   )}
 
-                  {section.body && (
-                    <div className="article-section-body">
-                      {section.body
-                        .split("\n")
-                        .map(
-                          (
-                            paragraph,
-                            paragraphIndex
-                          ) =>
-                            paragraph.trim() ? (
-                              <p
-                                key={
-                                  paragraphIndex
-                                }
-                              >
-                                {paragraph}
-                              </p>
-                            ) : null
-                        )}
-                    </div>
-                  )}
+                  {section.body &&
+                    String(section.body)
+                      .split("\n")
+                      .map(
+                        (
+                          paragraph,
+                          paragraphIndex
+                        ) =>
+                          paragraph.trim() && (
+                            <p
+                              key={
+                                paragraphIndex
+                              }
+                            >
+                              {paragraph}
+                            </p>
+                          )
+                      )}
 
                 </section>
               )
             )
-          ) : article.content ? (
-            <section className="article-section">
 
-              {article.content
+          ) : article.content ? (
+
+            <div className="article-content">
+
+              {String(article.content)
                 .split("\n")
                 .map(
-                  (
-                    paragraph,
-                    index
-                  ) =>
-                    paragraph.trim() ? (
+                  (paragraph, index) =>
+                    paragraph.trim() && (
                       <p key={index}>
                         {paragraph}
                       </p>
-                    ) : null
+                    )
                 )}
 
-            </section>
-          ) : null}
-
-
-          {/* =================================================
-              END OF STORY
-              ================================================= */}
-
-          <div className="article-end">
-
-            <span>✦</span>
-
-            <div>
-              END OF STORY
             </div>
 
-            <span>✦</span>
+          ) : (
 
-          </div>
+            <p>
+              THIS STORY DOESN'T HAVE ANY
+              CONTENT YET.
+            </p>
 
+          )}
 
           {/* =================================================
-              READER REACTION
+              REACTIONS
               ================================================= */}
 
-          <section className="article-reader-reaction">
+          <div className="article-reader-reaction">
 
-            <div className="article-reaction-label">
-              CURIOUSLY / READER REACTION
-            </div>
+            <div className="article-reaction-bar-inner">
 
-            <h2>
-              DID THIS SEND YOU DOWN
-              <br />
-              A RABBIT HOLE?
-            </h2>
-
-
-            {/* LIKE + SHARE */}
-
-            <div className="article-actions">
+              {/* LIKE */}
 
               <button
                 type="button"
@@ -692,8 +993,8 @@ export default function Article() {
                 onClick={toggleLike}
                 aria-label={
                   liked
-                    ? "Unlike this article"
-                    : "Like this article"
+                    ? "Unlike this story"
+                    : "Like this story"
                 }
               >
 
@@ -706,77 +1007,37 @@ export default function Article() {
                   }
                 />
 
-                <span>
-                  I LIKE THIS
-                </span>
-
                 <span className="like-count">
                   {likeCount}
                 </span>
 
               </button>
 
+              {/* SHARE */}
 
               <button
                 type="button"
                 className="article-share"
-                onClick={shareArticle}
+                onClick={handleShare}
               >
 
-                <Share2 size={18} />
+                <Share2 size={17} />
 
-                <span>
-                  SHARE
-                </span>
+                SHARE
 
               </button>
 
             </div>
 
+            <div className="article-reaction-label">
 
-            {/* =================================================
-                QUICK REACTIONS
-                ================================================= */}
-
-            <div className="article-reaction-bar-inner">
-
-              <span>
-                QUICK REACTION:
-              </span>
-
-              {["♡", "✦", "!", "↗"].map(
-                (reaction) => (
-                  <button
-                    key={reaction}
-                    type="button"
-                    className={
-                      selectedReaction ===
-                      reaction
-                        ? "selected"
-                        : ""
-                    }
-                    onClick={() =>
-                      setSelectedReaction(
-                        reaction
-                      )
-                    }
-                    aria-label={`React ${reaction}`}
-                  >
-                    {reaction}
-                  </button>
-                )
-              )}
-
-              {selectedReaction && (
-                <span className="reaction-thanks">
-                  THANKS FOR THE REACTION ✦
-                </span>
-              )}
+              {liked
+                ? "YOU LIKE THIS STORY."
+                : "LIKE THIS STORY IF IT SENT YOU DOWN A RABBIT HOLE."}
 
             </div>
 
-          </section>
-
+          </div>
 
           {/* =================================================
               COMMENTS
@@ -789,20 +1050,16 @@ export default function Article() {
               <div>
 
                 <div className="section-kicker">
-                  CURIOUSLY / COMMENTS
+                  CURIOUSLY / READER MAIL
                 </div>
 
                 <h2>
-                  KEEP THE
-                  <br />
-                  RABBIT HOLE GOING.
+                  SAY SOMETHING.
                 </h2>
 
               </div>
 
-              <div className="article-comments-count">
-
-                <MessageCircle size={13} />
+              <span className="article-comments-count">
 
                 {comments.length}{" "}
 
@@ -810,10 +1067,9 @@ export default function Article() {
                   ? "COMMENT"
                   : "COMMENTS"}
 
-              </div>
+              </span>
 
             </div>
-
 
             {/* COMMENT FORM */}
 
@@ -834,9 +1090,6 @@ export default function Article() {
                   }
                   placeholder="YOUR NAME"
                   maxLength={60}
-                  disabled={
-                    commentSubmitting
-                  }
                 />
 
                 <textarea
@@ -846,15 +1099,12 @@ export default function Article() {
                       event.target.value
                     )
                   }
-                  placeholder="WHAT ARE YOU THINKING ABOUT?"
+                  placeholder="YOUR THOUGHTS..."
                   maxLength={1000}
-                  disabled={
-                    commentSubmitting
-                  }
+                  rows={5}
                 />
 
               </div>
-
 
               {commentError && (
                 <p className="article-comment-error">
@@ -862,77 +1112,122 @@ export default function Article() {
                 </p>
               )}
 
-
               {commentSubmitted && (
                 <p className="article-comment-success">
-                  COMMENT RECEIVED. IT'S WAITING
-                  FOR APPROVAL BEFORE IT APPEARS
-                  HERE.
+                  COMMENT RECEIVED. IT'S
+                  WAITING FOR APPROVAL BEFORE
+                  IT APPEARS HERE.
                 </p>
               )}
-
 
               <button
                 type="submit"
                 className="article-comment-submit"
-                disabled={
-                  commentSubmitting
-                }
+                disabled={commentSubmitting}
               >
+
+                <Send size={14} />
+
                 {commentSubmitting
                   ? "SENDING..."
-                  : "POST COMMENT →"}
+                  : "SEND COMMENT"}
+
               </button>
 
             </form>
 
+            {/* COMMENTS LIST */}
 
-            {/* APPROVED COMMENTS */}
+            <div className="article-comments-list">
 
-            {comments.length > 0 ? (
-              <div className="article-comments-list">
+              {comments.length > 0 ? (
 
-                {comments.map(
-                  (comment) => (
-                    <article
-                      className="article-comment"
-                      key={comment.id}
-                    >
+                comments.map((comment) => (
 
-                      <div className="article-comment-top">
+                  <article
+                    key={comment.id}
+                    className="article-comment"
+                  >
 
-                        <strong>
-                          {comment.name}
-                        </strong>
+                    <div className="article-comment-top">
 
-                        <time>
-                          {formatCommentDate(
-                            comment.created_at
-                          )}
-                        </time>
+                      <strong>
+                        {comment.name}
+                      </strong>
 
-                      </div>
+                      <span>
+                        {formatDate(
+                          comment.created_at
+                        )}
+                      </span>
 
-                      <p>
-                        {comment.comment}
-                      </p>
+                    </div>
 
-                    </article>
-                  )
-                )}
+                    <p>
+                      {comment.comment}
+                    </p>
 
-              </div>
-            ) : (
-              <div className="article-no-comments">
-                BE THE FIRST TO LEAVE A THOUGHT.
-              </div>
-            )}
+                  </article>
+
+                ))
+
+              ) : (
+
+                <div className="article-no-comments">
+                  NO COMMENTS YET. BE THE FIRST.
+                </div>
+
+              )}
+
+            </div>
 
           </section>
 
         </article>
 
       </div>
+
+      {/* =====================================================
+          RELATED STORIES
+          ===================================================== */}
+
+      {relatedStories.length > 0 && (
+
+        <section className="article-related">
+
+          <div className="article-related-header">
+
+            <div className="section-kicker">
+              CURIOUSLY / KEEP EXPLORING
+            </div>
+
+            <h2>
+              YOU MIGHT
+              <br />
+              ALSO LIKE.
+            </h2>
+
+          </div>
+
+          <div className="archive-grid">
+
+            {relatedStories.map(
+              (story, index) => (
+
+                <ArticleCard
+                  key={story.id}
+                  article={story}
+                  index={index}
+                />
+
+              )
+            )}
+
+          </div>
+
+        </section>
+
+      )}
 
     </main>
   );

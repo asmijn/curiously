@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Search } from "lucide-react";
+import { Search, Bookmark } from "lucide-react";
 
 export default function Navbar() {
   const location = useLocation();
@@ -37,7 +37,19 @@ export default function Navbar() {
           CONTACT
         </Link>
 
-        <a href="/#mail" aria-label="Reader mail">
+        <Link
+          className={location.pathname === "/saved" ? "active" : ""}
+          to="/saved"
+          aria-label="Saved stories"
+          title="Saved stories"
+        >
+          <Bookmark size={13} />
+        </Link>
+
+        <a
+          href="/#mail"
+          aria-label="Reader mail"
+        >
           <Search size={13} />
         </a>
       </nav>

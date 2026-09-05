@@ -49,89 +49,195 @@ export default function AdminArticleEditor() {
     sections: [{ ...emptySection }],
   });
 
+  // =========================================================
+  // INITIALIZE
+  // =========================================================
+
   useEffect(() => {
+    let cancelled = false;
+
     async function initialize() {
       setLoading(true);
       setError("");
+      setMessage("");
 
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      try {
+        const {
+          data: { user },
+          error: authError,
+        } = await supabase.auth.getUser();
 
-      if (!user) {
-        navigate("/admin-login");
-        return;
-      }
+        if (authError) {
+          console.error(
+            "Auth error:",
+            authError
+          );
+        }
 
-      await loadCategories();
+        if (!user) {
+          navigate("/admin/login", {
+            replace: true,
+          });
 
-      if (isEditing) {
-        await loadArticle();
-      } else {
-        setLoading(false);
+          return;
+        }
+
+        // Load categories
+        const {
+          data: categoryData,
+          error: categoryError,
+        } = await supabase
+          .from("categories")
+          .select("*")
+          .order("name");
+
+        if (categoryError) {
+          console.error(
+            "Categories error:",
+            categoryError
+          );
+
+          if (!cancelled) {
+            setError(
+              categoryError.message ||
+                "Could not load categories."
+            );
+          }
+        } else if (!cancelled) {
+          setCategories(categoryData || []);
+        }
+
+        // Load existing article
+        if (isEditing) {
+          const {
+            data: articleData,
+            error: articleError,
+          } = await supabase
+            .from("articles")
+            .select("*")
+            .eq("slug", slug)
+            .maybeSingle();
+
+          if (articleError) {
+            console.error(
+              "Article loading error:",
+              articleError
+            );
+
+            if (!cancelled) {
+              setError(
+                articleError.message ||
+                  "Could not load article."
+              );
+            }
+
+            return;
+          }
+
+          if (!articleData) {
+            if (!cancelled) {
+              setError(
+                "Article not found."
+              );
+            }
+
+            return;
+          }
+
+          if (!cancelled) {
+            setForm({
+              slug:
+                articleData.slug || "",
+
+              title:
+                articleData.title || "",
+
+              subtitle:
+                articleData.subtitle || "",
+
+              category_id:
+                articleData.category_id || "",
+
+              format:
+                articleData.format || "",
+
+              tag:
+                articleData.tag || "",
+
+              read_time:
+                articleData.read_time || "",
+
+              date:
+                articleData.date || "",
+
+              color:
+                articleData.color ||
+                "pink",
+
+              dek:
+                articleData.dek || "",
+
+              cover_image:
+                articleData.cover_image ||
+                "",
+
+              content:
+                articleData.content || "",
+
+              published:
+                Boolean(
+                  articleData.published
+                ),
+
+              sections:
+                Array.isArray(
+                  articleData.sections
+                ) &&
+                articleData.sections.length > 0
+                  ? articleData.sections.map(
+                      (section) => ({
+                        heading:
+                          section?.heading ||
+                          "",
+
+                        body:
+                          section?.body ||
+                          "",
+                      })
+                    )
+                  : [{ ...emptySection }],
+            });
+          }
+        }
+      } catch (err) {
+        console.error(
+          "Editor initialization error:",
+          err
+        );
+
+        if (!cancelled) {
+          setError(
+            err?.message ||
+              "Could not load the editor."
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     }
 
     initialize();
-  }, [slug]);
 
-  async function loadCategories() {
-    const { data, error } = await supabase
-      .from("categories")
-      .select("*")
-      .order("name");
+    return () => {
+      cancelled = true;
+    };
+  }, [slug, isEditing, navigate]);
 
-    if (error) {
-      console.error("Categories error:", error);
-      setError("Could not load categories.");
-      return;
-    }
-
-    setCategories(data || []);
-  }
-
-  async function loadArticle() {
-    const { data, error } = await supabase
-      .from("articles")
-      .select("*")
-      .eq("slug", slug)
-      .maybeSingle();
-
-    if (error) {
-      console.error("Article loading error:", error);
-      setError("Could not load article.");
-      setLoading(false);
-      return;
-    }
-
-    if (!data) {
-      setError("Article not found.");
-      setLoading(false);
-      return;
-    }
-
-    setForm({
-      slug: data.slug || "",
-      title: data.title || "",
-      subtitle: data.subtitle || "",
-      category_id: data.category_id || "",
-      format: data.format || "",
-      tag: data.tag || "",
-      read_time: data.read_time || "",
-      date: data.date || "",
-      color: data.color || "pink",
-      dek: data.dek || "",
-      cover_image: data.cover_image || "",
-      content: data.content || "",
-      published: data.published || false,
-      sections:
-        Array.isArray(data.sections) && data.sections.length
-          ? data.sections
-          : [{ ...emptySection }],
-    });
-
-    setLoading(false);
-  }
+  // =========================================================
+  // FIELD UPDATES
+  // =========================================================
 
   function updateField(field, value) {
     setForm((current) => ({
@@ -151,14 +257,29 @@ export default function AdminArticleEditor() {
       return {
         ...current,
         title: value,
-        slug: isEditing ? current.slug : generatedSlug,
+
+        // Only auto-generate the slug
+        // when creating a new article.
+        slug: isEditing
+          ? current.slug
+          : generatedSlug,
       };
     });
   }
 
-  function updateSection(index, field, value) {
+  // =========================================================
+  // SECTIONS
+  // =========================================================
+
+  function updateSection(
+    index,
+    field,
+    value
+  ) {
     setForm((current) => {
-      const sections = [...current.sections];
+      const sections = [
+        ...current.sections,
+      ];
 
       sections[index] = {
         ...sections[index],
@@ -175,6 +296,7 @@ export default function AdminArticleEditor() {
   function addSection() {
     setForm((current) => ({
       ...current,
+
       sections: [
         ...current.sections,
         {
@@ -187,18 +309,26 @@ export default function AdminArticleEditor() {
 
   function removeSection(index) {
     setForm((current) => {
-      const sections = current.sections.filter(
-        (_, sectionIndex) => sectionIndex !== index
-      );
+      const sections =
+        current.sections.filter(
+          (_, sectionIndex) =>
+            sectionIndex !== index
+        );
 
       return {
         ...current,
-        sections: sections.length
-          ? sections
-          : [{ ...emptySection }],
+
+        sections:
+          sections.length > 0
+            ? sections
+            : [{ ...emptySection }],
       };
     });
   }
+
+  // =========================================================
+  // COVER IMAGE UPLOAD
+  // =========================================================
 
   async function uploadCover(file) {
     if (!file) return;
@@ -217,11 +347,15 @@ export default function AdminArticleEditor() {
       setError(
         "Please upload a JPG, PNG, WEBP, or GIF image."
       );
+
       return;
     }
 
     if (file.size > 10 * 1024 * 1024) {
-      setError("Image must be smaller than 10MB.");
+      setError(
+        "Image must be smaller than 10MB."
+      );
+
       return;
     }
 
@@ -229,39 +363,66 @@ export default function AdminArticleEditor() {
 
     try {
       const extension =
-        file.name.split(".").pop()?.toLowerCase() || "jpg";
+        file.name
+          .split(".")
+          .pop()
+          ?.toLowerCase() ||
+        "jpg";
 
-      const fileName = `cover-${Date.now()}-${Math.random()
-        .toString(36)
-        .slice(2)}.${extension}`;
+      const fileName =
+        `cover-${Date.now()}-${Math.random()
+          .toString(36)
+          .slice(2)}.${extension}`;
 
-      const filePath = `covers/${fileName}`;
+      const filePath =
+        `covers/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
+      const {
+        error: uploadError,
+      } = await supabase.storage
         .from("article-covers")
-        .upload(filePath, file, {
-          cacheControl: "3600",
-          upsert: false,
-          contentType: file.type,
-        });
+        .upload(
+          filePath,
+          file,
+          {
+            cacheControl: "3600",
+            upsert: false,
+            contentType: file.type,
+          }
+        );
 
       if (uploadError) {
-        console.error("Cover upload error:", uploadError);
+        console.error(
+          "Cover upload error:",
+          uploadError
+        );
 
         setError(
           uploadError.message ||
             "Could not upload the cover image."
         );
 
-        setUploading(false);
         return;
       }
 
       const {
-        data: { publicUrl },
+        data: publicUrlData,
       } = supabase.storage
         .from("article-covers")
-        .getPublicUrl(filePath);
+        .getPublicUrl(
+          filePath
+        );
+
+      const publicUrl =
+        publicUrlData?.publicUrl;
+
+      if (!publicUrl) {
+        setError(
+          "The image uploaded, but we couldn't create its public URL."
+        );
+
+        return;
+      }
 
       setForm((current) => ({
         ...current,
@@ -271,19 +432,24 @@ export default function AdminArticleEditor() {
       setMessage(
         "Cover uploaded. Save the article to keep it."
       );
-    } catch (uploadError) {
+    } catch (err) {
       console.error(
         "Unexpected cover upload error:",
-        uploadError
+        err
       );
 
       setError(
-        "Something went wrong uploading the cover."
+        err?.message ||
+          "Something went wrong uploading the cover."
       );
+    } finally {
+      setUploading(false);
     }
-
-    setUploading(false);
   }
+
+  // =========================================================
+  // REMOVE COVER
+  // =========================================================
 
   async function removeCover() {
     if (!form.cover_image) return;
@@ -293,139 +459,332 @@ export default function AdminArticleEditor() {
         "/storage/v1/object/public/article-covers/";
 
       const markerIndex =
-        form.cover_image.indexOf(marker);
+        form.cover_image.indexOf(
+          marker
+        );
 
       if (markerIndex !== -1) {
         const filePath =
           form.cover_image.substring(
-            markerIndex + marker.length
+            markerIndex +
+              marker.length
           );
 
-        const { error } = await supabase.storage
+        const {
+          error: storageError,
+        } = await supabase.storage
           .from("article-covers")
           .remove([filePath]);
 
-        if (error) {
+        if (storageError) {
           console.error(
             "Storage removal error:",
-            error
+            storageError
           );
         }
       }
-    } catch (error) {
+    } catch (err) {
       console.error(
         "Cover removal error:",
-        error
+        err
       );
     }
 
-    updateField("cover_image", "");
+    updateField(
+      "cover_image",
+      ""
+    );
 
     setMessage(
       "Cover removed. Save the article to update it."
     );
   }
 
+  // =========================================================
+  // SAVE ARTICLE
+  // =========================================================
+
   async function saveArticle(
     publishedValue = form.published
   ) {
+    if (saving) return;
+
     setSaving(true);
     setError("");
     setMessage("");
 
-    if (!form.title.trim()) {
-      setError("Please enter an article title.");
-      setSaving(false);
-      return;
-    }
+    try {
+      // -----------------------------------------------------
+      // AUTH CHECK
+      // -----------------------------------------------------
 
-    if (!form.slug.trim()) {
-      setError("Please enter a URL slug.");
-      setSaving(false);
-      return;
-    }
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser();
 
-    const cleanedSections = form.sections
-      .map((section) => ({
-        heading: section.heading?.trim() || "",
-        body: section.body?.trim() || "",
-      }))
-      .filter(
-        (section) =>
-          section.heading || section.body
+      if (authError) {
+        throw authError;
+      }
+
+      if (!user) {
+        navigate("/admin/login", {
+          replace: true,
+        });
+
+        return;
+      }
+
+      // -----------------------------------------------------
+      // VALIDATION
+      // -----------------------------------------------------
+
+      const title =
+        form.title.trim();
+
+      const articleSlug =
+        form.slug
+          .trim()
+          .toLowerCase()
+          .replace(/[^a-z0-9-]+/g, "-")
+          .replace(/^-+|-+$/g, "");
+
+      if (!title) {
+        setError(
+          "Please enter an article title."
+        );
+
+        return;
+      }
+
+      if (!articleSlug) {
+        setError(
+          "Please enter a URL slug."
+        );
+
+        return;
+      }
+
+      // -----------------------------------------------------
+      // CLEAN SECTIONS
+      // -----------------------------------------------------
+
+      const cleanedSections =
+        form.sections
+          .map((section) => ({
+            heading:
+              section?.heading?.trim() ||
+              "",
+
+            body:
+              section?.body?.trim() ||
+              "",
+          }))
+          .filter(
+            (section) =>
+              section.heading ||
+              section.body
+          );
+
+      // -----------------------------------------------------
+      // ARTICLE DATA
+      // -----------------------------------------------------
+
+      const articleData = {
+        slug: articleSlug,
+
+        title,
+
+        subtitle:
+          form.subtitle.trim(),
+
+        category_id:
+          form.category_id ||
+          null,
+
+        format:
+          form.format.trim(),
+
+        tag:
+          form.tag.trim(),
+
+        read_time:
+          form.read_time.trim(),
+
+        date:
+          form.date.trim(),
+
+        color:
+          form.color || "pink",
+
+        dek:
+          form.dek.trim(),
+
+        cover_image:
+          form.cover_image?.trim() ||
+          null,
+
+        content:
+          form.content?.trim() ||
+          "",
+
+        published:
+          Boolean(publishedValue),
+
+        sections:
+          cleanedSections,
+      };
+
+      console.log(
+        "Saving article:",
+        articleData
       );
 
-    const articleData = {
-      slug: form.slug.trim(),
-      title: form.title.trim(),
-      subtitle: form.subtitle.trim(),
-      category_id: form.category_id || null,
-      format: form.format.trim(),
-      tag: form.tag.trim(),
-      read_time: form.read_time.trim(),
-      date: form.date.trim(),
-      color: form.color,
-      dek: form.dek.trim(),
-      cover_image: form.cover_image?.trim() || null,
-      content: form.content,
-      published: publishedValue,
-      sections: cleanedSections,
-    };
+      // -----------------------------------------------------
+      // UPDATE EXISTING ARTICLE
+      // -----------------------------------------------------
 
-    let saveError = null;
+      if (isEditing) {
+        const {
+          data: updatedArticle,
+          error: updateError,
+        } = await supabase
+          .from("articles")
+          .update(articleData)
+          .eq("slug", slug)
+          .select()
+          .maybeSingle();
 
-    if (isEditing) {
-      const result = await supabase
+        if (updateError) {
+          console.error(
+            "UPDATE ARTICLE ERROR:",
+            updateError
+          );
+
+          throw updateError;
+        }
+
+        if (!updatedArticle) {
+          throw new Error(
+            "The article could not be found to update."
+          );
+        }
+
+        setForm((current) => ({
+          ...current,
+
+          slug:
+            updatedArticle.slug,
+
+          published:
+            Boolean(
+              updatedArticle.published
+            ),
+
+          sections:
+            cleanedSections.length
+              ? cleanedSections
+              : [{ ...emptySection }],
+        }));
+
+        setMessage(
+          publishedValue
+            ? "Article published successfully."
+            : "Article saved as draft."
+        );
+
+        // If the slug changed while editing,
+        // update the URL.
+        if (
+          updatedArticle.slug !== slug
+        ) {
+          navigate(
+            `/admin/edit/${updatedArticle.slug}`,
+            {
+              replace: true,
+            }
+          );
+        }
+
+        return;
+      }
+
+      // -----------------------------------------------------
+      // CREATE NEW ARTICLE
+      // -----------------------------------------------------
+
+      const {
+        data: newArticle,
+        error: insertError,
+      } = await supabase
         .from("articles")
-        .update(articleData)
-        .eq("slug", slug);
+        .insert(articleData)
+        .select()
+        .single();
 
-      saveError = result.error;
-    } else {
-      const result = await supabase
-        .from("articles")
-        .insert(articleData);
+      if (insertError) {
+        console.error(
+          "INSERT ARTICLE ERROR:",
+          insertError
+        );
 
-      saveError = result.error;
-    }
+        throw insertError;
+      }
 
-    if (saveError) {
+      if (!newArticle) {
+        throw new Error(
+          "The article was not created."
+        );
+      }
+
+      setForm((current) => ({
+        ...current,
+
+        slug:
+          newArticle.slug,
+
+        published:
+          Boolean(
+            newArticle.published
+          ),
+
+        sections:
+          cleanedSections.length
+            ? cleanedSections
+            : [{ ...emptySection }],
+      }));
+
+      setMessage(
+        publishedValue
+          ? "Article published successfully."
+          : "Article saved as draft."
+      );
+
+      // Move new article into edit mode
+      navigate(
+        `/admin/edit/${newArticle.slug}`,
+        {
+          replace: true,
+        }
+      );
+    } catch (err) {
       console.error(
         "SAVE ARTICLE ERROR:",
-        saveError
+        err
       );
 
       setError(
-        saveError.message ||
+        err?.message ||
           "Could not save article."
       );
-
+    } finally {
       setSaving(false);
-      return;
-    }
-
-    setForm((current) => ({
-      ...current,
-      published: publishedValue,
-      sections: cleanedSections.length
-        ? cleanedSections
-        : [{ ...emptySection }],
-    }));
-
-    setMessage(
-      publishedValue
-        ? "Article published successfully."
-        : "Article saved as draft."
-    );
-
-    setSaving(false);
-
-    if (!isEditing) {
-      navigate(
-        `/admin/edit/${form.slug.trim()}`
-      );
     }
   }
+
+  // =========================================================
+  // BUTTONS
+  // =========================================================
 
   async function handleSaveDraft() {
     await saveArticle(false);
@@ -435,32 +794,54 @@ export default function AdminArticleEditor() {
     await saveArticle(true);
   }
 
+  // =========================================================
+  // PREVIEW
+  // =========================================================
+
   function previewArticle() {
-    if (!form.slug) {
-      setError("Save the article before previewing it.");
+    const articleSlug =
+      form.slug.trim();
+
+    if (!articleSlug) {
+      setError(
+        "Save the article before previewing it."
+      );
+
       return;
     }
 
     window.open(
-      `/article/${form.slug}`,
+      `/article/${articleSlug}`,
       "_blank",
       "noopener,noreferrer"
     );
   }
 
-  const wordCount = form.sections.reduce(
-    (total, section) => {
-      const words = `${section.heading || ""} ${
-        section.body || ""
-      }`
-        .trim()
-        .split(/\s+/)
-        .filter(Boolean);
+  // =========================================================
+  // WORD COUNT
+  // =========================================================
 
-      return total + words.length;
-    },
-    0
-  );
+  const wordCount =
+    form.sections.reduce(
+      (total, section) => {
+        const words =
+          `${section?.heading || ""} ${
+            section?.body || ""
+          }`
+            .trim()
+            .split(/\s+/)
+            .filter(Boolean);
+
+        return (
+          total + words.length
+        );
+      },
+      0
+    );
+
+  // =========================================================
+  // LOADING
+  // =========================================================
 
   if (loading) {
     return (
@@ -472,13 +853,26 @@ export default function AdminArticleEditor() {
     );
   }
 
+  // =========================================================
+  // PAGE
+  // =========================================================
+
   return (
     <main className="admin-editor-page">
+
+      {/* =====================================================
+          HEADER
+          ===================================================== */}
+
       <header className="writer-header">
+
         <div className="writer-header-left">
+
           <button
             className="writer-back"
-            onClick={() => navigate("/admin")}
+            onClick={() =>
+              navigate("/admin")
+            }
             type="button"
           >
             <ArrowLeft size={15} />
@@ -486,20 +880,30 @@ export default function AdminArticleEditor() {
           </button>
 
           <div className="writer-brand">
-            <span>CURIOUSLY</span>
-            <span>WRITER</span>
+            <span>
+              CURIOUSLY
+            </span>
+
+            <span>
+              WRITER
+            </span>
           </div>
+
         </div>
 
+
         <div className="writer-header-actions">
+
           <button
             type="button"
             className="writer-preview-button"
             onClick={previewArticle}
+            disabled={saving}
           >
             <Eye size={15} />
             PREVIEW
           </button>
+
 
           <button
             type="button"
@@ -508,8 +912,12 @@ export default function AdminArticleEditor() {
             disabled={saving}
           >
             <Save size={15} />
-            {saving ? "SAVING..." : "SAVE DRAFT"}
+
+            {saving
+              ? "SAVING..."
+              : "SAVE DRAFT"}
           </button>
+
 
           <button
             type="button"
@@ -517,42 +925,78 @@ export default function AdminArticleEditor() {
             onClick={handlePublish}
             disabled={saving}
           >
-            {saving ? "SAVING..." : "PUBLISH →"}
+            {saving
+              ? "SAVING..."
+              : "PUBLISH →"}
           </button>
+
         </div>
+
       </header>
+
+
+      {/* =====================================================
+          MESSAGES
+          ===================================================== */}
 
       {error && (
         <div className="writer-message writer-error">
-          <span>{error}</span>
+
+          <span>
+            {error}
+          </span>
 
           <button
             type="button"
-            onClick={() => setError("")}
+            onClick={() =>
+              setError("")
+            }
             aria-label="Dismiss error"
           >
             <X size={15} />
           </button>
+
         </div>
       )}
 
+
       {message && (
         <div className="writer-message writer-success">
-          <span>{message}</span>
+
+          <span>
+            {message}
+          </span>
 
           <button
             type="button"
-            onClick={() => setMessage("")}
+            onClick={() =>
+              setMessage("")
+            }
             aria-label="Dismiss message"
           >
             <X size={15} />
           </button>
+
         </div>
       )}
 
+
+      {/* =====================================================
+          EDITOR
+          ===================================================== */}
+
       <div className="writer-layout">
+
+        {/* ===================================================
+            MAIN
+            =================================================== */}
+
         <div className="writer-main">
+
+          {/* TITLE */}
+
           <section className="writer-title-area">
+
             <input
               className="writer-title"
               value={form.title}
@@ -564,6 +1008,7 @@ export default function AdminArticleEditor() {
               placeholder="Write your headline..."
               aria-label="Article title"
             />
+
 
             <textarea
               className="writer-subtitle"
@@ -579,8 +1024,12 @@ export default function AdminArticleEditor() {
               aria-label="Article subtitle"
             />
 
+
             <div className="writer-slug">
-              <span>/article/</span>
+
+              <span>
+                /article/
+              </span>
 
               <input
                 value={form.slug}
@@ -592,10 +1041,16 @@ export default function AdminArticleEditor() {
                 }
                 aria-label="Article URL slug"
               />
+
             </div>
+
           </section>
 
+
+          {/* INTRO */}
+
           <section className="writer-section">
+
             <div className="writer-section-label">
               STORY INTRO
             </div>
@@ -613,11 +1068,18 @@ export default function AdminArticleEditor() {
               rows="4"
               aria-label="Article dek"
             />
+
           </section>
 
+
+          {/* STORY */}
+
           <section className="writer-section writer-story">
+
             <div className="writer-section-heading">
+
               <div>
+
                 <span className="writer-section-label">
                   STORY
                 </span>
@@ -625,36 +1087,48 @@ export default function AdminArticleEditor() {
                 <span className="writer-word-count">
                   {wordCount} words
                 </span>
+
               </div>
 
               <span className="writer-hint">
                 Write freely. You can edit this later.
               </span>
+
             </div>
 
+
             <div className="writer-sections">
+
               {form.sections.map(
                 (section, index) => (
                   <article
                     className="writer-story-section"
                     key={index}
                   >
+
                     <div className="writer-section-number">
-                      {String(index + 1).padStart(
+                      {String(
+                        index + 1
+                      ).padStart(
                         2,
                         "0"
                       )}
                     </div>
 
+
                     <div className="writer-section-fields">
+
                       <input
                         className="writer-heading-input"
-                        value={section.heading}
+                        value={
+                          section.heading
+                        }
                         onChange={(event) =>
                           updateSection(
                             index,
                             "heading",
-                            event.target.value
+                            event.target
+                              .value
                           )
                         }
                         placeholder="Section heading..."
@@ -663,14 +1137,18 @@ export default function AdminArticleEditor() {
                         } heading`}
                       />
 
+
                       <textarea
                         className="writer-body-input"
-                        value={section.body}
+                        value={
+                          section.body
+                        }
                         onChange={(event) =>
                           updateSection(
                             index,
                             "body",
-                            event.target.value
+                            event.target
+                              .value
                           )
                         }
                         placeholder="Start writing here..."
@@ -679,27 +1157,37 @@ export default function AdminArticleEditor() {
                           index + 1
                         } body`}
                       />
+
                     </div>
 
-                    {form.sections.length > 1 && (
+
+                    {form.sections
+                      .length > 1 && (
                       <button
                         type="button"
                         className="writer-remove-section"
                         onClick={() =>
-                          removeSection(index)
+                          removeSection(
+                            index
+                          )
                         }
                         aria-label={`Remove section ${
                           index + 1
                         }`}
                         title="Remove section"
                       >
-                        <Trash2 size={15} />
+                        <Trash2
+                          size={15}
+                        />
                       </button>
                     )}
+
                   </article>
                 )
               )}
+
             </div>
+
 
             <button
               type="button"
@@ -709,16 +1197,29 @@ export default function AdminArticleEditor() {
               <Plus size={17} />
               ADD ANOTHER SECTION
             </button>
+
           </section>
+
         </div>
 
+
+        {/* ===================================================
+            SIDEBAR
+            =================================================== */}
+
         <aside className="writer-sidebar">
+
+          {/* PUBLISHING */}
+
           <section className="writer-sidebar-card">
+
             <div className="writer-sidebar-title">
               PUBLISHING
             </div>
 
+
             <div className="writer-status">
+
               <span
                 className={
                   form.published
@@ -730,13 +1231,22 @@ export default function AdminArticleEditor() {
               {form.published
                 ? "PUBLISHED"
                 : "DRAFT"}
+
             </div>
 
+
+            {/* CATEGORY */}
+
             <label className="writer-field">
-              <span>CATEGORY</span>
+
+              <span>
+                CATEGORY
+              </span>
 
               <select
-                value={form.category_id}
+                value={
+                  form.category_id
+                }
                 onChange={(event) =>
                   updateField(
                     "category_id",
@@ -744,26 +1254,43 @@ export default function AdminArticleEditor() {
                   )
                 }
               >
+
                 <option value="">
                   SELECT CATEGORY
                 </option>
 
-                {categories.map((category) => (
-                  <option
-                    key={category.id}
-                    value={category.id}
-                  >
-                    {category.name}
-                  </option>
-                ))}
+                {categories.map(
+                  (category) => (
+                    <option
+                      key={
+                        category.id
+                      }
+                      value={
+                        category.id
+                      }
+                    >
+                      {category.name}
+                    </option>
+                  )
+                )}
+
               </select>
+
             </label>
 
+
+            {/* FORMAT */}
+
             <label className="writer-field">
-              <span>FORMAT</span>
+
+              <span>
+                FORMAT
+              </span>
 
               <input
-                value={form.format}
+                value={
+                  form.format
+                }
                 onChange={(event) =>
                   updateField(
                     "format",
@@ -772,13 +1299,22 @@ export default function AdminArticleEditor() {
                 }
                 placeholder="THE RABBIT HOLE"
               />
+
             </label>
 
+
+            {/* TAG */}
+
             <label className="writer-field">
-              <span>TAG</span>
+
+              <span>
+                TAG
+              </span>
 
               <input
-                value={form.tag}
+                value={
+                  form.tag
+                }
                 onChange={(event) =>
                   updateField(
                     "tag",
@@ -787,13 +1323,22 @@ export default function AdminArticleEditor() {
                 }
                 placeholder="INTERNET CULTURE"
               />
+
             </label>
 
+
+            {/* READ TIME */}
+
             <label className="writer-field">
-              <span>READ TIME</span>
+
+              <span>
+                READ TIME
+              </span>
 
               <input
-                value={form.read_time}
+                value={
+                  form.read_time
+                }
                 onChange={(event) =>
                   updateField(
                     "read_time",
@@ -802,13 +1347,22 @@ export default function AdminArticleEditor() {
                 }
                 placeholder="7 min read"
               />
+
             </label>
 
+
+            {/* DATE */}
+
             <label className="writer-field">
-              <span>DATE</span>
+
+              <span>
+                DATE
+              </span>
 
               <input
-                value={form.date}
+                value={
+                  form.date
+                }
                 onChange={(event) =>
                   updateField(
                     "date",
@@ -817,13 +1371,22 @@ export default function AdminArticleEditor() {
                 }
                 placeholder="September 3, 2026"
               />
+
             </label>
 
+
+            {/* COLOR */}
+
             <label className="writer-field">
-              <span>ACCENT COLOR</span>
+
+              <span>
+                ACCENT COLOR
+              </span>
 
               <select
-                value={form.color}
+                value={
+                  form.color
+                }
                 onChange={(event) =>
                   updateField(
                     "color",
@@ -831,6 +1394,7 @@ export default function AdminArticleEditor() {
                   )
                 }
               >
+
                 <option value="pink">
                   PINK
                 </option>
@@ -850,32 +1414,50 @@ export default function AdminArticleEditor() {
                 <option value="mint">
                   MINT
                 </option>
+
               </select>
+
             </label>
+
           </section>
 
+
+          {/* COVER */}
+
           <section className="writer-sidebar-card">
+
             <div className="writer-sidebar-title">
               COVER IMAGE
             </div>
 
+
             {form.cover_image ? (
+
               <div className="writer-cover">
+
                 <img
-                  src={form.cover_image}
+                  src={
+                    form.cover_image
+                  }
                   alt="Article cover preview"
                 />
 
                 <button
                   type="button"
-                  onClick={removeCover}
+                  onClick={
+                    removeCover
+                  }
                 >
                   <X size={14} />
                   REMOVE
                 </button>
+
               </div>
+
             ) : (
+
               <label className="writer-upload">
+
                 <ImagePlus size={24} />
 
                 <strong>
@@ -895,22 +1477,33 @@ export default function AdminArticleEditor() {
                   accept="image/jpeg,image/png,image/webp,image/gif"
                   onChange={(event) =>
                     uploadCover(
-                      event.target.files?.[0]
+                      event.target
+                        .files?.[0]
                     )
                   }
-                  disabled={uploading}
+                  disabled={
+                    uploading
+                  }
                   hidden
                 />
 
                 <span className="writer-upload-link">
-                  <Upload size={13} />
+                  <Upload
+                    size={13}
+                  />
                   CHOOSE IMAGE
                 </span>
+
               </label>
             )}
+
           </section>
 
+
+          {/* WRITING TIP */}
+
           <section className="writer-sidebar-card writer-tip">
+
             <div className="writer-sidebar-title">
               WRITING NOTE
             </div>
@@ -921,38 +1514,61 @@ export default function AdminArticleEditor() {
               You can always come back and edit.
             </p>
 
-            <span>✦ CURIOUSLY EDITORIAL</span>
+            <span>
+              ✦ CURIOUSLY EDITORIAL
+            </span>
+
           </section>
+
         </aside>
+
       </div>
 
+
+      {/* =====================================================
+          FOOTER
+          ===================================================== */}
+
       <footer className="writer-footer">
+
         <button
           type="button"
-          onClick={() => navigate("/admin")}
+          onClick={() =>
+            navigate("/admin")
+          }
         >
           <ArrowLeft size={15} />
           BACK TO ADMIN
         </button>
 
+
         <div>
+
           <button
             type="button"
-            onClick={handleSaveDraft}
+            onClick={
+              handleSaveDraft
+            }
             disabled={saving}
           >
             SAVE DRAFT
           </button>
 
+
           <button
             type="button"
-            onClick={handlePublish}
+            onClick={
+              handlePublish
+            }
             disabled={saving}
           >
             PUBLISH →
           </button>
+
         </div>
+
       </footer>
+
     </main>
   );
 }
