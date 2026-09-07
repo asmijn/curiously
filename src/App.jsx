@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 
@@ -9,6 +10,7 @@ import Saved from "./pages/Saved";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import AskCuriously from "./pages/AskCuriously";
+import Confessions from "./pages/Confessions";
 
 import AdminLogin from "./pages/AdminLogin";
 import Admin from "./pages/Admin";
@@ -21,7 +23,6 @@ export default function App() {
       <Navbar />
 
       <Routes>
-        {/* PUBLIC PAGES */}
         <Route path="/" element={<Home />} />
 
         <Route
@@ -54,8 +55,11 @@ export default function App() {
           element={<AskCuriously />}
         />
 
+        <Route
+          path="/confessions"
+          element={<Confessions />}
+        />
 
-        {/* ADMIN */}
         <Route
           path="/admin-login"
           element={<AdminLogin />}

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Bookmark } from "lucide-react";
+import { Bookmark, ArrowRight } from "lucide-react";
 import { supabase } from "../supabase";
 import ArticleCard from "../components/ArticleCard";
 
@@ -44,7 +44,9 @@ export default function Saved() {
           `)
           .eq("visitor_id", visitorId)
           .eq("articles.published", true)
-          .order("created_at", { ascending: false });
+          .order("created_at", {
+            ascending: false,
+          });
 
         if (error) {
           throw error;
@@ -78,9 +80,15 @@ export default function Saved() {
           })
           .filter(Boolean);
 
-        setSavedArticles(formattedArticles);
+        setSavedArticles(
+          formattedArticles
+        );
       } catch (err) {
-        console.error("Error loading saved stories:", err);
+        console.error(
+          "Error loading saved stories:",
+          err
+        );
+
         setError(
           "WE COULDN'T LOAD YOUR SAVED STORIES. PLEASE TRY AGAIN."
         );
@@ -92,96 +100,337 @@ export default function Saved() {
     loadSavedArticles();
   }, []);
 
+  const savedCount =
+    savedArticles.length;
+
   return (
-    <main className="archive-page saved-page">
+    <main className="saved-page">
 
-      {/* HEADER */}
-      <section className="archive-header">
+      {/* =====================================================
+          EDITORIAL HEADER
+          ===================================================== */}
 
-        <div className="archive-kicker">
-          CURIOUSLY / SAVED
+      <section className="saved-hero">
+
+        <div className="saved-hero-top">
+
+          <div className="saved-kicker">
+            CURIOUSLY / YOUR COLLECTION
+          </div>
+
+          <div className="saved-issue">
+            VOL. 01
+            <span>✦</span>
+            2026
+          </div>
+
         </div>
 
-        <h1>SAVED STORIES</h1>
+        <div className="saved-hero-main">
 
-        <p className="archive-intro">
-          STORIES I WANT TO COME BACK TO.
-        </p>
+          <div className="saved-title-wrap">
+
+            <span className="saved-page-number">
+              06
+            </span>
+
+            <div>
+
+              <h1>
+                SAVED
+                <br />
+                <em>STORIES.</em>
+              </h1>
+
+              <p className="saved-subtitle">
+                THE ONES YOU WEREN'T
+                <br />
+                READY TO LET GO OF.
+              </p>
+
+            </div>
+
+          </div>
+
+          <div className="saved-hero-note">
+
+            <span className="saved-note-symbol">
+              ♡
+            </span>
+
+            <p>
+              A LITTLE
+              <br />
+              ARCHIVE OF
+              <br />
+              YOUR OWN.
+            </p>
+
+          </div>
+
+        </div>
+
+        <div className="saved-hero-bottom">
+
+          <span>
+            {savedCount > 0
+              ? `${savedCount} ${
+                  savedCount === 1
+                    ? "STORY"
+                    : "STORIES"
+                } IN YOUR COLLECTION`
+              : "YOUR PERSONAL READING LIST"}
+          </span>
+
+          <span className="saved-hero-arrow">
+            ↓
+          </span>
+
+        </div>
 
       </section>
 
-      {/* LOADING */}
-      {loading && (
-        <section className="saved-state">
-          <Bookmark size={28} strokeWidth={1.4} />
+      {/* =====================================================
+          LOADING
+          ===================================================== */}
 
-          <p>LOADING YOUR RABBIT HOLES...</p>
+      {loading && (
+        <section className="saved-state saved-loading">
+
+          <div className="saved-state-mark">
+            <Bookmark
+              size={30}
+              strokeWidth={1.2}
+            />
+          </div>
+
+          <span className="saved-state-kicker">
+            CURIOUSLY / LOADING
+          </span>
+
+          <h2>
+            GATHERING
+            <br />
+            YOUR RABBIT HOLES.
+          </h2>
+
+          <p>
+            ONE SECOND.
+          </p>
+
         </section>
       )}
 
-      {/* ERROR */}
+      {/* =====================================================
+          ERROR
+          ===================================================== */}
+
       {!loading && error && (
         <section className="saved-state saved-error">
-          <p>{error}</p>
+
+          <div className="saved-state-mark">
+            !
+          </div>
+
+          <span className="saved-state-kicker">
+            CURIOUSLY / OOPS
+          </span>
+
+          <h2>
+            SOMETHING
+            <br />
+            WENT WRONG.
+          </h2>
+
+          <p>
+            {error}
+          </p>
+
+          <Link
+            to="/articles"
+            className="saved-browse-link"
+          >
+            BACK TO THE MAGAZINE
+            <ArrowRight size={14} />
+          </Link>
+
         </section>
       )}
 
-      {/* EMPTY */}
+      {/* =====================================================
+          EMPTY STATE
+          ===================================================== */}
+
       {!loading &&
         !error &&
         savedArticles.length === 0 && (
-          <section className="saved-state saved-empty">
+          <section className="saved-empty">
 
-            <Bookmark
-              size={42}
-              strokeWidth={1.2}
-            />
+            <div className="saved-empty-left">
 
-            <h2>NOTHING SAVED YET.</h2>
+              <span className="saved-empty-number">
+                00
+              </span>
 
-            <p>
-              FIND A STORY YOU LOVE AND
-              BOOKMARK IT FOR LATER.
-            </p>
+              <div className="saved-empty-bookmark">
+                <Bookmark
+                  size={48}
+                  strokeWidth={1}
+                />
+              </div>
 
-            <Link
-              to="/articles"
-              className="saved-browse-link"
-            >
-              EXPLORE THE MAGAZINE →
-            </Link>
+            </div>
+
+            <div className="saved-empty-main">
+
+              <div className="saved-empty-kicker">
+                CURIOUSLY / YOUR ARCHIVE
+              </div>
+
+              <h2>
+                NOTHING
+                <br />
+                <em>SAVED YET.</em>
+              </h2>
+
+              <p>
+                You haven't found the ones
+                worth keeping yet.
+              </p>
+
+              <p>
+                Wander around the magazine.
+                Follow a question. Fall down
+                a rabbit hole. When you find
+                something you want to return
+                to, save it here.
+              </p>
+
+              <Link
+                to="/articles"
+                className="saved-empty-cta"
+              >
+                <span>
+                  EXPLORE THE MAGAZINE
+                </span>
+
+                <ArrowRight size={15} />
+              </Link>
+
+            </div>
+
+            <div className="saved-empty-side">
+
+              <span>NOTE TO SELF</span>
+
+              <p>
+                "COME BACK
+                <br />
+                TO THIS."
+              </p>
+
+              <span className="saved-empty-scribble">
+                ✎
+              </span>
+
+            </div>
 
           </section>
         )}
 
-      {/* SAVED STORIES */}
+      {/* =====================================================
+          SAVED STORIES
+          ===================================================== */}
+
       {!loading &&
         !error &&
         savedArticles.length > 0 && (
           <section className="saved-content">
 
+            <div className="saved-content-header">
+
+              <div className="saved-content-heading">
+
+                <span className="saved-content-number">
+                  01
+                </span>
+
+                <div>
+
+                  <span className="saved-content-kicker">
+                    CURIOUSLY / BOOKMARKS
+                  </span>
+
+                  <h2>
+                    YOUR
+                    <br />
+                    <em>READING LIST.</em>
+                  </h2>
+
+                </div>
+
+              </div>
+
+              <div className="saved-content-meta">
+
+                <span>
+                  {savedCount
+                    .toString()
+                    .padStart(2, "0")}
+                </span>
+
+                <small>
+                  SAVED
+                </small>
+
+              </div>
+
+            </div>
+
+            <div className="saved-rule" />
+
             <div className="saved-topline">
+
               <span>
-                {savedArticles.length}{" "}
-                {savedArticles.length === 1
-                  ? "STORY"
-                  : "STORIES"}{" "}
-                SAVED
+                STORIES WORTH
+                COMING BACK TO
               </span>
 
               <Link to="/articles">
-                KEEP EXPLORING →
+                KEEP EXPLORING
+                <ArrowRight
+                  size={13}
+                />
               </Link>
+
             </div>
 
-            <div className="archive-grid">
-              {savedArticles.map((article, index) => (
-                <ArticleCard
-                  key={article.id}
-                  article={article}
-                  index={index}
-                />
-              ))}
+            <div className="archive-grid saved-grid">
+              {savedArticles.map(
+                (article, index) => (
+                  <ArticleCard
+                    key={article.id}
+                    article={article}
+                    index={index}
+                  />
+                )
+              )}
+            </div>
+
+            <div className="saved-endnote">
+
+              <span>✦</span>
+
+              <p>
+                KEEP FOLLOWING
+                <br />
+                THE QUESTION.
+              </p>
+
+              <Link to="/articles">
+                FIND ANOTHER RABBIT HOLE →
+              </Link>
+
             </div>
 
           </section>

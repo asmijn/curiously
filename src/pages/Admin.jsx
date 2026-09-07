@@ -67,10 +67,7 @@ export default function Admin() {
       });
 
     if (error) {
-      console.error(
-        "Admin articles error:",
-        error
-      );
+      console.error("Admin articles error:", error);
       setArticles([]);
       return;
     }
@@ -87,10 +84,7 @@ export default function Admin() {
       });
 
     if (error) {
-      console.error(
-        "Admin categories error:",
-        error
-      );
+      console.error("Admin categories error:", error);
       setCategories([]);
       return;
     }
@@ -117,10 +111,7 @@ export default function Admin() {
       });
 
     if (error) {
-      console.error(
-        "Admin comments error:",
-        error
-      );
+      console.error("Admin comments error:", error);
       setComments([]);
       return;
     }
@@ -142,10 +133,7 @@ export default function Admin() {
       });
 
     if (error) {
-      console.error(
-        "Admin subscribers error:",
-        error
-      );
+      console.error("Admin subscribers error:", error);
       setSubscribers([]);
       return;
     }
@@ -170,10 +158,7 @@ export default function Admin() {
       });
 
     if (error) {
-      console.error(
-        "Admin submissions error:",
-        error
-      );
+      console.error("Admin submissions error:", error);
       setSubmissions([]);
       return;
     }
@@ -192,10 +177,7 @@ export default function Admin() {
       .eq("id", article.id);
 
     if (error) {
-      console.error(
-        "Publish update error:",
-        error
-      );
+      console.error("Publish update error:", error);
       setActionLoading("");
       return;
     }
@@ -217,8 +199,7 @@ export default function Admin() {
   async function toggleFeatured(article) {
     setActionLoading(article.id);
 
-    const newFeaturedState =
-      !article.featured;
+    const newFeaturedState = !article.featured;
 
     const { error } = await supabase
       .from("articles")
@@ -228,10 +209,7 @@ export default function Admin() {
       .eq("id", article.id);
 
     if (error) {
-      console.error(
-        "Featured update error:",
-        error
-      );
+      console.error("Featured update error:", error);
       setActionLoading("");
       return;
     }
@@ -267,10 +245,7 @@ export default function Admin() {
       .eq("id", article.id);
 
     if (error) {
-      console.error(
-        "Delete article error:",
-        error
-      );
+      console.error("Delete article error:", error);
       setActionLoading("");
       return;
     }
@@ -459,6 +434,18 @@ export default function Admin() {
       submission.status === "new"
   );
 
+  const pendingConfessions = submissions.filter(
+    (submission) =>
+      submission.type === "CONFESSION" &&
+      submission.status === "new"
+  );
+
+  const approvedConfessions = submissions.filter(
+    (submission) =>
+      submission.type === "CONFESSION" &&
+      submission.status === "approved"
+  );
+
   if (loading) {
     return (
       <main className="admin-page">
@@ -568,8 +555,6 @@ export default function Admin() {
         </div>
 
 
-        {/* FEATURED SUMMARY */}
-
         {featuredArticles.length > 0 && (
 
           <div className="admin-featured-summary">
@@ -648,7 +633,6 @@ export default function Admin() {
                     ).padStart(2, "0")}
                   </div>
 
-
                   <div className="admin-row-main">
 
                     <div className="admin-row-meta">
@@ -669,16 +653,13 @@ export default function Admin() {
 
                     </div>
 
-
                     <h3>
                       {article.title}
                     </h3>
 
-
                     <p className="admin-row-slug">
                       /{article.slug}
                     </p>
-
 
                     <div
                       className={
@@ -700,7 +681,6 @@ export default function Admin() {
 
                     </div>
 
-
                     {article.featured && (
 
                       <div className="admin-featured-badge">
@@ -718,8 +698,6 @@ export default function Admin() {
 
                   <div className="admin-row-actions">
 
-                    {/* INSIGHTS */}
-
                     <button
                       className="admin-action-button"
                       onClick={() =>
@@ -730,9 +708,6 @@ export default function Admin() {
                     >
                       INSIGHTS →
                     </button>
-
-
-                    {/* EDIT */}
 
                     <button
                       className="admin-action-button"
@@ -749,9 +724,6 @@ export default function Admin() {
                       <Edit3 size={15} />
                       EDIT
                     </button>
-
-
-                    {/* FEATURE */}
 
                     <button
                       className={`admin-action-button admin-feature-button ${
@@ -785,9 +757,6 @@ export default function Admin() {
 
                     </button>
 
-
-                    {/* PUBLISH */}
-
                     <button
                       className="admin-action-button"
                       onClick={() =>
@@ -814,9 +783,6 @@ export default function Admin() {
                       )}
 
                     </button>
-
-
-                    {/* DELETE */}
 
                     <button
                       className="admin-action-button admin-delete-button"
@@ -877,7 +843,6 @@ export default function Admin() {
             </div>
 
           </div>
-
 
           <div className="admin-comments-summary">
 
@@ -947,7 +912,6 @@ export default function Admin() {
                     ?
                   </div>
 
-
                   <div className="admin-comment-content">
 
                     <div className="admin-comment-meta">
@@ -968,11 +932,9 @@ export default function Admin() {
 
                     </div>
 
-
                     <p className="admin-comment-text">
                       {comment.comment}
                     </p>
-
 
                     <span className="admin-comment-article">
                       {comment.articles?.title ||
@@ -980,7 +942,6 @@ export default function Admin() {
                     </span>
 
                   </div>
-
 
                   <div className="admin-comment-actions">
 
@@ -999,7 +960,6 @@ export default function Admin() {
                       <Check size={14} />
                       APPROVE
                     </button>
-
 
                     <button
                       className="admin-comment-delete"
@@ -1080,7 +1040,6 @@ export default function Admin() {
                     </span>
                   </div>
 
-
                   <div className="admin-comment-content">
 
                     <div className="admin-comment-meta">
@@ -1101,11 +1060,9 @@ export default function Admin() {
 
                     </div>
 
-
                     <p className="admin-comment-text">
                       {comment.comment}
                     </p>
-
 
                     <span className="admin-comment-article">
                       {comment.articles?.title ||
@@ -1113,7 +1070,6 @@ export default function Admin() {
                     </span>
 
                   </div>
-
 
                   <div className="admin-comment-actions">
 
@@ -1170,13 +1126,12 @@ export default function Admin() {
               </h2>
 
               <p>
-                Questions, ideas, and rabbit holes from your readers.
+                Questions, ideas, rabbit holes, and anonymous confessions.
               </p>
 
             </div>
 
           </div>
-
 
           <div className="admin-comments-summary">
 
@@ -1193,6 +1148,65 @@ export default function Admin() {
           </div>
 
         </div>
+
+
+        {/* CONFESSION SUMMARY */}
+
+        {pendingConfessions.length > 0 && (
+
+          <div className="admin-featured-summary">
+
+            <div className="admin-featured-summary-icon">
+              <MessageCircle size={16} />
+            </div>
+
+            <div>
+
+              <strong>
+                {pendingConfessions.length}{" "}
+                {pendingConfessions.length === 1
+                  ? "CONFESSION"
+                  : "CONFESSIONS"}{" "}
+                WAITING FOR APPROVAL
+              </strong>
+
+              <span>
+                Anonymous confessions stay private until you approve them.
+              </span>
+
+            </div>
+
+          </div>
+
+        )}
+
+        {approvedConfessions.length > 0 && (
+
+          <div className="admin-featured-summary">
+
+            <div className="admin-featured-summary-icon">
+              <Check size={16} />
+            </div>
+
+            <div>
+
+              <strong>
+                {approvedConfessions.length}{" "}
+                {approvedConfessions.length === 1
+                  ? "CONFESSION"
+                  : "CONFESSIONS"}{" "}
+                APPROVED
+              </strong>
+
+              <span>
+                These confessions are currently visible on the public confessions page.
+              </span>
+
+            </div>
+
+          </div>
+
+        )}
 
 
         {!submissions.length ? (
@@ -1220,127 +1234,196 @@ export default function Admin() {
           <div className="admin-submission-list">
 
             {submissions.map(
-              (submission, index) => (
+              (submission, index) => {
 
-                <article
-                  className={`admin-submission-row status-${submission.status}`}
-                  key={submission.id}
-                >
+                const isConfession =
+                  submission.type ===
+                  "CONFESSION";
 
-                  <div className="admin-submission-number">
-                    {String(
-                      index + 1
-                    ).padStart(2, "0")}
-                  </div>
+                const isApproved =
+                  submission.status ===
+                  "approved";
+
+                return (
+                  <article
+                    className={`admin-submission-row status-${submission.status} ${
+                      isConfession
+                        ? "admin-confession-row"
+                        : ""
+                    } ${
+                      isApproved
+                        ? "admin-confession-approved"
+                        : ""
+                    }`}
+                    key={submission.id}
+                  >
+
+                    <div className="admin-submission-number">
+                      {String(
+                        index + 1
+                      ).padStart(2, "0")}
+                    </div>
 
 
-                  <div className="admin-submission-content">
+                    <div className="admin-submission-content">
 
-                    <div className="admin-submission-meta">
+                      <div className="admin-submission-meta">
 
-                      <span className="admin-submission-type">
-                        {submission.type}
-                      </span>
+                        <span className="admin-submission-type">
+                          {submission.type}
+                        </span>
 
-                      <span>
-                        ·
-                      </span>
+                        <span>
+                          ·
+                        </span>
 
-                      <span>
-                        {formatSubscriberDate(
-                          submission.created_at
+                        <span>
+                          {formatSubscriberDate(
+                            submission.created_at
+                          )}
+                        </span>
+
+                        {isConfession && (
+                          <>
+                            <span>
+                              ·
+                            </span>
+
+                            <span className="admin-confession-private">
+                              ANONYMOUS
+                            </span>
+                          </>
                         )}
-                      </span>
+
+                      </div>
+
+
+                      <p className="admin-submission-message">
+                        {submission.message}
+                      </p>
+
+
+                      <div className="admin-submission-from">
+
+                        <strong>
+                          {isConfession
+                            ? "ANONYMOUS"
+                            : submission.name ||
+                              "ANONYMOUS"}
+                        </strong>
+
+                        {!isConfession &&
+                          submission.email && (
+                            <>
+                              <span>
+                                ·
+                              </span>
+
+                              <span>
+                                {submission.email}
+                              </span>
+                            </>
+                          )}
+
+                      </div>
 
                     </div>
 
 
-                    <p className="admin-submission-message">
-                      {submission.message}
-                    </p>
+                    <div className="admin-submission-actions">
 
+                      {isConfession &&
+                        !isApproved && (
+                          <button
+                            className="admin-comment-approve admin-confession-approve"
+                            onClick={() =>
+                              updateSubmissionStatus(
+                                submission,
+                                "approved"
+                              )
+                            }
+                            disabled={
+                              actionLoading ===
+                              submission.id
+                            }
+                          >
+                            <Check size={14} />
+                            APPROVE
+                          </button>
+                        )}
 
-                    <div className="admin-submission-from">
-
-                      <strong>
-                        {submission.name ||
-                          "ANONYMOUS"}
-                      </strong>
-
-                      {submission.email && (
-                        <>
-                          <span>
-                            ·
+                      {isConfession &&
+                        isApproved && (
+                          <span className="admin-confession-approved-label">
+                            <Check size={14} />
+                            APPROVED
                           </span>
+                        )}
 
-                          <span>
-                            {submission.email}
-                          </span>
-                        </>
-                      )}
+
+                      <select
+                        value={
+                          submission.status
+                        }
+                        onChange={(event) =>
+                          updateSubmissionStatus(
+                            submission,
+                            event.target.value
+                          )
+                        }
+                        disabled={
+                          actionLoading ===
+                          submission.id
+                        }
+                        className="admin-submission-status-select"
+                      >
+
+                        <option value="new">
+                          NEW
+                        </option>
+
+                        {isConfession && (
+                          <option value="approved">
+                            APPROVED
+                          </option>
+                        )}
+
+                        <option value="reviewed">
+                          REVIEWED
+                        </option>
+
+                        <option value="used">
+                          USED
+                        </option>
+
+                        <option value="archived">
+                          ARCHIVED
+                        </option>
+
+                      </select>
+
+
+                      <button
+                        className="admin-comment-delete"
+                        onClick={() =>
+                          deleteSubmission(
+                            submission
+                          )
+                        }
+                        disabled={
+                          actionLoading ===
+                          submission.id
+                        }
+                      >
+                        <Trash2 size={14} />
+                        DELETE
+                      </button>
 
                     </div>
 
-                  </div>
-
-
-                  <div className="admin-submission-actions">
-
-                    <select
-                      value={submission.status}
-                      onChange={(event) =>
-                        updateSubmissionStatus(
-                          submission,
-                          event.target.value
-                        )
-                      }
-                      disabled={
-                        actionLoading ===
-                        submission.id
-                      }
-                      className="admin-submission-status-select"
-                    >
-
-                      <option value="new">
-                        NEW
-                      </option>
-
-                      <option value="reviewed">
-                        REVIEWED
-                      </option>
-
-                      <option value="used">
-                        USED
-                      </option>
-
-                      <option value="archived">
-                        ARCHIVED
-                      </option>
-
-                    </select>
-
-
-                    <button
-                      className="admin-comment-delete"
-                      onClick={() =>
-                        deleteSubmission(
-                          submission
-                        )
-                      }
-                      disabled={
-                        actionLoading ===
-                        submission.id
-                      }
-                    >
-                      <Trash2 size={14} />
-                      DELETE
-                    </button>
-
-                  </div>
-
-                </article>
-
-              )
+                  </article>
+                );
+              }
             )}
 
           </div>
@@ -1379,7 +1462,6 @@ export default function Admin() {
             </div>
 
           </div>
-
 
           <div className="admin-section-count">
             {categories.length}
@@ -1519,18 +1601,15 @@ export default function Admin() {
                     ).padStart(2, "0")}
                   </span>
 
-
                   <span className="admin-subscriber-email">
                     {subscriber.email}
                   </span>
-
 
                   <span className="admin-subscriber-date">
                     {formatSubscriberDate(
                       subscriber.subscribed_at
                     )}
                   </span>
-
 
                   <span
                     className={

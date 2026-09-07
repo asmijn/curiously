@@ -55,23 +55,21 @@ export default function Article() {
   const [comments, setComments] = useState([]);
   const [commentName, setCommentName] = useState("");
   const [commentText, setCommentText] = useState("");
-  const [commentSubmitting, setCommentSubmitting] =
-    useState(false);
-  const [commentSubmitted, setCommentSubmitted] =
-    useState(false);
+  const [commentSubmitting, setCommentSubmitting] = useState(false);
+  const [commentSubmitted, setCommentSubmitted] = useState(false);
   const [commentError, setCommentError] = useState("");
 
-  const [readingProgress, setReadingProgress] =
-    useState(0);
+  const [receipts, setReceipts] = useState([]);
 
-  const [showReadingProgress, setShowReadingProgress] =
-    useState(() => {
-      return (
-        localStorage.getItem(
-          "curiously_hide_reading_progress"
-        ) !== "true"
-      );
-    });
+  const [readingProgress, setReadingProgress] = useState(0);
+
+  const [showReadingProgress, setShowReadingProgress] = useState(() => {
+    return (
+      localStorage.getItem(
+        "curiously_hide_reading_progress"
+      ) !== "true"
+    );
+  });
 
   /* =========================================================
      LOAD ARTICLE
@@ -123,6 +121,20 @@ export default function Article() {
           sections:
             data.sections ||
             [],
+
+          marginalia:
+            Array.isArray(data.marginalia)
+              ? [...data.marginalia]
+                  .sort(
+                    (a, b) =>
+                      (a?.position || 0) -
+                      (b?.position || 0)
+                  )
+                  .filter(
+                    (item) =>
+                      item?.note?.trim()
+                  )
+              : [],
         };
 
         setArticle(formattedArticle);
@@ -130,6 +142,7 @@ export default function Article() {
         loadLikes(data.id);
         loadBookmark(data.id);
         loadComments(data.id);
+        loadReceipts(data.id);
         loadRelatedStories(data);
       } catch (err) {
         console.error(
@@ -171,7 +184,10 @@ export default function Article() {
         (scrollTop / documentHeight) * 100;
 
       setReadingProgress(
-        Math.min(100, Math.max(0, progress))
+        Math.min(
+          100,
+          Math.max(0, progress)
+        )
       );
     }
 
@@ -216,14 +232,16 @@ export default function Article() {
     try {
       const visitorId = getVisitorId();
 
-      const { count, error: countError } =
-        await supabase
-          .from("article_likes")
-          .select("*", {
-            count: "exact",
-            head: true,
-          })
-          .eq("article_id", articleId);
+      const {
+        count,
+        error: countError,
+      } = await supabase
+        .from("article_likes")
+        .select("*", {
+          count: "exact",
+          head: true,
+        })
+        .eq("article_id", articleId);
 
       if (countError) {
         console.error(
@@ -234,12 +252,19 @@ export default function Article() {
         setLikeCount(count || 0);
       }
 
-      const { data, error } = await supabase
-        .from("article_likes")
-        .select("id")
-        .eq("article_id", articleId)
-        .eq("visitor_id", visitorId)
-        .maybeSingle();
+      const { data, error } =
+        await supabase
+          .from("article_likes")
+          .select("id")
+          .eq(
+            "article_id",
+            articleId
+          )
+          .eq(
+            "visitor_id",
+            visitorId
+          )
+          .maybeSingle();
 
       if (error) {
         console.error(
@@ -261,14 +286,22 @@ export default function Article() {
     if (!article) return;
 
     try {
-      const visitorId = getVisitorId();
+      const visitorId =
+        getVisitorId();
 
       if (liked) {
-        const { error } = await supabase
-          .from("article_likes")
-          .delete()
-          .eq("article_id", article.id)
-          .eq("visitor_id", visitorId);
+        const { error } =
+          await supabase
+            .from("article_likes")
+            .delete()
+            .eq(
+              "article_id",
+              article.id
+            )
+            .eq(
+              "visitor_id",
+              visitorId
+            );
 
         if (error) {
           throw error;
@@ -280,12 +313,15 @@ export default function Article() {
           Math.max(0, count - 1)
         );
       } else {
-        const { error } = await supabase
-          .from("article_likes")
-          .insert({
-            article_id: article.id,
-            visitor_id: visitorId,
-          });
+        const { error } =
+          await supabase
+            .from("article_likes")
+            .insert({
+              article_id:
+                article.id,
+              visitor_id:
+                visitorId,
+            });
 
         if (error) {
           throw error;
@@ -293,7 +329,9 @@ export default function Article() {
 
         setLiked(true);
 
-        setLikeCount((count) => count + 1);
+        setLikeCount(
+          (count) => count + 1
+        );
       }
     } catch (err) {
       console.error(
@@ -311,14 +349,24 @@ export default function Article() {
 
   async function loadBookmark(articleId) {
     try {
-      const visitorId = getVisitorId();
+      const visitorId =
+        getVisitorId();
 
-      const { data, error } = await supabase
-        .from("article_bookmarks")
-        .select("id")
-        .eq("article_id", articleId)
-        .eq("visitor_id", visitorId)
-        .maybeSingle();
+      const { data, error } =
+        await supabase
+          .from(
+            "article_bookmarks"
+          )
+          .select("id")
+          .eq(
+            "article_id",
+            articleId
+          )
+          .eq(
+            "visitor_id",
+            visitorId
+          )
+          .maybeSingle();
 
       if (error) {
         console.error(
@@ -342,14 +390,24 @@ export default function Article() {
     if (!article) return;
 
     try {
-      const visitorId = getVisitorId();
+      const visitorId =
+        getVisitorId();
 
       if (saved) {
-        const { error } = await supabase
-          .from("article_bookmarks")
-          .delete()
-          .eq("article_id", article.id)
-          .eq("visitor_id", visitorId);
+        const { error } =
+          await supabase
+            .from(
+              "article_bookmarks"
+            )
+            .delete()
+            .eq(
+              "article_id",
+              article.id
+            )
+            .eq(
+              "visitor_id",
+              visitorId
+            );
 
         if (error) {
           throw error;
@@ -357,12 +415,17 @@ export default function Article() {
 
         setSaved(false);
       } else {
-        const { error } = await supabase
-          .from("article_bookmarks")
-          .insert({
-            article_id: article.id,
-            visitor_id: visitorId,
-          });
+        const { error } =
+          await supabase
+            .from(
+              "article_bookmarks"
+            )
+            .insert({
+              article_id:
+                article.id,
+              visitor_id:
+                visitorId,
+            });
 
         if (error) {
           throw error;
@@ -379,24 +442,92 @@ export default function Article() {
   }
 
   /* =========================================================
+     THE RECEIPTS
+     ========================================================= */
+
+  async function loadReceipts(articleId) {
+    try {
+      const { data, error } =
+        await supabase
+          .from("article_receipts")
+          .select(`
+            id,
+            type,
+            title,
+            description,
+            source_url,
+            image_url,
+            author,
+            publication,
+            published_date,
+            sort_order
+          `)
+          .eq(
+            "article_id",
+            articleId
+          )
+          .order(
+            "sort_order",
+            {
+              ascending: true,
+            }
+          )
+          .order(
+            "created_at",
+            {
+              ascending: true,
+            }
+          );
+
+      if (error) {
+        console.error(
+          "Error loading article receipts:",
+          error
+        );
+
+        return;
+      }
+
+      setReceipts(data || []);
+    } catch (err) {
+      console.error(
+        "Receipts loading error:",
+        err
+      );
+    }
+  }
+
+  /* =========================================================
      COMMENTS
      ========================================================= */
 
   async function loadComments(articleId) {
     try {
-      const { data, error } = await supabase
-        .from("article_comments")
-        .select(`
-          id,
-          name,
-          comment,
-          created_at
-        `)
-        .eq("article_id", articleId)
-        .eq("approved", true)
-        .order("created_at", {
-          ascending: true,
-        });
+      const { data, error } =
+        await supabase
+          .from(
+            "article_comments"
+          )
+          .select(`
+            id,
+            name,
+            comment,
+            created_at
+          `)
+          .eq(
+            "article_id",
+            articleId
+          )
+          .eq(
+            "approved",
+            true
+          )
+          .order(
+            "created_at",
+            {
+              ascending: true,
+            }
+          );
 
       if (error) {
         console.error(
@@ -422,8 +553,11 @@ export default function Article() {
     setCommentError("");
     setCommentSubmitted(false);
 
-    const name = commentName.trim();
-    const comment = commentText.trim();
+    const name =
+      commentName.trim();
+
+    const comment =
+      commentText.trim();
 
     if (!name) {
       setCommentError(
@@ -462,14 +596,18 @@ export default function Article() {
     setCommentSubmitting(true);
 
     try {
-      const { error } = await supabase
-        .from("article_comments")
-        .insert({
-          article_id: article.id,
-          name,
-          comment,
-          approved: false,
-        });
+      const { error } =
+        await supabase
+          .from(
+            "article_comments"
+          )
+          .insert({
+            article_id:
+              article.id,
+            name,
+            comment,
+            approved: false,
+          });
 
       if (error) {
         throw error;
@@ -505,19 +643,30 @@ export default function Article() {
         currentArticle.title
       );
 
-      const { data, error } = await supabase
-        .from("articles")
-        .select(`
-          *,
-          categories (
-            name
+      const { data, error } =
+        await supabase
+          .from("articles")
+          .select(`
+            *,
+            categories (
+              name
+            )
+          `)
+          .eq(
+            "published",
+            true
           )
-        `)
-        .eq("published", true)
-        .order("created_at", {
-          ascending: false,
-        })
-        .limit(20);
+          .eq(
+            "secret",
+            false
+          )
+          .order(
+            "created_at",
+            {
+              ascending: false,
+            }
+          )
+          .limit(20);
 
       if (error) {
         console.error(
@@ -528,39 +677,40 @@ export default function Article() {
         return;
       }
 
-      console.log(
-        "Published articles found:",
-        data?.length || 0
-      );
-
       const currentCategory =
-        currentArticle.categories?.name ||
+        currentArticle
+          .categories?.name ||
         "";
 
-      const otherArticles = (data || [])
-        .filter(
-          (story) =>
-            story.id !== currentArticle.id
-        )
-        .map((story) => ({
-          ...story,
+      const otherArticles =
+        (data || [])
+          .filter(
+            (story) =>
+              story.id !==
+              currentArticle.id
+          )
+          .map(
+            (story) => ({
+              ...story,
 
-          category:
-            story.categories?.name ||
-            "UNCATEGORIZED",
+              category:
+                story.categories
+                  ?.name ||
+                "UNCATEGORIZED",
 
-          readTime:
-            story.read_time ||
-            "",
+              readTime:
+                story.read_time ||
+                "",
 
-          coverImage:
-            story.cover_image ||
-            "",
+              coverImage:
+                story.cover_image ||
+                "",
 
-          sections:
-            story.sections ||
-            [],
-        }));
+              sections:
+                story.sections ||
+                [],
+            })
+          );
 
       const sameCategory =
         otherArticles.filter(
@@ -581,12 +731,9 @@ export default function Article() {
         ...differentCategory,
       ].slice(0, 3);
 
-      console.log(
-        "Related stories selected:",
+      setRelatedStories(
         selected
       );
-
-      setRelatedStories(selected);
     } catch (err) {
       console.error(
         "Related stories error:",
@@ -603,24 +750,30 @@ export default function Article() {
     if (!article) return;
 
     const shareData = {
-      title: article.title,
+      title:
+        article.title,
 
       text:
         article.subtitle ||
         "Read this story on CURIOUSLY.",
 
-      url: window.location.href,
+      url:
+        window.location.href,
     };
 
     try {
       if (
         navigator.share &&
-        typeof navigator.share === "function"
+        typeof navigator.share ===
+          "function"
       ) {
-        await navigator.share(shareData);
+        await navigator.share(
+          shareData
+        );
       } else if (
         navigator.clipboard &&
-        navigator.clipboard.writeText
+        navigator.clipboard
+          .writeText
       ) {
         await navigator.clipboard.writeText(
           window.location.href
@@ -632,7 +785,10 @@ export default function Article() {
         );
       }
     } catch (err) {
-      if (err?.name !== "AbortError") {
+      if (
+        err?.name !==
+        "AbortError"
+      ) {
         console.error(
           "Error sharing article:",
           err
@@ -649,7 +805,9 @@ export default function Article() {
     return (
       <main className="article-page">
         <section className="article-loading">
-          <p>LOADING STORY...</p>
+          <p>
+            LOADING STORY...
+          </p>
         </section>
       </main>
     );
@@ -663,17 +821,23 @@ export default function Article() {
     return (
       <main className="article-page">
         <section className="article-error">
+
           <p>
-            {error || "STORY NOT FOUND."}
+            {error ||
+              "STORY NOT FOUND."}
           </p>
 
           <Link
             to="/articles"
             className="article-back"
           >
-            <ArrowLeft size={14} />
+            <ArrowLeft
+              size={14}
+            />
+
             BACK TO THE ARCHIVE
           </Link>
+
         </section>
       </main>
     );
@@ -694,18 +858,36 @@ export default function Article() {
     "";
 
   const sections =
-    Array.isArray(article.sections) &&
-    article.sections.length > 0
+    Array.isArray(
+      article.sections
+    ) &&
+    article.sections.length >
+      0
       ? article.sections
       : [];
 
+  const marginalia =
+    Array.isArray(
+      article.marginalia
+    )
+      ? article.marginalia
+      : [];
+
+  const isSecret =
+    article.secret === true;
+
   return (
     <main
-      className="article-page"
+      className={`article-page ${
+        isSecret
+          ? "article-secret"
+          : ""
+      }`}
       style={{
         "--reading-progress": `${readingProgress}%`,
       }}
     >
+
       {/* =====================================================
           READING PROGRESS
           ===================================================== */}
@@ -716,7 +898,9 @@ export default function Article() {
           <button
             type="button"
             className="article-reading-progress-close"
-            onClick={closeReadingProgress}
+            onClick={
+              closeReadingProgress
+            }
             aria-label="Hide reading progress"
             title="Hide reading progress"
           >
@@ -728,7 +912,10 @@ export default function Article() {
           </div>
 
           <span className="article-reading-progress-percent">
-            {Math.round(readingProgress)}%
+            {Math.round(
+              readingProgress
+            )}
+            %
           </span>
 
         </div>
@@ -736,13 +923,24 @@ export default function Article() {
         <button
           type="button"
           className="article-reading-progress-reopen"
-          onClick={reopenReadingProgress}
+          onClick={
+            reopenReadingProgress
+          }
           aria-label="Show reading progress"
           title="Show reading progress"
         >
-          <span>READING</span>
-          <span>PROGRESS</span>
-          <span>+</span>
+          <span>
+            READING
+          </span>
+
+          <span>
+            PROGRESS
+          </span>
+
+          <span>
+            +
+          </span>
+
         </button>
       )}
 
@@ -752,11 +950,32 @@ export default function Article() {
 
       <header className="article-hero">
 
+        {isSecret && (
+          <div className="article-secret-mark">
+
+            <span>
+              ✦
+            </span>
+
+            <span>
+              CURIOUSLY SECRET
+            </span>
+
+            <span>
+              ✦
+            </span>
+
+          </div>
+        )}
+
         <Link
           to="/articles"
           className="article-back"
         >
-          <ArrowLeft size={14} />
+          <ArrowLeft
+            size={14}
+          />
+
           BACK TO THE ARCHIVE
         </Link>
 
@@ -765,18 +984,25 @@ export default function Article() {
         </div>
 
         <div className="article-meta">
+
           {article.date ||
-            formatDate(article.created_at)}
+            formatDate(
+              article.created_at
+            )}
 
           {" / "}
 
-          {article.format || "STORY"}
+          {article.format ||
+            "STORY"}
 
           {article.read_time &&
             ` / ${article.read_time}`}
+
         </div>
 
-        <h1>{article.title}</h1>
+        <h1>
+          {article.title}
+        </h1>
 
         {article.subtitle && (
           <p className="article-subtitle">
@@ -827,17 +1053,21 @@ export default function Article() {
 
       <div className="article-layout">
 
-        {/* SIDEBAR */}
+        {/* ===================================================
+            SIDEBAR
+            =================================================== */}
 
         <aside className="article-sidebar">
-
-          {/* CATEGORY */}
 
           <div
             className={`article-sidebar-item category-${category
               .toLowerCase()
-              .replace(/\s+/g, "-")}`}
+              .replace(
+                /\s+/g,
+                "-"
+              )}`}
           >
+
             <span className="article-sidebar-label">
               CATEGORY
             </span>
@@ -845,9 +1075,8 @@ export default function Article() {
             <strong>
               {category}
             </strong>
-          </div>
 
-          {/* FORMAT */}
+          </div>
 
           {article.format && (
             <div className="article-sidebar-item">
@@ -863,8 +1092,6 @@ export default function Article() {
             </div>
           )}
 
-          {/* TAG */}
-
           {article.tag && (
             <div className="article-sidebar-item">
 
@@ -879,20 +1106,26 @@ export default function Article() {
             </div>
           )}
 
-          {/* SAVE */}
-
           <button
             type="button"
             className={`article-save ${
-              saved ? "saved" : ""
+              saved
+                ? "saved"
+                : ""
             }`}
-            onClick={toggleSave}
+            onClick={
+              toggleSave
+            }
           >
-            <Bookmark size={15} />
+
+            <Bookmark
+              size={15}
+            />
 
             {saved
               ? "SAVED"
               : "SAVE STORY"}
+
           </button>
 
         </aside>
@@ -909,57 +1142,169 @@ export default function Article() {
             </div>
           )}
 
-          {/* SECTIONS */}
+          {/* =================================================
+              STORY + MARGINALIA
+              ================================================= */}
 
           {sections.length > 0 ? (
 
-            sections.map(
-              (section, index) => (
-                <section
-                  key={index}
-                  className="article-section"
-                >
+            <div className="article-story-with-marginalia">
 
-                  {section.heading && (
-                    <h2>
-                      {section.heading}
-                    </h2>
-                  )}
+              {sections.map(
+                (
+                  section,
+                  index
+                ) => {
 
-                  {section.body &&
-                    String(section.body)
-                      .split("\n")
-                      .map(
-                        (
-                          paragraph,
-                          paragraphIndex
-                        ) =>
-                          paragraph.trim() && (
-                            <p
-                              key={
-                                paragraphIndex
-                              }
-                            >
-                              {paragraph}
-                            </p>
+                  const sectionNotes =
+                    marginalia.filter(
+                      (note) =>
+                        Number(
+                          note?.position
+                        ) ===
+                        index + 1
+                    );
+
+                  return (
+                    <div
+                      key={index}
+                      className="article-section-row"
+                    >
+
+                      <section className="article-section">
+
+                        {section.heading && (
+                          <h2>
+                            {
+                              section.heading
+                            }
+                          </h2>
+                        )}
+
+                        {section.body &&
+                          String(
+                            section.body
                           )
+                            .split(
+                              "\n"
+                            )
+                            .map(
+                              (
+                                paragraph,
+                                paragraphIndex
+                              ) =>
+                                paragraph.trim() && (
+                                  <p
+                                    key={
+                                      paragraphIndex
+                                    }
+                                  >
+                                    {
+                                      paragraph
+                                    }
+                                  </p>
+                                )
+                            )}
+
+                      </section>
+
+                      {sectionNotes.length >
+                        0 && (
+                        <aside className="article-marginalia">
+
+                          {sectionNotes.map(
+                            (
+                              note,
+                              noteIndex
+                            ) => {
+
+                              const noteContent = (
+                                <span className="article-marginalia-text">
+                                  {note.note}
+                                </span>
+                              );
+
+                              const noteType =
+                                note.type ||
+                                "THOUGHT";
+
+                              return (
+                                <div
+                                  className={`article-marginalia-note article-marginalia-${noteType
+                                    .toLowerCase()
+                                    .replace(
+                                      /\s+/g,
+                                      "-"
+                                    )}`}
+                                  key={
+                                    `${index}-${noteIndex}`
+                                  }
+                                >
+
+                                  <div className="article-marginalia-mark">
+                                    <span>
+                                      ✎
+                                    </span>
+
+                                    <span>
+                                      {
+                                        noteType
+                                      }
+                                    </span>
+                                  </div>
+
+                                  {note.link ? (
+                                    <Link
+                                      to={
+                                        note.link
+                                      }
+                                      className="article-marginalia-link"
+                                    >
+                                      {
+                                        noteContent
+                                      }
+
+                                      <span className="article-marginalia-arrow">
+                                        →
+                                      </span>
+                                    </Link>
+                                  ) : (
+                                    noteContent
+                                  )}
+
+                                </div>
+                              );
+                            }
+                          )}
+
+                        </aside>
                       )}
 
-                </section>
-              )
-            )
+                    </div>
+                  );
+                }
+              )}
+
+            </div>
 
           ) : article.content ? (
 
             <div className="article-content">
 
-              {String(article.content)
+              {String(
+                article.content
+              )
                 .split("\n")
                 .map(
-                  (paragraph, index) =>
+                  (
+                    paragraph,
+                    index
+                  ) =>
                     paragraph.trim() && (
                       <p key={index}>
-                        {paragraph}
+                        {
+                          paragraph
+                        }
                       </p>
                     )
                 )}
@@ -983,14 +1328,16 @@ export default function Article() {
 
             <div className="article-reaction-bar-inner">
 
-              {/* LIKE */}
-
               <button
                 type="button"
                 className={`article-like ${
-                  liked ? "liked" : ""
+                  liked
+                    ? "liked"
+                    : ""
                 }`}
-                onClick={toggleLike}
+                onClick={
+                  toggleLike
+                }
                 aria-label={
                   liked
                     ? "Unlike this story"
@@ -1013,15 +1360,17 @@ export default function Article() {
 
               </button>
 
-              {/* SHARE */}
-
               <button
                 type="button"
                 className="article-share"
-                onClick={handleShare}
+                onClick={
+                  handleShare
+                }
               >
 
-                <Share2 size={17} />
+                <Share2
+                  size={17}
+                />
 
                 SHARE
 
@@ -1063,7 +1412,8 @@ export default function Article() {
 
                 {comments.length}{" "}
 
-                {comments.length === 1
+                {comments.length ===
+                1
                   ? "COMMENT"
                   : "COMMENTS"}
 
@@ -1071,21 +1421,26 @@ export default function Article() {
 
             </div>
 
-            {/* COMMENT FORM */}
-
             <form
               className="article-comment-form"
-              onSubmit={submitComment}
+              onSubmit={
+                submitComment
+              }
             >
 
               <div className="article-comment-fields">
 
                 <input
                   type="text"
-                  value={commentName}
-                  onChange={(event) =>
+                  value={
+                    commentName
+                  }
+                  onChange={(
+                    event
+                  ) =>
                     setCommentName(
-                      event.target.value
+                      event.target
+                        .value
                     )
                   }
                   placeholder="YOUR NAME"
@@ -1093,10 +1448,15 @@ export default function Article() {
                 />
 
                 <textarea
-                  value={commentText}
-                  onChange={(event) =>
+                  value={
+                    commentText
+                  }
+                  onChange={(
+                    event
+                  ) =>
                     setCommentText(
-                      event.target.value
+                      event.target
+                        .value
                     )
                   }
                   placeholder="YOUR THOUGHTS..."
@@ -1108,7 +1468,9 @@ export default function Article() {
 
               {commentError && (
                 <p className="article-comment-error">
-                  {commentError}
+                  {
+                    commentError
+                  }
                 </p>
               )}
 
@@ -1123,10 +1485,14 @@ export default function Article() {
               <button
                 type="submit"
                 className="article-comment-submit"
-                disabled={commentSubmitting}
+                disabled={
+                  commentSubmitting
+                }
               >
 
-                <Send size={14} />
+                <Send
+                  size={14}
+                />
 
                 {commentSubmitting
                   ? "SENDING..."
@@ -1136,40 +1502,49 @@ export default function Article() {
 
             </form>
 
-            {/* COMMENTS LIST */}
-
             <div className="article-comments-list">
 
-              {comments.length > 0 ? (
+              {comments.length >
+              0 ? (
 
-                comments.map((comment) => (
+                comments.map(
+                  (
+                    comment
+                  ) => (
 
-                  <article
-                    key={comment.id}
-                    className="article-comment"
-                  >
+                    <article
+                      key={
+                        comment.id
+                      }
+                      className="article-comment"
+                    >
 
-                    <div className="article-comment-top">
+                      <div className="article-comment-top">
 
-                      <strong>
-                        {comment.name}
-                      </strong>
+                        <strong>
+                          {
+                            comment.name
+                          }
+                        </strong>
 
-                      <span>
-                        {formatDate(
-                          comment.created_at
-                        )}
-                      </span>
+                        <span>
+                          {formatDate(
+                            comment.created_at
+                          )}
+                        </span>
 
-                    </div>
+                      </div>
 
-                    <p>
-                      {comment.comment}
-                    </p>
+                      <p>
+                        {
+                          comment.comment
+                        }
+                      </p>
 
-                  </article>
+                    </article>
 
-                ))
+                  )
+                )
 
               ) : (
 
@@ -1182,6 +1557,236 @@ export default function Article() {
             </div>
 
           </section>
+
+          {/* =================================================
+              THE RECEIPTS
+              ================================================= */}
+
+          {receipts.length > 0 && (
+            <section className="article-receipts">
+
+              <div className="article-receipts-header">
+
+                <div className="article-receipts-heading">
+
+                  <span className="article-receipts-page">
+                    04
+                  </span>
+
+                  <div>
+
+                    <div className="section-kicker">
+                      CURIOUSLY / EVIDENCE FILE
+                    </div>
+
+                    <h2>
+                      THE
+                      <br />
+                      RECEIPTS.
+                    </h2>
+
+                    <p>
+                      Sources, rabbit holes, datasets,
+                      screenshots, books, and other clues
+                      behind this story.
+                    </p>
+
+                  </div>
+
+                </div>
+
+                <div className="article-receipts-stamp">
+
+                  <span>
+                    RESEARCH
+                  </span>
+
+                  <strong>
+                    VERIFIED
+                  </strong>
+
+                </div>
+
+              </div>
+
+              <div className="article-receipts-board">
+
+                {receipts.map(
+                  (
+                    receipt,
+                    index
+                  ) => {
+
+                    const type =
+                      receipt.type ||
+                      "SOURCE";
+
+                    const typeClass =
+                      type
+                        .toLowerCase()
+                        .replace(
+                          /\s+/g,
+                          "-"
+                        );
+
+                    return (
+                      <article
+                        key={
+                          receipt.id
+                        }
+                        className={`article-receipt-card receipt-${typeClass}`}
+                      >
+
+                        <div className="article-receipt-pin">
+                          ●
+                        </div>
+
+                        <div className="article-receipt-number">
+                          {String(
+                            index + 1
+                          ).padStart(
+                            2,
+                            "0"
+                          )}
+                        </div>
+
+                        <div className="article-receipt-type">
+                          {type}
+                        </div>
+
+                        {receipt.image_url && (
+                          <div className="article-receipt-image">
+
+                            <img
+                              src={
+                                receipt.image_url
+                              }
+                              alt={
+                                receipt.title
+                              }
+                              loading="lazy"
+                              onError={(
+                                event
+                              ) => {
+                                event.currentTarget
+                                  .parentElement
+                                  .style.display =
+                                  "none";
+                              }}
+                            />
+
+                          </div>
+                        )}
+
+                        <div className="article-receipt-content">
+
+                          <h3>
+                            {
+                              receipt.title
+                            }
+                          </h3>
+
+                          {receipt.description && (
+                            <p className="article-receipt-description">
+                              {
+                                receipt.description
+                              }
+                            </p>
+                          )}
+
+                          {(receipt.author ||
+                            receipt.publication ||
+                            receipt.published_date) && (
+                            <div className="article-receipt-details">
+
+                              {receipt.author && (
+                                <span>
+                                  <strong>
+                                    BY
+                                  </strong>{" "}
+                                  {
+                                    receipt.author
+                                  }
+                                </span>
+                              )}
+
+                              {receipt.publication && (
+                                <span>
+                                  <strong>
+                                    FROM
+                                  </strong>{" "}
+                                  {
+                                    receipt.publication
+                                  }
+                                </span>
+                              )}
+
+                              {receipt.published_date && (
+                                <span>
+                                  <strong>
+                                    DATE
+                                  </strong>{" "}
+                                  {
+                                    receipt.published_date
+                                  }
+                                </span>
+                              )}
+
+                            </div>
+                          )}
+
+                          {receipt.source_url && (
+                            <a
+                              href={
+                                receipt.source_url
+                              }
+                              target="_blank"
+                              rel="noreferrer"
+                              className="article-receipt-link"
+                            >
+                              OPEN SOURCE
+
+                              <span>
+                                ↗
+                              </span>
+
+                            </a>
+                          )}
+
+                        </div>
+
+                        <div className="article-receipt-tape" />
+
+                      </article>
+                    );
+                  }
+                )}
+
+              </div>
+
+              <div className="article-receipts-footer">
+
+                <span>
+                  FILE NO.{" "}
+                  {article.slug?.toUpperCase() ||
+                    "CURIOUSLY"}
+                </span>
+
+                <span>
+                  {receipts.length}{" "}
+                  {receipts.length === 1
+                    ? "RECEIPT"
+                    : "RECEIPTS"}
+                </span>
+
+                <span>
+                  KEEP DIGGING →
+                </span>
+
+              </div>
+
+            </section>
+          )}
 
         </article>
 
@@ -1212,12 +1817,21 @@ export default function Article() {
           <div className="archive-grid">
 
             {relatedStories.map(
-              (story, index) => (
+              (
+                story,
+                index
+              ) => (
 
                 <ArticleCard
-                  key={story.id}
-                  article={story}
-                  index={index}
+                  key={
+                    story.id
+                  }
+                  article={
+                    story
+                  }
+                  index={
+                    index
+                  }
                 />
 
               )

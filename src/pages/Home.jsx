@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Mail } from "lucide-react";
+import SecretClue from "../components/SecretClue";
 import { supabase } from "../supabase";
 
 export default function Home() {
@@ -23,6 +24,7 @@ export default function Home() {
           )
         `)
         .eq("published", true)
+        .eq("secret", false)
         .order("created_at", {
           ascending: false,
         })
@@ -33,6 +35,7 @@ export default function Home() {
           "Homepage articles error:",
           error
         );
+
         setArticles([]);
       } else {
         setArticles(
@@ -71,6 +74,7 @@ export default function Home() {
       setSubscribeStatus(
         "PLEASE ENTER YOUR EMAIL."
       );
+
       return;
     }
 
@@ -185,8 +189,12 @@ export default function Home() {
           </h1>
 
           <span className="cover-heart">
-            ♡
-          </span>
+  <SecretClue
+    to="/article/secret-001"
+    symbol="♡"
+    label="You found something curious."
+  />
+</span>
 
         </div>
 
@@ -618,9 +626,14 @@ export default function Home() {
 
       <section className="home-curiosity">
 
-        <div className="home-curiosity-mark">
-          ?
-        </div>
+      <span className="cover-question">
+  <SecretClue
+    to="/article/secret-002"
+    symbol="?"
+    label="You found another secret."
+    className="secret-clue-large"
+  />
+</span>
 
         <div className="section-kicker">
           A LITTLE SOMETHING TO THINK ABOUT

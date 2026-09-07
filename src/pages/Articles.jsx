@@ -15,7 +15,9 @@ const fallbackCategories = [
 
 export default function Articles() {
   const [articles, setArticles] = useState([]);
-  const [categories, setCategories] = useState(fallbackCategories);
+  const [categories, setCategories] = useState(
+    fallbackCategories
+  );
   const [category, setCategory] = useState("ALL");
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
@@ -37,6 +39,7 @@ export default function Articles() {
               )
             `)
             .eq("published", true)
+            .eq("secret", false)
             .order("created_at", {
               ascending: false,
             }),
@@ -56,6 +59,7 @@ export default function Articles() {
         setError(
           "Something went wrong loading the magazine."
         );
+
         setLoading(false);
         return;
       }
@@ -74,7 +78,8 @@ export default function Articles() {
           id: article.slug,
 
           category:
-            article.categories?.name || "UNCATEGORIZED",
+            article.categories?.name ||
+            "UNCATEGORIZED",
 
           readTime:
             article.read_time || "",
@@ -113,11 +118,13 @@ export default function Articles() {
         article.category === category;
 
       const text = `
-        ${article.title}
-        ${article.subtitle}
-        ${article.category}
-        ${article.format}
-        ${article.tag}
+        ${article.title || ""}
+        ${article.subtitle || ""}
+        ${article.category || ""}
+        ${article.format || ""}
+        ${article.tag || ""}
+        ${article.dek || ""}
+        ${article.content || ""}
       `.toLowerCase();
 
       return (
@@ -129,7 +136,9 @@ export default function Articles() {
 
   return (
     <main className="articles-page">
+
       <div className="archive-header">
+
         <div className="section-kicker">
           THE CURIOUSLY ARCHIVE
         </div>
@@ -137,7 +146,9 @@ export default function Articles() {
         <h1>
           THINGS I COULDN'T
           <br />
-          <em>STOP THINKING ABOUT.</em>
+          <em>
+            STOP THINKING ABOUT.
+          </em>
         </h1>
 
         <p>
@@ -145,24 +156,35 @@ export default function Articles() {
           STEM, experiments, and all the rabbit
           holes in between.
         </p>
+
       </div>
 
+
       <div className="filters">
+
         <div className="category-tabs">
+
           {categories.map((item) => (
             <button
               key={item}
               className={
-                category === item ? "active" : ""
+                category === item
+                  ? "active"
+                  : ""
               }
-              onClick={() => setCategory(item)}
+              onClick={() =>
+                setCategory(item)
+              }
             >
               {item}
             </button>
           ))}
+
         </div>
 
+
         <label className="search-box">
+
           <Search size={14} />
 
           <input
@@ -176,14 +198,19 @@ export default function Articles() {
           {query && (
             <button
               type="button"
-              onClick={() => setQuery("")}
+              onClick={() =>
+                setQuery("")
+              }
               aria-label="Clear search"
             >
               <X size={13} />
             </button>
           )}
+
         </label>
+
       </div>
+
 
       {loading && (
         <div className="empty">
@@ -191,31 +218,41 @@ export default function Articles() {
         </div>
       )}
 
+
       {error && !loading && (
         <div className="empty">
           {error}
         </div>
       )}
 
+
       {!loading && !error && (
         <>
+
           <div className="archive-grid">
-            {filtered.map((article, index) => (
-              <ArticleCard
-                key={article.id}
-                article={article}
-                index={index}
-              />
-            ))}
+
+            {filtered.map(
+              (article, index) => (
+                <ArticleCard
+                  key={article.id}
+                  article={article}
+                  index={index}
+                />
+              )
+            )}
+
           </div>
+
 
           {!filtered.length && (
             <div className="empty">
               NOTHING FOUND. TRY ANOTHER RABBIT HOLE.
             </div>
           )}
+
         </>
       )}
+
     </main>
   );
 }

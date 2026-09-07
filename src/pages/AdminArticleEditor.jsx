@@ -9,12 +9,20 @@ import {
   Trash2,
   Upload,
   X,
+  LockKeyhole,
 } from "lucide-react";
 import { supabase } from "../supabase";
 
 const emptySection = {
   heading: "",
   body: "",
+};
+
+const emptyMarginalia = {
+  note: "",
+  type: "THOUGHT",
+  position: 1,
+  link: "",
 };
 
 export default function AdminArticleEditor() {
@@ -46,7 +54,19 @@ export default function AdminArticleEditor() {
     cover_image: "",
     content: "",
     published: false,
+
+    // SECRET ARTICLE
+    secret: false,
+    secret_code: "",
+
+    // STORY SECTIONS
     sections: [{ ...emptySection }],
+
+    // DIGITAL MARGINALIA
+    marginalia: [],
+
+    // THE RECEIPTS
+    receipts: [],
   });
 
   // =========================================================
@@ -68,10 +88,7 @@ export default function AdminArticleEditor() {
         } = await supabase.auth.getUser();
 
         if (authError) {
-          console.error(
-            "Auth error:",
-            authError
-          );
+          console.error("Auth error:", authError);
         }
 
         if (!user) {
@@ -82,7 +99,10 @@ export default function AdminArticleEditor() {
           return;
         }
 
-        // Load categories
+        // -----------------------------------------------------
+        // LOAD CATEGORIES
+        // -----------------------------------------------------
+
         const {
           data: categoryData,
           error: categoryError,
@@ -107,7 +127,10 @@ export default function AdminArticleEditor() {
           setCategories(categoryData || []);
         }
 
-        // Load existing article
+        // -----------------------------------------------------
+        // LOAD EXISTING ARTICLE
+        // -----------------------------------------------------
+
         if (isEditing) {
           const {
             data: articleData,
@@ -136,15 +159,73 @@ export default function AdminArticleEditor() {
 
           if (!articleData) {
             if (!cancelled) {
-              setError(
-                "Article not found."
-              );
+              setError("Article not found.");
             }
 
             return;
           }
 
           if (!cancelled) {
+            const loadedMarginalia =
+              Array.isArray(articleData.marginalia)
+                ? [...articleData.marginalia]
+                    .sort(
+                      (a, b) =>
+                        (a?.position || 0) -
+                        (b?.position || 0)
+                    )
+                    .map((item, index) => ({
+                      note:
+                        item?.note || "",
+
+                      type:
+                        item?.type ||
+                        "THOUGHT",
+
+                      position:
+                        index + 1,
+
+                      link:
+                        item?.link || "",
+                    }))
+                : [];
+
+            const {
+              data: receiptData,
+              error: receiptError,
+            } = await supabase
+              .from("article_receipts")
+              .select("*")
+              .eq("article_id", articleData.id)
+              .order("sort_order", {
+                ascending: true,
+              });
+
+            if (receiptError) {
+              console.error(
+                "Receipts loading error:",
+                receiptError
+              );
+            }
+
+            const loadedReceipts =
+              Array.isArray(receiptData)
+                ? receiptData.map((item, index) => ({
+                    id: item.id,
+                    type: item.type || "SOURCE",
+                    title: item.title || "",
+                    description: item.description || "",
+                    source_url: item.source_url || "",
+                    image_url: item.image_url || "",
+                    author: item.author || "",
+                    publication: item.publication || "",
+                    published_date: item.published_date || "",
+                    sort_order: Number.isFinite(item.sort_order)
+                      ? item.sort_order
+                      : index,
+                  }))
+                : [];
+
             setForm({
               slug:
                 articleData.slug || "",
@@ -171,15 +252,13 @@ export default function AdminArticleEditor() {
                 articleData.date || "",
 
               color:
-                articleData.color ||
-                "pink",
+                articleData.color || "pink",
 
               dek:
                 articleData.dek || "",
 
               cover_image:
-                articleData.cover_image ||
-                "",
+                articleData.cover_image || "",
 
               content:
                 articleData.content || "",
@@ -188,6 +267,22 @@ export default function AdminArticleEditor() {
                 Boolean(
                   articleData.published
                 ),
+
+              // ---------------------------------------------
+              // SECRET ARTICLE
+              // ---------------------------------------------
+
+              secret:
+                Boolean(
+                  articleData.secret
+                ),
+
+              secret_code:
+                articleData.secret_code || "",
+
+              // ---------------------------------------------
+              // SECTIONS
+              // ---------------------------------------------
 
               sections:
                 Array.isArray(
@@ -206,6 +301,16 @@ export default function AdminArticleEditor() {
                       })
                     )
                   : [{ ...emptySection }],
+
+              // ---------------------------------------------
+              // DIGITAL MARGINALIA
+              // ---------------------------------------------
+
+              marginalia:
+                loadedMarginalia,
+
+              receipts:
+                loadedReceipts,
             });
           }
         }
@@ -268,7 +373,7 @@ export default function AdminArticleEditor() {
   }
 
   // =========================================================
-  // SECTIONS
+  // STORY SECTIONS
   // =========================================================
 
   function updateSection(
@@ -327,6 +432,177 @@ export default function AdminArticleEditor() {
   }
 
   // =========================================================
+  // DIGITAL MARGINALIA
+  // =========================================================
+
+  function addMarginalia() {
+    setForm((current) => {
+      const existing =
+        current.marginalia || [];
+
+      return {
+        ...current,
+
+        marginalia: [
+          ...existing,
+          {
+            ...emptyMarginalia,
+            position:
+              existing.length + 1,
+          },
+        ],
+      };
+    });
+  }
+
+  function updateMarginalia(
+    index,
+    field,
+    value
+  ) {
+    setForm((current) => ({
+      ...current,
+
+      marginalia: (
+        current.marginalia || []
+      ).map((item, itemIndex) =>
+        itemIndex === index
+          ? {
+              ...item,
+              [field]: value,
+            }
+          : item
+      ),
+    }));
+  }
+
+  function deleteMarginalia(index) {
+    setForm((current) => {
+      const notes = (
+        current.marginalia || []
+      )
+        .filter(
+          (_, itemIndex) =>
+            itemIndex !== index
+        )
+        .map((item, itemIndex) => ({
+          ...item,
+          position: itemIndex + 1,
+        }));
+
+      return {
+        ...current,
+        marginalia: notes,
+      };
+    });
+  }
+
+  function moveMarginalia(
+    index,
+    direction
+  ) {
+    setForm((current) => {
+      const notes = [
+        ...(current.marginalia || []),
+      ];
+
+      const newIndex =
+        index + direction;
+
+      if (
+        newIndex < 0 ||
+        newIndex >= notes.length
+      ) {
+        return current;
+      }
+
+      [
+        notes[index],
+        notes[newIndex],
+      ] = [
+        notes[newIndex],
+        notes[index],
+      ];
+
+      return {
+        ...current,
+
+        marginalia: notes.map(
+          (item, itemIndex) => ({
+            ...item,
+            position:
+              itemIndex + 1,
+          })
+        ),
+      };
+    });
+  }
+
+  // =========================================================
+  // THE RECEIPTS
+  // =========================================================
+
+  function addReceipt() {
+    setForm((current) => ({
+      ...current,
+      receipts: [
+        ...(current.receipts || []),
+        {
+          id: `new-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+          type: "SOURCE",
+          title: "",
+          description: "",
+          source_url: "",
+          image_url: "",
+          author: "",
+          publication: "",
+          published_date: "",
+          sort_order: (current.receipts || []).length,
+        },
+      ],
+    }));
+  }
+
+  function updateReceipt(index, field, value) {
+    setForm((current) => ({
+      ...current,
+      receipts: (current.receipts || []).map((item, itemIndex) =>
+        itemIndex === index ? { ...item, [field]: value } : item
+      ),
+    }));
+  }
+
+  function deleteReceipt(index) {
+    setForm((current) => ({
+      ...current,
+      receipts: (current.receipts || [])
+        .filter((_, itemIndex) => itemIndex !== index)
+        .map((item, itemIndex) => ({ ...item, sort_order: itemIndex })),
+    }));
+  }
+
+  function moveReceipt(index, direction) {
+    setForm((current) => {
+      const receipts = [...(current.receipts || [])];
+      const newIndex = index + direction;
+      if (newIndex < 0 || newIndex >= receipts.length) return current;
+
+      [receipts[index], receipts[newIndex]] = [
+        receipts[newIndex],
+        receipts[index],
+      ];
+
+      return {
+        ...current,
+        receipts: receipts.map((item, itemIndex) => ({
+          ...item,
+          sort_order: itemIndex,
+        })),
+      };
+    });
+  }
+
+  // =========================================================
   // COVER IMAGE UPLOAD
   // =========================================================
 
@@ -366,8 +642,7 @@ export default function AdminArticleEditor() {
         file.name
           .split(".")
           .pop()
-          ?.toLowerCase() ||
-        "jpg";
+          ?.toLowerCase() || "jpg";
 
       const fileName =
         `cover-${Date.now()}-${Math.random()
@@ -546,8 +821,13 @@ export default function AdminArticleEditor() {
         form.slug
           .trim()
           .toLowerCase()
-          .replace(/[^a-z0-9-]+/g, "-")
-          .replace(/^-+|-+$/g, "");
+          .replace(
+            /[^a-z0-9-]+/g,
+            "-"
+          )
+          .replace(
+            /^-+|-+$/g,
+            "");
 
       if (!title) {
         setError(
@@ -585,6 +865,70 @@ export default function AdminArticleEditor() {
               section.heading ||
               section.body
           );
+
+      // -----------------------------------------------------
+      // CLEAN MARGINALIA
+      // -----------------------------------------------------
+
+      const cleanedMarginalia =
+        (form.marginalia || [])
+          .map((item, index) => ({
+            note:
+              item?.note?.trim() ||
+              "",
+
+            type:
+              item?.type ||
+              "THOUGHT",
+
+            position:
+              index + 1,
+
+            link:
+              item?.link?.trim() ||
+              null,
+          }))
+          .filter(
+            (item) =>
+              item.note
+          );
+
+      // -----------------------------------------------------
+      // CLEAN RECEIPTS
+      // -----------------------------------------------------
+
+      const cleanedReceipts =
+        (form.receipts || [])
+          .map((item, index) => ({
+            type: item?.type?.trim() || "SOURCE",
+            title: item?.title?.trim() || "",
+            description: item?.description?.trim() || "",
+            source_url: item?.source_url?.trim() || null,
+            image_url: item?.image_url?.trim() || null,
+            author: item?.author?.trim() || "",
+            publication: item?.publication?.trim() || "",
+            published_date: item?.published_date?.trim() || "",
+            sort_order: index,
+          }))
+          .filter(
+            (item) =>
+              item.title ||
+              item.description ||
+              item.source_url ||
+              item.image_url
+          );
+
+      // -----------------------------------------------------
+      // SECRET CODE
+      // -----------------------------------------------------
+
+      const secretCode =
+        form.secret
+          ? form.secret_code
+              .trim()
+              .toUpperCase() ||
+            null
+          : null;
 
       // -----------------------------------------------------
       // ARTICLE DATA
@@ -633,6 +977,23 @@ export default function AdminArticleEditor() {
 
         sections:
           cleanedSections,
+
+        // ---------------------------------------------------
+        // SECRET ARTICLE FIELDS
+        // ---------------------------------------------------
+
+        secret:
+          Boolean(form.secret),
+
+        secret_code:
+          secretCode,
+
+        // ---------------------------------------------------
+        // DIGITAL MARGINALIA
+        // ---------------------------------------------------
+
+        marginalia:
+          cleanedMarginalia,
       };
 
       console.log(
@@ -670,6 +1031,42 @@ export default function AdminArticleEditor() {
           );
         }
 
+        // ---------------------------------------------------
+        // SAVE RECEIPTS
+        // ---------------------------------------------------
+
+        const { error: deleteReceiptsError } = await supabase
+          .from("article_receipts")
+          .delete()
+          .eq("article_id", updatedArticle.id);
+
+        if (deleteReceiptsError) {
+          throw deleteReceiptsError;
+        }
+
+        if (cleanedReceipts.length > 0) {
+          const receiptRows = cleanedReceipts.map((receipt, index) => ({
+            article_id: updatedArticle.id,
+            type: receipt.type,
+            title: receipt.title,
+            description: receipt.description || null,
+            source_url: receipt.source_url,
+            image_url: receipt.image_url,
+            author: receipt.author || null,
+            publication: receipt.publication || null,
+            published_date: receipt.published_date || null,
+            sort_order: index,
+          }));
+
+          const { error: receiptInsertError } = await supabase
+            .from("article_receipts")
+            .insert(receiptRows);
+
+          if (receiptInsertError) {
+            throw receiptInsertError;
+          }
+        }
+
         setForm((current) => ({
           ...current,
 
@@ -681,10 +1078,25 @@ export default function AdminArticleEditor() {
               updatedArticle.published
             ),
 
+          secret:
+            Boolean(
+              updatedArticle.secret
+            ),
+
+          secret_code:
+            updatedArticle.secret_code ||
+            "",
+
           sections:
             cleanedSections.length
               ? cleanedSections
               : [{ ...emptySection }],
+
+          marginalia:
+            cleanedMarginalia,
+
+          receipts:
+            cleanedReceipts,
         }));
 
         setMessage(
@@ -737,6 +1149,33 @@ export default function AdminArticleEditor() {
         );
       }
 
+      // -----------------------------------------------------
+      // SAVE RECEIPTS
+      // -----------------------------------------------------
+
+      if (cleanedReceipts.length > 0) {
+        const receiptRows = cleanedReceipts.map((receipt, index) => ({
+          article_id: newArticle.id,
+          type: receipt.type,
+          title: receipt.title,
+          description: receipt.description || null,
+          source_url: receipt.source_url,
+          image_url: receipt.image_url,
+          author: receipt.author || null,
+          publication: receipt.publication || null,
+          published_date: receipt.published_date || null,
+          sort_order: index,
+        }));
+
+        const { error: receiptInsertError } = await supabase
+          .from("article_receipts")
+          .insert(receiptRows);
+
+        if (receiptInsertError) {
+          throw receiptInsertError;
+        }
+      }
+
       setForm((current) => ({
         ...current,
 
@@ -748,10 +1187,25 @@ export default function AdminArticleEditor() {
             newArticle.published
           ),
 
+        secret:
+          Boolean(
+            newArticle.secret
+          ),
+
+        secret_code:
+          newArticle.secret_code ||
+          "",
+
         sections:
           cleanedSections.length
             ? cleanedSections
             : [{ ...emptySection }],
+
+        marginalia:
+          cleanedMarginalia,
+
+        receipts:
+          cleanedReceipts,
       }));
 
       setMessage(
@@ -891,7 +1345,6 @@ export default function AdminArticleEditor() {
 
         </div>
 
-
         <div className="writer-header-actions">
 
           <button
@@ -903,7 +1356,6 @@ export default function AdminArticleEditor() {
             <Eye size={15} />
             PREVIEW
           </button>
-
 
           <button
             type="button"
@@ -917,7 +1369,6 @@ export default function AdminArticleEditor() {
               ? "SAVING..."
               : "SAVE DRAFT"}
           </button>
-
 
           <button
             type="button"
@@ -933,7 +1384,6 @@ export default function AdminArticleEditor() {
         </div>
 
       </header>
-
 
       {/* =====================================================
           MESSAGES
@@ -959,7 +1409,6 @@ export default function AdminArticleEditor() {
         </div>
       )}
 
-
       {message && (
         <div className="writer-message writer-success">
 
@@ -979,7 +1428,6 @@ export default function AdminArticleEditor() {
 
         </div>
       )}
-
 
       {/* =====================================================
           EDITOR
@@ -1009,7 +1457,6 @@ export default function AdminArticleEditor() {
               aria-label="Article title"
             />
 
-
             <textarea
               className="writer-subtitle"
               value={form.subtitle}
@@ -1023,7 +1470,6 @@ export default function AdminArticleEditor() {
               rows="2"
               aria-label="Article subtitle"
             />
-
 
             <div className="writer-slug">
 
@@ -1045,7 +1491,6 @@ export default function AdminArticleEditor() {
             </div>
 
           </section>
-
 
           {/* INTRO */}
 
@@ -1071,7 +1516,6 @@ export default function AdminArticleEditor() {
 
           </section>
 
-
           {/* STORY */}
 
           <section className="writer-section writer-story">
@@ -1096,7 +1540,6 @@ export default function AdminArticleEditor() {
 
             </div>
 
-
             <div className="writer-sections">
 
               {form.sections.map(
@@ -1114,7 +1557,6 @@ export default function AdminArticleEditor() {
                         "0"
                       )}
                     </div>
-
 
                     <div className="writer-section-fields">
 
@@ -1137,7 +1579,6 @@ export default function AdminArticleEditor() {
                         } heading`}
                       />
 
-
                       <textarea
                         className="writer-body-input"
                         value={
@@ -1159,7 +1600,6 @@ export default function AdminArticleEditor() {
                       />
 
                     </div>
-
 
                     {form.sections
                       .length > 1 && (
@@ -1188,7 +1628,6 @@ export default function AdminArticleEditor() {
 
             </div>
 
-
             <button
               type="button"
               className="writer-add-section"
@@ -1201,7 +1640,6 @@ export default function AdminArticleEditor() {
           </section>
 
         </div>
-
 
         {/* ===================================================
             SIDEBAR
@@ -1216,7 +1654,6 @@ export default function AdminArticleEditor() {
             <div className="writer-sidebar-title">
               PUBLISHING
             </div>
-
 
             <div className="writer-status">
 
@@ -1233,7 +1670,6 @@ export default function AdminArticleEditor() {
                 : "DRAFT"}
 
             </div>
-
 
             {/* CATEGORY */}
 
@@ -1278,7 +1714,6 @@ export default function AdminArticleEditor() {
 
             </label>
 
-
             {/* FORMAT */}
 
             <label className="writer-field">
@@ -1301,7 +1736,6 @@ export default function AdminArticleEditor() {
               />
 
             </label>
-
 
             {/* TAG */}
 
@@ -1326,7 +1760,6 @@ export default function AdminArticleEditor() {
 
             </label>
 
-
             {/* READ TIME */}
 
             <label className="writer-field">
@@ -1350,7 +1783,6 @@ export default function AdminArticleEditor() {
 
             </label>
 
-
             {/* DATE */}
 
             <label className="writer-field">
@@ -1373,7 +1805,6 @@ export default function AdminArticleEditor() {
               />
 
             </label>
-
 
             {/* COLOR */}
 
@@ -1421,15 +1852,546 @@ export default function AdminArticleEditor() {
 
           </section>
 
+          {/* =================================================
+              SECRET ARTICLE
+              ================================================= */}
 
-          {/* COVER */}
+          <section
+            className={`writer-sidebar-card writer-secret-card ${
+              form.secret
+                ? "is-secret"
+                : ""
+            }`}
+          >
+
+            <div className="writer-sidebar-title">
+              <span>
+                SECRET ARTICLE
+              </span>
+
+              <LockKeyhole
+                size={15}
+              />
+            </div>
+
+            <div className="writer-secret-toggle">
+
+              <div className="writer-secret-toggle-copy">
+
+                <strong>
+                  CURIOUSLY SECRET
+                </strong>
+
+                <span>
+                  Hide this story from the
+                  normal magazine.
+                </span>
+
+              </div>
+
+              <button
+                type="button"
+                className={`writer-secret-switch ${
+                  form.secret
+                    ? "active"
+                    : ""
+                }`}
+                onClick={() =>
+                  updateField(
+                    "secret",
+                    !form.secret
+                  )
+                }
+                aria-pressed={
+                  form.secret
+                }
+                aria-label="Toggle secret article"
+              >
+                <span />
+              </button>
+
+            </div>
+
+            {form.secret && (
+              <div className="writer-secret-details">
+
+                <div className="writer-secret-status">
+                  <span>
+                    ✦
+                  </span>
+
+                  THIS ARTICLE IS HIDDEN
+                </div>
+
+                <label className="writer-field">
+
+                  <span>
+                    SECRET CODE
+                    <small>
+                      OPTIONAL
+                    </small>
+                  </span>
+
+                  <input
+                    value={
+                      form.secret_code
+                    }
+                    onChange={(event) =>
+                      updateField(
+                        "secret_code",
+                        event.target.value
+                      )
+                    }
+                    placeholder="SECRET-001"
+                    autoComplete="off"
+                  />
+
+                </label>
+
+                <p className="writer-secret-help">
+                  Readers can only reach this
+                  article through a secret clue
+                  or direct link.
+                </p>
+
+              </div>
+            )}
+
+          </section>
+
+          {/* =================================================
+              DIGITAL MARGINALIA
+              ================================================= */}
+
+          <section className="writer-sidebar-card writer-marginalia-card">
+
+            <div className="writer-sidebar-title writer-marginalia-heading">
+
+              <span>
+                DIGITAL MARGINALIA
+              </span>
+
+              <span className="writer-marginalia-count">
+                {(
+                  form.marginalia || []
+                ).length}
+              </span>
+
+            </div>
+
+            <p className="writer-marginalia-description">
+              Little editorial thoughts that
+              appear beside the story.
+            </p>
+
+            <button
+              type="button"
+              className="writer-add-marginalia"
+              onClick={
+                addMarginalia
+              }
+            >
+              <Plus size={15} />
+              ADD NOTE
+            </button>
+
+            {(
+              form.marginalia || []
+            ).length > 0 && (
+              <div className="writer-marginalia-list">
+
+                {form.marginalia.map(
+                  (item, index) => (
+                    <div
+                      className="writer-marginalia-item"
+                      key={index}
+                    >
+
+                      {/* NOTE HEADER */}
+
+                      <div className="writer-marginalia-item-top">
+
+                        <span className="writer-marginalia-number">
+                          {String(
+                            index + 1
+                          ).padStart(
+                            2,
+                            "0"
+                          )}
+                        </span>
+
+                        <div className="writer-marginalia-order">
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              moveMarginalia(
+                                index,
+                                -1
+                              )
+                            }
+                            disabled={
+                              index ===
+                              0
+                            }
+                            aria-label="Move note up"
+                            title="Move up"
+                          >
+                            ↑
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              moveMarginalia(
+                                index,
+                                1
+                              )
+                            }
+                            disabled={
+                              index ===
+                              form
+                                .marginalia
+                                .length -
+                                1
+                            }
+                            aria-label="Move note down"
+                            title="Move down"
+                          >
+                            ↓
+                          </button>
+
+                          <button
+                            type="button"
+                            className="writer-marginalia-delete"
+                            onClick={() =>
+                              deleteMarginalia(
+                                index
+                              )
+                            }
+                            aria-label="Delete note"
+                            title="Delete note"
+                          >
+                            <Trash2
+                              size={13}
+                            />
+                          </button>
+
+                        </div>
+
+                      </div>
+
+                      {/* NOTE */}
+
+                      <label className="writer-field">
+
+                        <span>
+                          NOTE
+                        </span>
+
+                        <textarea
+                          value={
+                            item.note ||
+                            ""
+                          }
+                          onChange={(
+                            event
+                          ) =>
+                            updateMarginalia(
+                              index,
+                              "note",
+                              event
+                                .target
+                                .value
+                            )
+                          }
+                          placeholder="This sent me down a rabbit hole..."
+                          rows="3"
+                        />
+
+                      </label>
+
+                      {/* TYPE */}
+
+                      <label className="writer-field">
+
+                        <span>
+                          TYPE
+                        </span>
+
+                        <select
+                          value={
+                            item.type ||
+                            "THOUGHT"
+                          }
+                          onChange={(
+                            event
+                          ) =>
+                            updateMarginalia(
+                              index,
+                              "type",
+                              event
+                                .target
+                                .value
+                            )
+                          }
+                        >
+
+                          <option value="THOUGHT">
+                            THOUGHT
+                          </option>
+
+                          <option value="RABBIT HOLE">
+                            RABBIT HOLE
+                          </option>
+
+                          <option value="EDITORIAL NOTE">
+                            EDITORIAL NOTE
+                          </option>
+
+                          <option value="LOOK">
+                            LOOK
+                          </option>
+
+                          <option value="OBSESSION">
+                            OBSESSION
+                          </option>
+
+                        </select>
+
+                      </label>
+
+                      {/* LINK */}
+
+                      <label className="writer-field">
+
+                        <span>
+                          LINK
+                          <small>
+                            OPTIONAL
+                          </small>
+                        </span>
+
+                        <input
+                          type="text"
+                          value={
+                            item.link ||
+                            ""
+                          }
+                          onChange={(
+                            event
+                          ) =>
+                            updateMarginalia(
+                              index,
+                              "link",
+                              event
+                                .target
+                                .value
+                            )
+                          }
+                          placeholder="/article/another-story"
+                        />
+
+                      </label>
+
+                    </div>
+                  )
+                )}
+
+              </div>
+            )}
+
+            {(
+              form.marginalia || []
+            ).length === 0 && (
+              <div className="writer-marginalia-empty">
+                <span>
+                  ✎
+                </span>
+
+                <p>
+                  No notes yet.
+                  <br />
+                  Add one when you have a
+                  thought worth leaving in
+                  the margin.
+                </p>
+              </div>
+            )}
+
+          </section>
+
+          {/* =================================================
+              THE RECEIPTS
+              ================================================= */}
+
+          <section className="writer-sidebar-card writer-receipts-card">
+
+            <div className="writer-sidebar-title writer-receipts-heading">
+              <span>THE RECEIPTS</span>
+              <span className="writer-receipts-count">
+                {(form.receipts || []).length}
+              </span>
+            </div>
+
+            <p className="writer-receipts-description">
+              Sources, data, screenshots, books, links &amp; other evidence behind the story.
+            </p>
+
+            <button
+              type="button"
+              className="writer-add-marginalia"
+              onClick={addReceipt}
+            >
+              <Plus size={15} />
+              ADD RECEIPT
+            </button>
+
+            {(form.receipts || []).length > 0 && (
+              <div className="writer-receipts-list">
+                {form.receipts.map((receipt, index) => (
+                  <div
+                    className="writer-receipt-item"
+                    key={receipt.id || index}
+                  >
+                    <div className="writer-receipt-item-top">
+                      <span className="writer-receipt-number">
+                        {String(index + 1).padStart(2, "0")}
+                      </span>
+
+                      <div className="writer-receipt-order">
+                        <button
+                          type="button"
+                          onClick={() => moveReceipt(index, -1)}
+                          disabled={index === 0}
+                          aria-label="Move receipt up"
+                        >↑</button>
+                        <button
+                          type="button"
+                          onClick={() => moveReceipt(index, 1)}
+                          disabled={index === form.receipts.length - 1}
+                          aria-label="Move receipt down"
+                        >↓</button>
+                        <button
+                          type="button"
+                          className="writer-marginalia-delete"
+                          onClick={() => deleteReceipt(index)}
+                          aria-label="Delete receipt"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
+                    </div>
+
+                    <label className="writer-field">
+                      <span>TYPE</span>
+                      <select
+                        value={receipt.type || "SOURCE"}
+                        onChange={(event) => updateReceipt(index, "type", event.target.value)}
+                      >
+                        <option value="SOURCE">SOURCE</option>
+                        <option value="DATA">DATA</option>
+                        <option value="SCREENSHOT">SCREENSHOT</option>
+                        <option value="BOOK">BOOK</option>
+                        <option value="ARTICLE">ARTICLE</option>
+                        <option value="VIDEO">VIDEO</option>
+                        <option value="ARCHIVE">ARCHIVE</option>
+                        <option value="OTHER">OTHER</option>
+                      </select>
+                    </label>
+
+                    <label className="writer-field">
+                      <span>TITLE</span>
+                      <input
+                        value={receipt.title || ""}
+                        onChange={(event) => updateReceipt(index, "title", event.target.value)}
+                        placeholder="The source, book, dataset..."
+                      />
+                    </label>
+
+                    <label className="writer-field">
+                      <span>DESCRIPTION <small>OPTIONAL</small></span>
+                      <textarea
+                        value={receipt.description || ""}
+                        onChange={(event) => updateReceipt(index, "description", event.target.value)}
+                        placeholder="What is this evidence?"
+                        rows="3"
+                      />
+                    </label>
+
+                    <label className="writer-field">
+                      <span>SOURCE LINK <small>OPTIONAL</small></span>
+                      <input
+                        type="url"
+                        value={receipt.source_url || ""}
+                        onChange={(event) => updateReceipt(index, "source_url", event.target.value)}
+                        placeholder="https://..."
+                      />
+                    </label>
+
+                    <label className="writer-field">
+                      <span>IMAGE URL <small>OPTIONAL</small></span>
+                      <input
+                        type="url"
+                        value={receipt.image_url || ""}
+                        onChange={(event) => updateReceipt(index, "image_url", event.target.value)}
+                        placeholder="https://..."
+                      />
+                    </label>
+
+                    <label className="writer-field">
+                      <span>AUTHOR <small>OPTIONAL</small></span>
+                      <input
+                        value={receipt.author || ""}
+                        onChange={(event) => updateReceipt(index, "author", event.target.value)}
+                        placeholder="Author name"
+                      />
+                    </label>
+
+                    <label className="writer-field">
+                      <span>PUBLICATION <small>OPTIONAL</small></span>
+                      <input
+                        value={receipt.publication || ""}
+                        onChange={(event) => updateReceipt(index, "publication", event.target.value)}
+                        placeholder="Publication, institution..."
+                      />
+                    </label>
+
+                    <label className="writer-field">
+                      <span>DATE <small>OPTIONAL</small></span>
+                      <input
+                        value={receipt.published_date || ""}
+                        onChange={(event) => updateReceipt(index, "published_date", event.target.value)}
+                        placeholder="September 2026"
+                      />
+                    </label>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {(form.receipts || []).length === 0 && (
+              <div className="writer-marginalia-empty writer-receipts-empty">
+                <span>⌁</span>
+                <p>
+                  No receipts yet.
+                  <br />
+                  Add the evidence behind this story.
+                </p>
+              </div>
+            )}
+
+          </section>
+
+          {/* =================================================
+              COVER
+              ================================================= */}
 
           <section className="writer-sidebar-card">
 
             <div className="writer-sidebar-title">
               COVER IMAGE
             </div>
-
 
             {form.cover_image ? (
 
@@ -1499,8 +2461,9 @@ export default function AdminArticleEditor() {
 
           </section>
 
-
-          {/* WRITING TIP */}
+          {/* =================================================
+              WRITING TIP
+              ================================================= */}
 
           <section className="writer-sidebar-card writer-tip">
 
@@ -1509,9 +2472,10 @@ export default function AdminArticleEditor() {
             </div>
 
             <p>
-              Don't worry about making every section
-              perfect. Get the thought down first.
-              You can always come back and edit.
+              Don't worry about making every
+              section perfect. Get the thought
+              down first. You can always come back
+              and edit.
             </p>
 
             <span>
@@ -1523,7 +2487,6 @@ export default function AdminArticleEditor() {
         </aside>
 
       </div>
-
 
       {/* =====================================================
           FOOTER
@@ -1541,7 +2504,6 @@ export default function AdminArticleEditor() {
           BACK TO ADMIN
         </button>
 
-
         <div>
 
           <button
@@ -1553,7 +2515,6 @@ export default function AdminArticleEditor() {
           >
             SAVE DRAFT
           </button>
-
 
           <button
             type="button"
