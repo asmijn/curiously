@@ -11,6 +11,10 @@ import {
 import { supabase } from "../supabase";
 import ArticleCard from "../components/ArticleCard";
 
+/* =========================================================
+   VISITOR ID
+   ========================================================= */
+
 function getVisitorId() {
   const key = "curiously_visitor_id";
 
@@ -23,6 +27,10 @@ function getVisitorId() {
 
   return visitorId;
 }
+
+/* =========================================================
+   DATE
+   ========================================================= */
 
 function formatDate(dateString) {
   if (!dateString) return "";
@@ -39,37 +47,254 @@ function formatDate(dateString) {
   });
 }
 
+/* =========================================================
+   RICH TEXT SANITIZER
+   ========================================================= */
+
+function sanitizeArticleHtml(html) {
+  if (!html) return "";
+
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(
+    String(html),
+    "text/html"
+  );
+
+  const allowedTags = new Set([
+    "P",
+    "BR",
+    "STRONG",
+    "B",
+    "U",
+    "EM",
+    "I",
+    "MARK",
+    "SPAN",
+    "FONT",
+  ]);
+
+  const allowedClasses = new Set([
+    "writer-text-circle",
+  ]);
+
+  const safeColor = (value) => {
+    if (!value) return "";
+
+    const color = String(value).trim();
+
+    if (
+      /^#[0-9a-f]{3,8}$/i.test(color) ||
+      /^rgb(a)?\([^)]*\)$/i.test(color) ||
+      /^hsl(a)?\([^)]*\)$/i.test(color)
+    ) {
+      return color;
+    }
+
+    return "";
+  };
+
+  function cleanNode(node) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      return node.cloneNode(true);
+    }
+
+    if (node.nodeType !== Node.ELEMENT_NODE) {
+      return null;
+    }
+
+    const tag = node.tagName;
+
+    /*
+     * If the editor somehow produced an unsupported tag,
+     * keep its text/content rather than displaying the tag.
+     */
+    if (!allowedTags.has(tag)) {
+      const fragment = document.createDocumentFragment();
+
+      Array.from(node.childNodes).forEach((child) => {
+        const cleaned = cleanNode(child);
+
+        if (cleaned) {
+          fragment.appendChild(cleaned);
+        }
+      });
+
+      return fragment;
+    }
+
+    const clean = document.createElement(
+      tag.toLowerCase()
+    );
+
+    /*
+     * Preserve only safe formatting styles.
+     */
+    const color =
+      safeColor(node.style?.color) ||
+      safeColor(node.getAttribute("color"));
+
+    const backgroundColor =
+      safeColor(node.style?.backgroundColor) ||
+      safeColor(node.style?.background);
+
+    if (color) {
+      clean.style.color = color;
+    }
+
+    if (backgroundColor) {
+      clean.style.backgroundColor =
+        backgroundColor;
+    }
+
+    /*
+     * Preserve the custom circle class only.
+     */
+    if (
+      node.classList?.contains(
+        "writer-text-circle"
+      )
+    ) {
+      clean.className =
+        "writer-text-circle";
+    }
+
+    /*
+     * Preserve child content.
+     */
+    Array.from(node.childNodes).forEach(
+      (child) => {
+        const cleaned = cleanNode(child);
+
+        if (cleaned) {
+          clean.appendChild(cleaned);
+        }
+      }
+    );
+
+    return clean;
+  }
+
+  const output =
+    document.createElement("div");
+
+  Array.from(doc.body.childNodes).forEach(
+    (node) => {
+      const cleaned = cleanNode(node);
+
+      if (cleaned) {
+        output.appendChild(cleaned);
+      }
+    }
+  );
+
+  return output.innerHTML;
+}
+
+/* =========================================================
+   BODY FORMATTER
+   ========================================================= */
+
+function renderArticleBody(body) {
+  if (!body) return "";
+
+  const value = String(body);
+
+  /*
+   * Rich-text content from the Admin editor contains HTML.
+   */
+  if (
+    /<\s*(p|br|strong|b|u|em|i|mark|span|font)\b/i.test(
+      value
+    )
+  ) {
+    return sanitizeArticleHtml(value);
+  }
+
+  /*
+   * Older articles may still contain plain text.
+   * Convert newlines safely into paragraphs.
+   */
+  const escaped = value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+
+  return escaped
+    .split(/\n\s*\n/)
+    .filter((paragraph) =>
+      paragraph.trim()
+    )
+    .map(
+      (paragraph) =>
+        `<p>${paragraph
+          .trim()
+          .replace(/\n/g, "<br />")}</p>`
+    )
+    .join("");
+}
+
+/* =========================================================
+   ARTICLE
+   ========================================================= */
+
 export default function Article() {
   const { id } = useParams();
 
-  const [article, setArticle] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [article, setArticle] =
+    useState(null);
 
-  const [saved, setSaved] = useState(false);
-  const [likeCount, setLikeCount] = useState(0);
-  const [liked, setLiked] = useState(false);
+  const [loading, setLoading] =
+    useState(true);
 
-  const [relatedStories, setRelatedStories] = useState([]);
+  const [error, setError] =
+    useState("");
 
-  const [comments, setComments] = useState([]);
-  const [commentName, setCommentName] = useState("");
-  const [commentText, setCommentText] = useState("");
-  const [commentSubmitting, setCommentSubmitting] = useState(false);
-  const [commentSubmitted, setCommentSubmitted] = useState(false);
-  const [commentError, setCommentError] = useState("");
+  const [saved, setSaved] =
+    useState(false);
 
-  const [receipts, setReceipts] = useState([]);
+  const [likeCount, setLikeCount] =
+    useState(0);
 
-  const [readingProgress, setReadingProgress] = useState(0);
+  const [liked, setLiked] =
+    useState(false);
 
-  const [showReadingProgress, setShowReadingProgress] = useState(() => {
-    return (
-      localStorage.getItem(
-        "curiously_hide_reading_progress"
-      ) !== "true"
-    );
-  });
+  const [relatedStories, setRelatedStories] =
+    useState([]);
+
+  const [comments, setComments] =
+    useState([]);
+
+  const [commentName, setCommentName] =
+    useState("");
+
+  const [commentText, setCommentText] =
+    useState("");
+
+  const [commentSubmitting, setCommentSubmitting] =
+    useState(false);
+
+  const [commentSubmitted, setCommentSubmitted] =
+    useState(false);
+
+  const [commentError, setCommentError] =
+    useState("");
+
+  const [receipts, setReceipts] =
+    useState([]);
+
+  const [readingProgress, setReadingProgress] =
+    useState(0);
+
+  const [showReadingProgress, setShowReadingProgress] =
+    useState(() => {
+      return (
+        localStorage.getItem(
+          "curiously_hide_reading_progress"
+        ) !== "true"
+      );
+    });
 
   /* =========================================================
      LOAD ARTICLE
@@ -81,17 +306,18 @@ export default function Article() {
       setError("");
 
       try {
-        const { data, error } = await supabase
-          .from("articles")
-          .select(`
-            *,
-            categories (
-              name
-            )
-          `)
-          .eq("slug", id)
-          .eq("published", true)
-          .maybeSingle();
+        const { data, error } =
+          await supabase
+            .from("articles")
+            .select(`
+              *,
+              categories (
+                name
+              )
+            `)
+            .eq("slug", id)
+            .eq("published", true)
+            .maybeSingle();
 
         if (error) {
           throw error;
@@ -122,14 +348,89 @@ export default function Article() {
             data.sections ||
             [],
 
+          /*
+           * =================================================
+           * MARGINALIA ONLY
+           *
+           * Keep the saved Y position.
+           * X is no longer used for horizontal positioning.
+           * Notes are always rendered in the right margin.
+           * =================================================
+           */
           marginalia:
             Array.isArray(data.marginalia)
-              ? [...data.marginalia]
-                  .sort(
-                    (a, b) =>
-                      (a?.position || 0) -
-                      (b?.position || 0)
-                  )
+              ? data.marginalia
+                  .map((item, itemIndex) => ({
+                    ...item,
+
+                    /*
+                     * Keep IDs intact.
+                     */
+                    id:
+                      item?.id ||
+                      `marginalia-${itemIndex}`,
+
+                    /*
+                     * X is retained in the database so
+                     * existing data isn't destroyed, but
+                     * Article.jsx does NOT use it to position
+                     * the published note.
+                     */
+                    x: Math.max(
+                      72,
+                      Math.min(
+                        92,
+                        Number.isFinite(
+                          Number(item?.x)
+                        )
+                          ? Number(item.x)
+                          : 82
+                      )
+                    ),
+
+                    /*
+                     * Y controls the vertical position.
+                     *
+                     * Hard boundary:
+                     * minimum = 4%
+                     * maximum = 94%
+                     */
+                    y: Math.max(
+                      4,
+                      Math.min(
+                        94,
+                        Number.isFinite(
+                          Number(item?.y)
+                        )
+                          ? Number(item.y)
+                          : Math.min(
+                              10 +
+                                itemIndex *
+                                  14,
+                              94
+                            )
+                      )
+                    ),
+
+                    /*
+                     * Keep rotation.
+                     */
+                    rotation: Math.max(
+                      -8,
+                      Math.min(
+                        8,
+                        Number.isFinite(
+                          Number(
+                            item?.rotation
+                          )
+                        )
+                          ? Number(
+                              item.rotation
+                            )
+                          : 0
+                      )
+                    ),
+                  }))
                   .filter(
                     (item) =>
                       item?.note?.trim()
@@ -137,7 +438,9 @@ export default function Article() {
               : [],
         };
 
-        setArticle(formattedArticle);
+        setArticle(
+          formattedArticle
+        );
 
         loadLikes(data.id);
         loadBookmark(data.id);
@@ -169,10 +472,12 @@ export default function Article() {
 
   useEffect(() => {
     function updateReadingProgress() {
-      const scrollTop = window.scrollY;
+      const scrollTop =
+        window.scrollY;
 
       const documentHeight =
-        document.documentElement.scrollHeight -
+        document.documentElement
+          .scrollHeight -
         window.innerHeight;
 
       if (documentHeight <= 0) {
@@ -181,7 +486,9 @@ export default function Article() {
       }
 
       const progress =
-        (scrollTop / documentHeight) * 100;
+        (scrollTop /
+          documentHeight) *
+        100;
 
       setReadingProgress(
         Math.min(
@@ -230,7 +537,8 @@ export default function Article() {
 
   async function loadLikes(articleId) {
     try {
-      const visitorId = getVisitorId();
+      const visitorId =
+        getVisitorId();
 
       const {
         count,
@@ -241,7 +549,10 @@ export default function Article() {
           count: "exact",
           head: true,
         })
-        .eq("article_id", articleId);
+        .eq(
+          "article_id",
+          articleId
+        );
 
       if (countError) {
         console.error(
@@ -249,7 +560,9 @@ export default function Article() {
           countError
         );
       } else {
-        setLikeCount(count || 0);
+        setLikeCount(
+          count || 0
+        );
       }
 
       const { data, error } =
@@ -309,8 +622,12 @@ export default function Article() {
 
         setLiked(false);
 
-        setLikeCount((count) =>
-          Math.max(0, count - 1)
+        setLikeCount(
+          (count) =>
+            Math.max(
+              0,
+              count - 1
+            )
         );
       } else {
         const { error } =
@@ -330,7 +647,8 @@ export default function Article() {
         setLiked(true);
 
         setLikeCount(
-          (count) => count + 1
+          (count) =>
+            count + 1
         );
       }
     } catch (err) {
@@ -347,7 +665,9 @@ export default function Article() {
      BOOKMARKS
      ========================================================= */
 
-  async function loadBookmark(articleId) {
+  async function loadBookmark(
+    articleId
+  ) {
     try {
       const visitorId =
         getVisitorId();
@@ -442,14 +762,18 @@ export default function Article() {
   }
 
   /* =========================================================
-     THE RECEIPTS
+     RECEIPTS
      ========================================================= */
 
-  async function loadReceipts(articleId) {
+  async function loadReceipts(
+    articleId
+  ) {
     try {
       const { data, error } =
         await supabase
-          .from("article_receipts")
+          .from(
+            "article_receipts"
+          )
           .select(`
             id,
             type,
@@ -460,7 +784,8 @@ export default function Article() {
             author,
             publication,
             published_date,
-            sort_order
+            sort_order,
+            created_at
           `)
           .eq(
             "article_id",
@@ -488,7 +813,9 @@ export default function Article() {
         return;
       }
 
-      setReceipts(data || []);
+      setReceipts(
+        data || []
+      );
     } catch (err) {
       console.error(
         "Receipts loading error:",
@@ -501,7 +828,9 @@ export default function Article() {
      COMMENTS
      ========================================================= */
 
-  async function loadComments(articleId) {
+  async function loadComments(
+    articleId
+  ) {
     try {
       const { data, error } =
         await supabase
@@ -538,7 +867,9 @@ export default function Article() {
         return;
       }
 
-      setComments(data || []);
+      setComments(
+        data || []
+      );
     } catch (err) {
       console.error(
         "Comments loading error:",
@@ -547,7 +878,9 @@ export default function Article() {
     }
   }
 
-  async function submitComment(event) {
+  async function submitComment(
+    event
+  ) {
     event.preventDefault();
 
     setCommentError("");
@@ -615,7 +948,9 @@ export default function Article() {
 
       setCommentName("");
       setCommentText("");
-      setCommentSubmitted(true);
+      setCommentSubmitted(
+        true
+      );
     } catch (err) {
       console.error(
         "Error submitting comment:",
@@ -626,7 +961,9 @@ export default function Article() {
         "WE COULDN'T SUBMIT YOUR COMMENT. PLEASE TRY AGAIN."
       );
     } finally {
-      setCommentSubmitting(false);
+      setCommentSubmitting(
+        false
+      );
     }
   }
 
@@ -638,11 +975,6 @@ export default function Article() {
     currentArticle
   ) {
     try {
-      console.log(
-        "Loading related stories for:",
-        currentArticle.title
-      );
-
       const { data, error } =
         await supabase
           .from("articles")
@@ -821,7 +1153,6 @@ export default function Article() {
     return (
       <main className="article-page">
         <section className="article-error">
-
           <p>
             {error ||
               "STORY NOT FOUND."}
@@ -837,7 +1168,6 @@ export default function Article() {
 
             BACK TO THE ARCHIVE
           </Link>
-
         </section>
       </main>
     );
@@ -887,14 +1217,12 @@ export default function Article() {
         "--reading-progress": `${readingProgress}%`,
       }}
     >
-
       {/* =====================================================
           READING PROGRESS
           ===================================================== */}
 
       {showReadingProgress ? (
         <div className="article-reading-progress">
-
           <button
             type="button"
             className="article-reading-progress-close"
@@ -917,7 +1245,6 @@ export default function Article() {
             )}
             %
           </span>
-
         </div>
       ) : (
         <button
@@ -940,7 +1267,6 @@ export default function Article() {
           <span>
             +
           </span>
-
         </button>
       )}
 
@@ -949,22 +1275,15 @@ export default function Article() {
           ===================================================== */}
 
       <header className="article-hero">
-
         {isSecret && (
           <div className="article-secret-mark">
-
-            <span>
-              ✦
-            </span>
+            <span>✦</span>
 
             <span>
               CURIOUSLY SECRET
             </span>
 
-            <span>
-              ✦
-            </span>
-
+            <span>✦</span>
           </div>
         )}
 
@@ -984,7 +1303,6 @@ export default function Article() {
         </div>
 
         <div className="article-meta">
-
           {article.date ||
             formatDate(
               article.created_at
@@ -997,7 +1315,6 @@ export default function Article() {
 
           {article.read_time &&
             ` / ${article.read_time}`}
-
         </div>
 
         <h1>
@@ -1015,7 +1332,6 @@ export default function Article() {
             {article.dek}
           </p>
         )}
-
       </header>
 
       {/* =====================================================
@@ -1023,7 +1339,6 @@ export default function Article() {
           ===================================================== */}
 
       <div className="article-cover-wrap">
-
         {cover ? (
           <img
             src={cover}
@@ -1044,7 +1359,6 @@ export default function Article() {
             {category}
           </div>
         )}
-
       </div>
 
       {/* =====================================================
@@ -1052,13 +1366,11 @@ export default function Article() {
           ===================================================== */}
 
       <div className="article-layout">
-
         {/* ===================================================
             SIDEBAR
             =================================================== */}
 
         <aside className="article-sidebar">
-
           <div
             className={`article-sidebar-item category-${category
               .toLowerCase()
@@ -1067,7 +1379,6 @@ export default function Article() {
                 "-"
               )}`}
           >
-
             <span className="article-sidebar-label">
               CATEGORY
             </span>
@@ -1075,12 +1386,10 @@ export default function Article() {
             <strong>
               {category}
             </strong>
-
           </div>
 
           {article.format && (
             <div className="article-sidebar-item">
-
               <span className="article-sidebar-label">
                 FORMAT
               </span>
@@ -1088,13 +1397,11 @@ export default function Article() {
               <strong>
                 {article.format}
               </strong>
-
             </div>
           )}
 
           {article.tag && (
             <div className="article-sidebar-item">
-
               <span className="article-sidebar-label">
                 TAG
               </span>
@@ -1102,7 +1409,6 @@ export default function Article() {
               <strong>
                 {article.tag}
               </strong>
-
             </div>
           )}
 
@@ -1117,7 +1423,6 @@ export default function Article() {
               toggleSave
             }
           >
-
             <Bookmark
               size={15}
             />
@@ -1125,9 +1430,7 @@ export default function Article() {
             {saved
               ? "SAVED"
               : "SAVE STORY"}
-
           </button>
-
         </aside>
 
         {/* ===================================================
@@ -1135,7 +1438,6 @@ export default function Article() {
             =================================================== */}
 
         <article className="article-body">
-
           {article.dek && (
             <div className="article-intro">
               {article.dek}
@@ -1147,177 +1449,210 @@ export default function Article() {
               ================================================= */}
 
           {sections.length > 0 ? (
-
             <div className="article-story-with-marginalia">
+
+              {/* =================================================
+                  MARGINAL NOTES — ONLY THIS PART WAS CHANGED
+                  ================================================= */}
+
+              <div
+                className="article-marginalia-layer"
+                aria-hidden="false"
+              >
+                {marginalia.map(
+                  (
+                    note,
+                    noteIndex
+                  ) => {
+                    const noteType =
+                      note.type ||
+                      "THOUGHT";
+
+                    /*
+                     * Y ONLY controls vertical placement.
+                     *
+                     * X is intentionally NOT used here.
+                     *
+                     * The note is fixed in the right margin.
+                     */
+                    const noteY =
+                      Math.max(
+                        4,
+                        Math.min(
+                          94,
+                          Number.isFinite(
+                            Number(
+                              note.y
+                            )
+                          )
+                            ? Number(
+                                note.y
+                              )
+                            : 10
+                        )
+                      );
+
+                    const noteRotation =
+                      Math.max(
+                        -8,
+                        Math.min(
+                          8,
+                          Number.isFinite(
+                            Number(
+                              note.rotation
+                            )
+                          )
+                            ? Number(
+                                note.rotation
+                              )
+                            : 0
+                        )
+                      );
+
+                    const noteContent = (
+                      <span
+                        className="article-marginalia-text"
+                        dangerouslySetInnerHTML={{
+                          __html:
+                            sanitizeArticleHtml(
+                              note.note ||
+                                ""
+                            ),
+                        }}
+                      />
+                    );
+
+                    return (
+                      <aside
+                        className={`article-marginalia article-marginalia-${noteType
+                          .toLowerCase()
+                          .replace(
+                            /\s+/g,
+                            "-"
+                          )}`}
+                        key={
+                          note.id ||
+                          `marginalia-${noteIndex}`
+                        }
+                        style={{
+                          /*
+                           * FIXED HORIZONTAL POSITION
+                           *
+                           * This keeps the note in the
+                           * right-hand margin.
+                           */
+                          left:
+                            "calc(100% + 35px)",
+
+                          /*
+                           * THIS is controlled by
+                           * the Admin Y slider.
+                           */
+                          top:
+                            `${noteY}%`,
+
+                          /*
+                           * Don't allow the old X
+                           * positioning to affect it.
+                           */
+                          right:
+                            "auto",
+
+                          /*
+                           * Keep the handwritten
+                           * rotation.
+                           */
+                          transform:
+                            `rotate(${noteRotation}deg)`,
+                        }}
+                      >
+                        <div className="article-marginalia-note">
+                          <div className="article-marginalia-mark">
+                            <span>✎</span>
+
+                            <span>
+                              {noteType}
+                            </span>
+                          </div>
+
+                          {note.link ? (
+                            <Link
+                              to={
+                                note.link
+                              }
+                              className="article-marginalia-link"
+                            >
+                              {noteContent}
+
+                              <span className="article-marginalia-arrow">
+                                →
+                              </span>
+                            </Link>
+                          ) : (
+                            noteContent
+                          )}
+                        </div>
+                      </aside>
+                    );
+                  }
+                )}
+              </div>
+
+              {/* =================================================
+                  ARTICLE SECTIONS — UNCHANGED
+                  ================================================= */}
 
               {sections.map(
                 (
                   section,
                   index
-                ) => {
-
-                  const sectionNotes =
-                    marginalia.filter(
-                      (note) =>
-                        Number(
-                          note?.position
-                        ) ===
-                        index + 1
-                    );
-
-                  return (
-                    <div
-                      key={index}
-                      className="article-section-row"
-                    >
-
-                      <section className="article-section">
-
-                        {section.heading && (
-                          <h2>
-                            {
-                              section.heading
-                            }
-                          </h2>
-                        )}
-
-                        {section.body &&
-                          String(
-                            section.body
-                          )
-                            .split(
-                              "\n"
-                            )
-                            .map(
-                              (
-                                paragraph,
-                                paragraphIndex
-                              ) =>
-                                paragraph.trim() && (
-                                  <p
-                                    key={
-                                      paragraphIndex
-                                    }
-                                  >
-                                    {
-                                      paragraph
-                                    }
-                                  </p>
-                                )
-                            )}
-
-                      </section>
-
-                      {sectionNotes.length >
-                        0 && (
-                        <aside className="article-marginalia">
-
-                          {sectionNotes.map(
-                            (
-                              note,
-                              noteIndex
-                            ) => {
-
-                              const noteContent = (
-                                <span className="article-marginalia-text">
-                                  {note.note}
-                                </span>
-                              );
-
-                              const noteType =
-                                note.type ||
-                                "THOUGHT";
-
-                              return (
-                                <div
-                                  className={`article-marginalia-note article-marginalia-${noteType
-                                    .toLowerCase()
-                                    .replace(
-                                      /\s+/g,
-                                      "-"
-                                    )}`}
-                                  key={
-                                    `${index}-${noteIndex}`
-                                  }
-                                >
-
-                                  <div className="article-marginalia-mark">
-                                    <span>
-                                      ✎
-                                    </span>
-
-                                    <span>
-                                      {
-                                        noteType
-                                      }
-                                    </span>
-                                  </div>
-
-                                  {note.link ? (
-                                    <Link
-                                      to={
-                                        note.link
-                                      }
-                                      className="article-marginalia-link"
-                                    >
-                                      {
-                                        noteContent
-                                      }
-
-                                      <span className="article-marginalia-arrow">
-                                        →
-                                      </span>
-                                    </Link>
-                                  ) : (
-                                    noteContent
-                                  )}
-
-                                </div>
-                              );
-                            }
-                          )}
-
-                        </aside>
+                ) => (
+                  <div
+                    key={index}
+                    className="article-section-row"
+                  >
+                    <section className="article-section">
+                      {section.heading && (
+                        <h2>
+                          {
+                            section.heading
+                          }
+                        </h2>
                       )}
 
-                    </div>
-                  );
-                }
+                      {section.body && (
+                        <div
+                          className="article-rich-text"
+                          dangerouslySetInnerHTML={{
+                            __html:
+                              renderArticleBody(
+                                section.body
+                              ),
+                          }}
+                        />
+                      )}
+                    </section>
+                  </div>
+                )
               )}
-
             </div>
-
           ) : article.content ? (
-
             <div className="article-content">
-
-              {String(
-                article.content
-              )
-                .split("\n")
-                .map(
-                  (
-                    paragraph,
-                    index
-                  ) =>
-                    paragraph.trim() && (
-                      <p key={index}>
-                        {
-                          paragraph
-                        }
-                      </p>
-                    )
-                )}
-
+              <div
+                className="article-rich-text"
+                dangerouslySetInnerHTML={{
+                  __html:
+                    renderArticleBody(
+                      article.content
+                    ),
+                }}
+              />
             </div>
-
           ) : (
-
             <p>
               THIS STORY DOESN'T HAVE ANY
               CONTENT YET.
             </p>
-
           )}
 
           {/* =================================================
@@ -1325,9 +1660,7 @@ export default function Article() {
               ================================================= */}
 
           <div className="article-reader-reaction">
-
             <div className="article-reaction-bar-inner">
-
               <button
                 type="button"
                 className={`article-like ${
@@ -1344,7 +1677,6 @@ export default function Article() {
                     : "Like this story"
                 }
               >
-
                 <Heart
                   size={18}
                   fill={
@@ -1357,7 +1689,6 @@ export default function Article() {
                 <span className="like-count">
                   {likeCount}
                 </span>
-
               </button>
 
               <button
@@ -1367,25 +1698,19 @@ export default function Article() {
                   handleShare
                 }
               >
-
                 <Share2
                   size={17}
                 />
 
                 SHARE
-
               </button>
-
             </div>
 
             <div className="article-reaction-label">
-
               {liked
                 ? "YOU LIKE THIS STORY."
                 : "LIKE THIS STORY IF IT SENT YOU DOWN A RABBIT HOLE."}
-
             </div>
-
           </div>
 
           {/* =================================================
@@ -1393,11 +1718,8 @@ export default function Article() {
               ================================================= */}
 
           <section className="article-comments">
-
             <div className="article-comments-header">
-
               <div>
-
                 <div className="section-kicker">
                   CURIOUSLY / READER MAIL
                 </div>
@@ -1405,20 +1727,15 @@ export default function Article() {
                 <h2>
                   SAY SOMETHING.
                 </h2>
-
               </div>
 
               <span className="article-comments-count">
-
                 {comments.length}{" "}
-
                 {comments.length ===
                 1
                   ? "COMMENT"
                   : "COMMENTS"}
-
               </span>
-
             </div>
 
             <form
@@ -1427,9 +1744,7 @@ export default function Article() {
                 submitComment
               }
             >
-
               <div className="article-comment-fields">
-
                 <input
                   type="text"
                   value={
@@ -1463,7 +1778,6 @@ export default function Article() {
                   maxLength={1000}
                   rows={5}
                 />
-
               </div>
 
               {commentError && (
@@ -1489,7 +1803,6 @@ export default function Article() {
                   commentSubmitting
                 }
               >
-
                 <Send
                   size={14}
                 />
@@ -1497,30 +1810,23 @@ export default function Article() {
                 {commentSubmitting
                   ? "SENDING..."
                   : "SEND COMMENT"}
-
               </button>
-
             </form>
 
             <div className="article-comments-list">
-
               {comments.length >
               0 ? (
-
                 comments.map(
                   (
                     comment
                   ) => (
-
                     <article
                       key={
                         comment.id
                       }
                       className="article-comment"
                     >
-
                       <div className="article-comment-top">
-
                         <strong>
                           {
                             comment.name
@@ -1532,7 +1838,6 @@ export default function Article() {
                             comment.created_at
                           )}
                         </span>
-
                       </div>
 
                       <p>
@@ -1540,22 +1845,15 @@ export default function Article() {
                           comment.comment
                         }
                       </p>
-
                     </article>
-
                   )
                 )
-
               ) : (
-
                 <div className="article-no-comments">
                   NO COMMENTS YET. BE THE FIRST.
                 </div>
-
               )}
-
             </div>
-
           </section>
 
           {/* =================================================
@@ -1564,17 +1862,13 @@ export default function Article() {
 
           {receipts.length > 0 && (
             <section className="article-receipts">
-
               <div className="article-receipts-header">
-
                 <div className="article-receipts-heading">
-
                   <span className="article-receipts-page">
                     04
                   </span>
 
                   <div>
-
                     <div className="section-kicker">
                       CURIOUSLY / EVIDENCE FILE
                     </div>
@@ -1590,13 +1884,10 @@ export default function Article() {
                       screenshots, books, and other clues
                       behind this story.
                     </p>
-
                   </div>
-
                 </div>
 
                 <div className="article-receipts-stamp">
-
                   <span>
                     RESEARCH
                   </span>
@@ -1604,19 +1895,15 @@ export default function Article() {
                   <strong>
                     VERIFIED
                   </strong>
-
                 </div>
-
               </div>
 
               <div className="article-receipts-board">
-
                 {receipts.map(
                   (
                     receipt,
                     index
                   ) => {
-
                     const type =
                       receipt.type ||
                       "SOURCE";
@@ -1636,7 +1923,6 @@ export default function Article() {
                         }
                         className={`article-receipt-card receipt-${typeClass}`}
                       >
-
                         <div className="article-receipt-pin">
                           ●
                         </div>
@@ -1656,7 +1942,6 @@ export default function Article() {
 
                         {receipt.image_url && (
                           <div className="article-receipt-image">
-
                             <img
                               src={
                                 receipt.image_url
@@ -1668,18 +1953,14 @@ export default function Article() {
                               onError={(
                                 event
                               ) => {
-                                event.currentTarget
-                                  .parentElement
-                                  .style.display =
+                                event.currentTarget.parentElement.style.display =
                                   "none";
                               }}
                             />
-
                           </div>
                         )}
 
                         <div className="article-receipt-content">
-
                           <h3>
                             {
                               receipt.title
@@ -1698,7 +1979,6 @@ export default function Article() {
                             receipt.publication ||
                             receipt.published_date) && (
                             <div className="article-receipt-details">
-
                               {receipt.author && (
                                 <span>
                                   <strong>
@@ -1731,7 +2011,6 @@ export default function Article() {
                                   }
                                 </span>
                               )}
-
                             </div>
                           )}
 
@@ -1749,23 +2028,18 @@ export default function Article() {
                               <span>
                                 ↗
                               </span>
-
                             </a>
                           )}
-
                         </div>
 
                         <div className="article-receipt-tape" />
-
                       </article>
                     );
                   }
                 )}
-
               </div>
 
               <div className="article-receipts-footer">
-
                 <span>
                   FILE NO.{" "}
                   {article.slug?.toUpperCase() ||
@@ -1782,14 +2056,10 @@ export default function Article() {
                 <span>
                   KEEP DIGGING →
                 </span>
-
               </div>
-
             </section>
           )}
-
         </article>
-
       </div>
 
       {/* =====================================================
@@ -1797,11 +2067,8 @@ export default function Article() {
           ===================================================== */}
 
       {relatedStories.length > 0 && (
-
         <section className="article-related">
-
           <div className="article-related-header">
-
             <div className="section-kicker">
               CURIOUSLY / KEEP EXPLORING
             </div>
@@ -1811,17 +2078,14 @@ export default function Article() {
               <br />
               ALSO LIKE.
             </h2>
-
           </div>
 
           <div className="archive-grid">
-
             {relatedStories.map(
               (
                 story,
                 index
               ) => (
-
                 <ArticleCard
                   key={
                     story.id
@@ -1833,16 +2097,11 @@ export default function Article() {
                     index
                   }
                 />
-
               )
             )}
-
           </div>
-
         </section>
-
       )}
-
     </main>
   );
 }

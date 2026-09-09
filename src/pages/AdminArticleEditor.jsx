@@ -19,13 +19,18 @@ const emptySection = {
 };
 
 const emptyMarginalia = {
+  id: "",
   note: "",
   type: "THOUGHT",
-  position: 1,
+  x: 82,
+  y: 15,
+  rotation: -2,
   link: "",
 };
 
 export default function AdminArticleEditor() {
+  const marginaliaEditorRefs = useRef({});
+
   const navigate = useNavigate();
   const { slug } = useParams();
 
@@ -193,26 +198,21 @@ export default function AdminArticleEditor() {
           if (!cancelled) {
             const loadedMarginalia =
               Array.isArray(articleData.marginalia)
-                ? [...articleData.marginalia]
-                    .sort(
-                      (a, b) =>
-                        (a?.position || 0) -
-                        (b?.position || 0)
-                    )
-                    .map((item, index) => ({
-                      note:
-                        item?.note || "",
-
-                      type:
-                        item?.type ||
-                        "THOUGHT",
-
-                      position:
-                        index + 1,
-
-                      link:
-                        item?.link || "",
-                    }))
+                ? articleData.marginalia.map((item, index) => ({
+                    id:
+                      item?.id ||
+                      `note-${index}-${Date.now()}`,
+                    note: item?.note || "",
+                    type: item?.type || "THOUGHT",
+                    x: Math.max(72, Math.min(92, Number.isFinite(Number(item?.x)) ? Number(item.x) : 82)),
+                    y: Math.max(4, Math.min(94, Number.isFinite(Number(item?.y)) ? Number(item.y) : Math.min(12 + index * 12, 82))),
+                    rotation: Number.isFinite(Number(item?.rotation))
+                      ? Number(item.rotation)
+                      : index % 2 === 0
+                      ? -2
+                      : 2,
+                    link: item?.link || "",
+                  }))
                 : [];
 
             const {
@@ -834,108 +834,73 @@ export default function AdminArticleEditor() {
   // DIGITAL MARGINALIA
   // =========================================================
 
+  function createMarginaliaId() {
+    return `note-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  }
+
   function addMarginalia() {
     setForm((current) => {
-      const existing =
-        current.marginalia || [];
+      const existing = current.marginalia || [];
 
       return {
         ...current,
-
         marginalia: [
           ...existing,
           {
             ...emptyMarginalia,
-            position:
-              existing.length + 1,
+            id: createMarginaliaId(),
+            x: 82,
+            y: Math.min(12 + existing.length * 12, 82),
+            rotation: existing.length % 2 === 0 ? -2 : 2,
           },
         ],
       };
     });
   }
 
-  function updateMarginalia(
-    index,
-    field,
-    value
-  ) {
+  function updateMarginalia(index, field, value) {
     setForm((current) => ({
       ...current,
-
-      marginalia: (
-        current.marginalia || []
-      ).map((item, itemIndex) =>
+      marginalia: (current.marginalia || []).map((item, itemIndex) =>
         itemIndex === index
-          ? {
-              ...item,
-              [field]: value,
-            }
+          ? { ...item, [field]: value }
           : item
       ),
     }));
   }
 
   function deleteMarginalia(index) {
-    setForm((current) => {
-      const notes = (
-        current.marginalia || []
-      )
-        .filter(
-          (_, itemIndex) =>
-            itemIndex !== index
-        )
-        .map((item, itemIndex) => ({
-          ...item,
-          position: itemIndex + 1,
-        }));
-
-      return {
-        ...current,
-        marginalia: notes,
-      };
-    });
+    setForm((current) => ({
+      ...current,
+      marginalia: (current.marginalia || []).filter(
+        (_, itemIndex) => itemIndex !== index
+      ),
+    }));
   }
 
-  function moveMarginalia(
-    index,
-    direction
-  ) {
-    setForm((current) => {
-      const notes = [
-        ...(current.marginalia || []),
-      ];
-
-      const newIndex =
-        index + direction;
-
-      if (
-        newIndex < 0 ||
-        newIndex >= notes.length
-      ) {
-        return current;
-      }
-
-      [
-        notes[index],
-        notes[newIndex],
-      ] = [
-        notes[newIndex],
-        notes[index],
-      ];
-
-      return {
-        ...current,
-
-        marginalia: notes.map(
-          (item, itemIndex) => ({
-            ...item,
-            position:
-              itemIndex + 1,
-          })
-        ),
-      };
-    });
+  function syncMarginaliaEditor(index, html) {
+    const editor = marginaliaEditorRefs.current[index];
+    if (editor && editor.innerHTML !== html) {
+      editor.innerHTML = html || "";
+    }
   }
+
+  useEffect(() => {
+    (form.marginalia || []).forEach((item, index) => {
+      syncMarginaliaEditor(index, item?.note || "");
+    });
+  }, [form.marginalia]);
+
+  function formatMarginalia(index, command, value = null) {
+    const editor = marginaliaEditorRefs.current[index];
+    if (!editor) return;
+
+    editor.focus();
+    document.execCommand(command, false, value);
+
+    updateMarginalia(index, "note", editor.innerHTML);
+  }
+
 
   // =========================================================
   // THE RECEIPTS
@@ -1272,25 +1237,20 @@ export default function AdminArticleEditor() {
       const cleanedMarginalia =
         (form.marginalia || [])
           .map((item, index) => ({
-            note:
-              item?.note?.trim() ||
-              "",
-
-            type:
-              item?.type ||
-              "THOUGHT",
-
-            position:
-              index + 1,
-
-            link:
-              item?.link?.trim() ||
-              null,
+            id:
+              item?.id ||
+              `note-${Date.now()}-${index}`,
+            note: item?.note?.trim() || "",
+            type: item?.type || "THOUGHT",
+            x: Math.max(72, Math.min(92, Number(item?.x) || 82)),
+            y: Math.max(4, Math.min(94, Number(item?.y) || 15)),
+            rotation: Math.max(
+              -8,
+              Math.min(8, Number(item?.rotation) || 0)
+            ),
+            link: item?.link?.trim() || null,
           }))
-          .filter(
-            (item) =>
-              item.note
-          );
+          .filter((item) => item.note);
 
       // -----------------------------------------------------
       // CLEAN RECEIPTS
@@ -2561,7 +2521,7 @@ export default function AdminArticleEditor() {
 
             <p className="writer-marginalia-description">
               Little editorial thoughts that
-              appear beside the story.
+              appear in the story margins.
             </p>
 
             <button
@@ -2584,196 +2544,127 @@ export default function AdminArticleEditor() {
                   (item, index) => (
                     <div
                       className="writer-marginalia-item"
-                      key={index}
+                      key={item.id || index}
                     >
-
-                      {/* NOTE HEADER */}
-
                       <div className="writer-marginalia-item-top">
-
-                        <span className="writer-marginalia-number">
-                          {String(
-                            index + 1
-                          ).padStart(
-                            2,
-                            "0"
-                          )}
-                        </span>
-
-                        <div className="writer-marginalia-order">
-
-                          <button
-                            type="button"
-                            onClick={() =>
-                              moveMarginalia(
-                                index,
-                                -1
-                              )
-                            }
-                            disabled={
-                              index ===
-                              0
-                            }
-                            aria-label="Move note up"
-                            title="Move up"
-                          >
-                            ↑
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={() =>
-                              moveMarginalia(
-                                index,
-                                1
-                              )
-                            }
-                            disabled={
-                              index ===
-                              form
-                                .marginalia
-                                .length -
-                                1
-                            }
-                            aria-label="Move note down"
-                            title="Move down"
-                          >
-                            ↓
-                          </button>
-
-                          <button
-                            type="button"
-                            className="writer-marginalia-delete"
-                            onClick={() =>
-                              deleteMarginalia(
-                                index
-                              )
-                            }
-                            aria-label="Delete note"
-                            title="Delete note"
-                          >
-                            <Trash2
-                              size={13}
-                            />
-                          </button>
-
+                        <div>
+                          <span className="writer-marginalia-number">
+                            {String(index + 1).padStart(2, "0")}
+                          </span>
+                          <span className="writer-marginalia-hand-label">
+                            ✎ MARGIN NOTE
+                          </span>
                         </div>
 
+                        <button
+                          type="button"
+                          className="writer-marginalia-delete"
+                          onClick={() => deleteMarginalia(index)}
+                          aria-label="Delete note"
+                          title="Delete note"
+                        >
+                          <Trash2 size={13} />
+                        </button>
                       </div>
 
-                      {/* NOTE */}
+                      <div className="writer-marginalia-editor">
+                        <div className="writer-marginalia-toolbar">
+                          <button type="button" onMouseDown={(event) => { event.preventDefault(); formatMarginalia(index, "bold"); }}>B</button>
+                          <button type="button" onMouseDown={(event) => { event.preventDefault(); formatMarginalia(index, "underline"); }}>U</button>
+                          <button type="button" className="marginalia-tool-red" onMouseDown={(event) => { event.preventDefault(); formatMarginalia(index, "foreColor", editorialColors.red); }}>A</button>
+                          <button type="button" className="marginalia-tool-pink" onMouseDown={(event) => { event.preventDefault(); formatMarginalia(index, "foreColor", editorialColors.pink); }}>A</button>
+                          <button type="button" className="marginalia-tool-blue" onMouseDown={(event) => { event.preventDefault(); formatMarginalia(index, "foreColor", editorialColors.blue); }}>A</button>
+                          <button type="button" className="marginalia-tool-yellow" onMouseDown={(event) => { event.preventDefault(); formatMarginalia(index, "hiliteColor", highlightColors.yellow); }}>✦</button>
+                        </div>
 
-                      <label className="writer-field">
-
-                        <span>
-                          NOTE
-                        </span>
-
-                        <textarea
-                          value={
-                            item.note ||
-                            ""
+                        <div
+                          ref={(element) => {
+                            if (element) {
+                              marginaliaEditorRefs.current[index] = element;
+                              if (element.innerHTML !== (item.note || "")) {
+                                element.innerHTML = item.note || "";
+                              }
+                            } else {
+                              delete marginaliaEditorRefs.current[index];
+                            }
+                          }}
+                          className="writer-marginalia-rich-text"
+                          contentEditable
+                          suppressContentEditableWarning
+                          spellCheck="true"
+                          role="textbox"
+                          aria-label={`Margin note ${index + 1}`}
+                          onInput={(event) =>
+                            updateMarginalia(index, "note", event.currentTarget.innerHTML)
                           }
-                          onChange={(
-                            event
-                          ) =>
-                            updateMarginalia(
-                              index,
-                              "note",
-                              event
-                                .target
-                                .value
-                            )
-                          }
-                          placeholder="This sent me down a rabbit hole..."
-                          rows="3"
                         />
-
-                      </label>
-
-                      {/* TYPE */}
+                      </div>
 
                       <label className="writer-field">
-
-                        <span>
-                          TYPE
-                        </span>
-
+                        <span>TYPE</span>
                         <select
-                          value={
-                            item.type ||
-                            "THOUGHT"
-                          }
-                          onChange={(
-                            event
-                          ) =>
-                            updateMarginalia(
-                              index,
-                              "type",
-                              event
-                                .target
-                                .value
-                            )
-                          }
+                          value={item.type || "THOUGHT"}
+                          onChange={(event) => updateMarginalia(index, "type", event.target.value)}
                         >
-
-                          <option value="THOUGHT">
-                            THOUGHT
-                          </option>
-
-                          <option value="RABBIT HOLE">
-                            RABBIT HOLE
-                          </option>
-
-                          <option value="EDITORIAL NOTE">
-                            EDITORIAL NOTE
-                          </option>
-
-                          <option value="LOOK">
-                            LOOK
-                          </option>
-
-                          <option value="OBSESSION">
-                            OBSESSION
-                          </option>
-
+                          <option value="THOUGHT">THOUGHT</option>
+                          <option value="RABBIT HOLE">RABBIT HOLE</option>
+                          <option value="EDITORIAL NOTE">EDITORIAL NOTE</option>
+                          <option value="LOOK">LOOK</option>
+                          <option value="OBSESSION">OBSESSION</option>
                         </select>
-
                       </label>
 
-                      {/* LINK */}
+                      <div className="writer-marginalia-position">
+                        <div className="writer-marginalia-position-heading">
+                          <span>MARGIN POSITION</span>
+                          <span>
+                            X {Math.round(item.x ?? 82)}% · Y {Math.round(item.y ?? 15)}%
+                          </span>
+                        </div>
+
+                        <label>
+                          <span>X</span>
+                          <input
+                            type="range"
+                            min="72"
+                            max="92"
+                            value={item.x ?? 82}
+                            onChange={(event) => updateMarginalia(index, "x", Number(event.target.value))}
+                          />
+                        </label>
+
+                        <label>
+                          <span>Y</span>
+                          <input
+                            type="range"
+                            min="4"
+                            max="94"
+                            value={item.y ?? 15}
+                            onChange={(event) => updateMarginalia(index, "y", Number(event.target.value))}
+                          />
+                        </label>
+
+                        <label>
+                          <span>ROTATION</span>
+                          <input
+                            type="range"
+                            min="-8"
+                            max="8"
+                            value={item.rotation ?? 0}
+                            onChange={(event) => updateMarginalia(index, "rotation", Number(event.target.value))}
+                          />
+                        </label>
+                      </div>
 
                       <label className="writer-field">
-
-                        <span>
-                          LINK
-                          <small>
-                            OPTIONAL
-                          </small>
-                        </span>
-
+                        <span>LINK <small>OPTIONAL</small></span>
                         <input
                           type="text"
-                          value={
-                            item.link ||
-                            ""
-                          }
-                          onChange={(
-                            event
-                          ) =>
-                            updateMarginalia(
-                              index,
-                              "link",
-                              event
-                                .target
-                                .value
-                            )
-                          }
+                          value={item.link || ""}
+                          onChange={(event) => updateMarginalia(index, "link", event.target.value)}
                           placeholder="/article/another-story"
                         />
-
                       </label>
-
                     </div>
                   )
                 )}
