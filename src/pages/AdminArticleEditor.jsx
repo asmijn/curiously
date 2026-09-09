@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeft,
@@ -40,6 +40,31 @@ export default function AdminArticleEditor() {
 
   const [categories, setCategories] = useState([]);
 
+  const editorRefs = useRef([]);
+  const selectionRefs = useRef([]);
+  const historyRefs = useRef([]);
+  const historyIndexRefs = useRef([]);
+  const historyApplyingRef = useRef(false);
+
+  const editorialColors = {
+    ink: "#1c191b",
+    red: "#b9414d",
+    pink: "#edabc4",
+    yellow: "#efd579",
+    blue: "#a9d4dc",
+    lavender: "#c8b8d8",
+    mint: "#b9d5c4",
+  };
+
+
+  const highlightColors = {
+    pink: "#f7dce8",
+    yellow: "#f8edb9",
+    blue: "#d8edf0",
+    lavender: "#e6ddef",
+    mint: "#dcebdd",
+    peach: "#f6ddd0",
+  };
   const [form, setForm] = useState({
     slug: "",
     title: "",
@@ -370,6 +395,380 @@ export default function AdminArticleEditor() {
           : generatedSlug,
       };
     });
+  }
+
+  // =========================================================
+  // STORY SECTIONS
+  // =========================================================
+
+  function getEditorHtml(index) {
+    return editorRefs.current[index]?.innerHTML || "";
+  }
+
+  function saveEditorSelection(index) {
+    const editor = editorRefs.current[index];
+    const selection = window.getSelection();
+
+    if (!editor || !selection || selection.rangeCount === 0) return;
+
+    const range = selection.getRangeAt(0);
+
+    if (!editor.contains(range.commonAncestorContainer)) return;
+
+    selectionRefs.current[index] = range.cloneRange();
+  }
+
+  function restoreEditorSelection(index) {
+    const savedRange = selectionRefs.current[index];
+    const editor = editorRefs.current[index];
+    const selection = window.getSelection();
+
+    if (!savedRange || !editor || !selection) return false;
+
+    try {
+      if (!editor.contains(savedRange.commonAncestorContainer)) return false;
+
+      selection.removeAllRanges();
+      selection.addRange(savedRange);
+      return true;
+    } catch (err) {
+      console.error("Could not restore editor selection:", err);
+      return false;
+    }
+  }
+
+  function updateEditorSection(index, html = null) {
+    const value = html !== null ? html : getEditorHtml(index);
+    updateSection(index, "body", value);
+  }
+
+  function ensureHistory(index, html = null) {
+    const currentHtml = html !== null ? html : getEditorHtml(index);
+
+    if (!historyRefs.current[index]) {
+      historyRefs.current[index] = [currentHtml];
+      historyIndexRefs.current[index] = 0;
+    }
+
+    return historyRefs.current[index];
+  }
+
+  function recordEditorHistory(index, html = null) {
+    if (historyApplyingRef.current) return;
+
+    const currentHtml = html !== null ? html : getEditorHtml(index);
+    const history = ensureHistory(index, currentHtml);
+    const currentIndex = historyIndexRefs.current[index] ?? 0;
+
+    if (history[currentIndex] === currentHtml) return;
+
+    // Any new edit after an undo creates a new branch.
+    const nextHistory = history.slice(0, currentIndex + 1);
+    nextHistory.push(currentHtml);
+
+    // Keep the editor history manageable.
+    if (nextHistory.length > 100) {
+      nextHistory.shift();
+    }
+
+    historyRefs.current[index] = nextHistory;
+    historyIndexRefs.current[index] = nextHistory.length - 1;
+  }
+
+  function restoreHistorySnapshot(index, targetIndex) {
+    const editor = editorRefs.current[index];
+    const history = historyRefs.current[index];
+
+    if (!editor || !history) return;
+    if (targetIndex < 0 || targetIndex >= history.length) return;
+
+    const html = history[targetIndex];
+
+    historyApplyingRef.current = true;
+    historyIndexRefs.current[index] = targetIndex;
+    editor.innerHTML = html;
+
+    selectionRefs.current[index] = null;
+
+    updateEditorSection(index, html);
+
+    // Let the next input event create a normal history entry again.
+    requestAnimationFrame(() => {
+      historyApplyingRef.current = false;
+      editor.focus();
+    });
+  }
+
+  function undoEditor(index) {
+    const editor = editorRefs.current[index];
+    if (!editor) return;
+
+    const currentHtml = getEditorHtml(index);
+    ensureHistory(index, currentHtml);
+
+    // If something changed without going through our history listener,
+    // capture it before undoing.
+    const history = historyRefs.current[index];
+    const currentIndex = historyIndexRefs.current[index] ?? 0;
+    if (history[currentIndex] !== currentHtml) {
+      recordEditorHistory(index, currentHtml);
+    }
+
+    const updatedIndex = historyIndexRefs.current[index] ?? 0;
+    if (updatedIndex <= 0) return;
+
+    restoreHistorySnapshot(index, updatedIndex - 1);
+  }
+
+  function redoEditor(index) {
+    const editor = editorRefs.current[index];
+    if (!editor) return;
+
+    const history = historyRefs.current[index];
+    if (!history) return;
+
+    const currentHtml = getEditorHtml(index);
+    const currentIndex = historyIndexRefs.current[index] ?? 0;
+
+    if (history[currentIndex] !== currentHtml) {
+      recordEditorHistory(index, currentHtml);
+      return;
+    }
+
+    if (currentIndex >= history.length - 1) return;
+
+    restoreHistorySnapshot(index, currentIndex + 1);
+  }
+
+  function runEditorCommand(index, command, value = null) {
+    const editor = editorRefs.current[index];
+    if (!editor) return;
+
+    const restored = restoreEditorSelection(index);
+
+    if (!restored) {
+      editor.focus();
+      return;
+    }
+
+    try {
+      editor.focus();
+
+      let success = false;
+
+      if (command === "hiliteColor") {
+        success =
+          document.execCommand("hiliteColor", false, value) ||
+          document.execCommand("backColor", false, value);
+      } else {
+        success = document.execCommand(command, false, value);
+      }
+
+      if (!success) {
+        console.warn(`Formatting command "${command}" was not applied.`);
+      }
+
+      saveEditorSelection(index);
+      const html = getEditorHtml(index);
+      updateEditorSection(index, html);
+      recordEditorHistory(index, html);
+    } catch (err) {
+      console.error("Formatting command failed:", err);
+    }
+  }
+
+  function wrapSelectionInCircle(index) {
+    const editor = editorRefs.current[index];
+    if (!editor) return;
+
+    const selection = window.getSelection();
+
+    if (!selection || selection.rangeCount === 0) {
+      return;
+    }
+
+    const liveRange = selection.getRangeAt(0);
+
+    if (
+      selection.isCollapsed ||
+      !editor.contains(liveRange.commonAncestorContainer)
+    ) {
+      return;
+    }
+
+    try {
+      const range = liveRange.cloneRange();
+      const circle = document.createElement("span");
+
+      circle.className = "writer-text-circle";
+
+      // Inline styling makes the circle work even if the global
+      // stylesheet has not loaded the circle rule yet.
+      circle.style.display = "inline-block";
+      circle.style.position = "relative";
+      circle.style.padding = "0.02em 0.28em 0.08em";
+      circle.style.border = "1.5px solid currentColor";
+      circle.style.borderRadius =
+        "48% 52% 46% 54% / 52% 45% 55% 48%";
+      circle.style.lineHeight = "1.25";
+
+      const contents = range.extractContents();
+      circle.appendChild(contents);
+      range.insertNode(circle);
+
+      const newRange = document.createRange();
+      newRange.selectNodeContents(circle);
+
+      selection.removeAllRanges();
+      selection.addRange(newRange);
+
+      selectionRefs.current[index] = newRange.cloneRange();
+
+      const html = getEditorHtml(index);
+      updateEditorSection(index, html);
+      recordEditorHistory(index, html);
+    } catch (err) {
+      console.error("Circle formatting failed:", err);
+    }
+  }
+
+  function removeCircle(index) {
+    const editor = editorRefs.current[index];
+    if (!editor) return;
+
+    const restored = restoreEditorSelection(index);
+    if (!restored) {
+      editor.focus();
+      return;
+    }
+
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return;
+
+    const range = selection.getRangeAt(0);
+    let node = range.commonAncestorContainer;
+    if (node.nodeType === Node.TEXT_NODE) node = node.parentElement;
+
+    const circles = [];
+    const closestCircle = node?.closest?.(".writer-text-circle");
+
+    if (closestCircle && editor.contains(closestCircle)) {
+      circles.push(closestCircle);
+    } else if (!selection.isCollapsed) {
+      editor.querySelectorAll(".writer-text-circle").forEach((circle) => {
+        try {
+          if (range.intersectsNode(circle)) circles.push(circle);
+        } catch {
+          // Ignore detached nodes.
+        }
+      });
+    }
+
+    if (!circles.length) return;
+
+    try {
+      circles.forEach((circle) => {
+        const parent = circle.parentNode;
+        if (!parent) return;
+
+        while (circle.firstChild) {
+          parent.insertBefore(circle.firstChild, circle);
+        }
+        parent.removeChild(circle);
+      });
+
+      const html = getEditorHtml(index);
+      updateEditorSection(index, html);
+      recordEditorHistory(index, html);
+    } catch (err) {
+      console.error("Could not remove circle:", err);
+    }
+  }
+
+  function removeFormatting(index) {
+    const editor = editorRefs.current[index];
+    if (!editor) return;
+
+    const restored = restoreEditorSelection(index);
+    if (!restored) {
+      editor.focus();
+      return;
+    }
+
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return;
+
+    const range = selection.getRangeAt(0);
+    if (selection.isCollapsed || !editor.contains(range.commonAncestorContainer)) {
+      return;
+    }
+
+    try {
+      document.execCommand("removeFormat", false, null);
+
+      // removeFormat does not reliably remove our custom circle span,
+      // so unwrap any selected circle elements as well.
+      const circles = Array.from(
+        editor.querySelectorAll(".writer-text-circle")
+      );
+
+      circles.forEach((circle) => {
+        if (range.intersectsNode(circle)) {
+          const parent = circle.parentNode;
+          while (circle.firstChild) {
+            parent.insertBefore(circle.firstChild, circle);
+          }
+          parent.removeChild(circle);
+        }
+      });
+
+      saveEditorSelection(index);
+      const html = getEditorHtml(index);
+      updateEditorSection(index, html);
+      recordEditorHistory(index, html);
+    } catch (err) {
+      console.error("Could not remove formatting:", err);
+    }
+  }
+
+  function handleEditorKeyDown(event) {
+    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "b") {
+      event.preventDefault();
+      const index = Number(event.currentTarget.dataset.sectionIndex);
+      runEditorCommand(index, "bold");
+    }
+
+    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "u") {
+      event.preventDefault();
+      const index = Number(event.currentTarget.dataset.sectionIndex);
+      runEditorCommand(index, "underline");
+    }
+  }
+
+  function escapeHtml(value) {
+    return String(value || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  function bodyToEditorHtml(value) {
+    const text = String(value || "");
+
+    if (!text.trim()) return "";
+
+    if (/<[a-z][\s\S]*>/i.test(text)) {
+      return text;
+    }
+
+    return text
+      .split(/\n{2,}/)
+      .map((paragraph) =>
+        `<p>${escapeHtml(paragraph).replace(/\n/g, "<br />")}</p>`
+      )
+      .join("");
   }
 
   // =========================================================
@@ -1579,25 +1978,206 @@ export default function AdminArticleEditor() {
                         } heading`}
                       />
 
-                      <textarea
-                        className="writer-body-input"
-                        value={
-                          section.body
-                        }
-                        onChange={(event) =>
-                          updateSection(
-                            index,
-                            "body",
-                            event.target
-                              .value
-                          )
-                        }
-                        placeholder="Start writing here..."
-                        rows="10"
-                        aria-label={`Section ${
-                          index + 1
-                        } body`}
-                      />
+                      <div className="writer-rich-editor">
+
+                        <div className="writer-format-toolbar">
+
+                          <div className="writer-format-group">
+                            <button
+                              type="button"
+                              className="writer-format-button writer-format-bold"
+                              onMouseDown={(event) => {
+                                event.preventDefault();
+                                saveEditorSelection(index);
+                              }}
+                              onClick={() => runEditorCommand(index, "bold")}
+                              title="Bold"
+                              aria-label="Bold"
+                            >
+                              B
+                            </button>
+
+                            <button
+                              type="button"
+                              className="writer-format-button writer-format-underline"
+                              onMouseDown={(event) => {
+                                event.preventDefault();
+                                saveEditorSelection(index);
+                              }}
+                              onClick={() => runEditorCommand(index, "underline")}
+                              title="Underline"
+                              aria-label="Underline"
+                            >
+                              U
+                            </button>
+
+                            <button
+                              type="button"
+                              className="writer-format-button writer-format-circle"
+                              onMouseDown={(event) => {
+                                event.preventDefault();
+                                wrapSelectionInCircle(index);
+                              }}
+                              title="Circle selected text"
+                              aria-label="Circle selected text"
+                            >
+                              ◯
+                            </button>
+
+                            <button
+                              type="button"
+                              className="writer-format-button writer-format-uncircle"
+                              onMouseDown={(event) => {
+                                event.preventDefault();
+                                saveEditorSelection(index);
+                              }}
+                              onClick={() => removeCircle(index)}
+                              title="Remove circle"
+                              aria-label="Remove circle"
+                            >
+                              ⊖
+                            </button>
+
+                            <button
+                              type="button"
+                              className="writer-format-button writer-format-highlight"
+                              onMouseDown={(event) => {
+                                event.preventDefault();
+                                saveEditorSelection(index);
+                              }}
+                              onClick={() =>
+                                runEditorCommand(
+                                  index,
+                                  "hiliteColor",
+                                  highlightColors.yellow
+                                )
+                              }
+                              title="Highlight with yellow"
+                              aria-label="Highlight with yellow"
+                            >
+                              ✦
+                            </button>
+
+                            <button
+                              type="button"
+                              className="writer-format-button writer-format-history"
+                              onMouseDown={(event) => {
+                                event.preventDefault();
+                                saveEditorSelection(index);
+                              }}
+                              onClick={() => undoEditor(index)}
+                              title="Undo last edit"
+                              aria-label="Undo last edit"
+                            >
+                              ↶
+                            </button>
+
+                            <button
+                              type="button"
+                              className="writer-format-button writer-format-history"
+                              onMouseDown={(event) => {
+                                event.preventDefault();
+                                saveEditorSelection(index);
+                              }}
+                              onClick={() => redoEditor(index)}
+                              title="Redo edit"
+                              aria-label="Redo edit"
+                            >
+                              ↷
+                            </button>
+
+                            <button
+                              type="button"
+                              className="writer-format-button writer-format-clear"
+                              onMouseDown={(event) => {
+                                event.preventDefault();
+                                saveEditorSelection(index);
+                              }}
+                              onClick={() => removeFormatting(index)}
+                              title="Clear formatting"
+                              aria-label="Clear formatting"
+                            >
+                              Tx
+                            </button>
+                          </div>
+
+                          <div className="writer-format-divider" />
+
+                          <div className="writer-format-colors">
+                            <span className="writer-format-label">COLOR</span>
+
+                            {Object.entries(editorialColors).map(([name, color]) => (
+                              <div className="writer-color-pair" key={`text-${name}`}>
+                                <button
+                                  type="button"
+                                  className="writer-color-swatch"
+                                  style={{ "--swatch": color }}
+                                  onMouseDown={(event) => {
+                                    event.preventDefault();
+                                    saveEditorSelection(index);
+                                  }}
+                                  onClick={() => runEditorCommand(index, "foreColor", color)}
+                                  title={`Text color: ${name}`}
+                                  aria-label={`Text color: ${name}`}
+                                >
+                                  A
+                                </button>
+                              </div>
+                            ))}
+
+                            {Object.entries(highlightColors).map(([name, color]) => (
+                              <div className="writer-color-pair" key={`highlight-${name}`}>
+                                <button
+                                  type="button"
+                                  className="writer-highlight-swatch"
+                                  style={{
+                                    "--swatch": color,
+                                    backgroundColor: color,
+                                  }}
+                                  onMouseDown={(event) => {
+                                    event.preventDefault();
+                                    saveEditorSelection(index);
+                                  }}
+                                  onClick={() => runEditorCommand(index, "hiliteColor", color)}
+                                  title={`Highlight color: ${name}`}
+                                  aria-label={`Highlight color: ${name}`}
+                                >
+                                  H
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+
+                        </div>
+
+                        <div
+                          ref={(element) => {
+                            editorRefs.current[index] = element;
+                          }}
+                          className="writer-body-input writer-rich-text"
+                          contentEditable
+                          suppressContentEditableWarning
+                          data-section-index={index}
+                          data-placeholder="Start writing here..."
+                          dangerouslySetInnerHTML={{
+                            __html: bodyToEditorHtml(section.body),
+                          }}
+                          onInput={() => updateEditorSection(index)}
+                          onMouseUp={() => saveEditorSelection(index)}
+                          onKeyUp={() => saveEditorSelection(index)}
+                          onFocus={() => saveEditorSelection(index)}
+                          onKeyDown={handleEditorKeyDown}
+                          aria-label={`Section ${
+                            index + 1
+                          } body`}
+                          role="textbox"
+                        />
+
+                        <div className="writer-format-help">
+                          SELECT TEXT → BOLD / UNDERLINE / CIRCLE / HIGHLIGHT / COLOR
+                        </div>
+
+                      </div>
 
                     </div>
 
