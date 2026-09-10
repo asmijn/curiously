@@ -61,7 +61,6 @@ export default function AdminArticleEditor() {
     mint: "#b9d5c4",
   };
 
-
   const highlightColors = {
     pink: "#f7dce8",
     yellow: "#f8edb9",
@@ -70,6 +69,7 @@ export default function AdminArticleEditor() {
     mint: "#dcebdd",
     peach: "#f6ddd0",
   };
+
   const [form, setForm] = useState({
     slug: "",
     title: "",
@@ -142,10 +142,7 @@ export default function AdminArticleEditor() {
           .order("name");
 
         if (categoryError) {
-          console.error(
-            "Categories error:",
-            categoryError
-          );
+          console.error("Categories error:", categoryError);
 
           if (!cancelled) {
             setError(
@@ -198,21 +195,59 @@ export default function AdminArticleEditor() {
           if (!cancelled) {
             const loadedMarginalia =
               Array.isArray(articleData.marginalia)
-                ? articleData.marginalia.map((item, index) => ({
-                    id:
-                      item?.id ||
-                      `note-${index}-${Date.now()}`,
-                    note: item?.note || "",
-                    type: item?.type || "THOUGHT",
-                    x: Math.max(72, Math.min(92, Number.isFinite(Number(item?.x)) ? Number(item.x) : 82)),
-                    y: Math.max(4, Math.min(94, Number.isFinite(Number(item?.y)) ? Number(item.y) : Math.min(12 + index * 12, 82))),
-                    rotation: Number.isFinite(Number(item?.rotation))
-                      ? Number(item.rotation)
-                      : index % 2 === 0
-                      ? -2
-                      : 2,
-                    link: item?.link || "",
-                  }))
+                ? articleData.marginalia.map(
+                    (item, index) => ({
+                      id:
+                        item?.id ||
+                        `note-${index}-${Date.now()}`,
+
+                      note:
+                        item?.note || "",
+
+                      type:
+                        item?.type ||
+                        "THOUGHT",
+
+                      x: Math.max(
+                        72,
+                        Math.min(
+                          92,
+                          Number.isFinite(
+                            Number(item?.x)
+                          )
+                            ? Number(item.x)
+                            : 82
+                        )
+                      ),
+
+                      y: Math.max(
+                        4,
+                        Math.min(
+                          94,
+                          Number.isFinite(
+                            Number(item?.y)
+                          )
+                            ? Number(item.y)
+                            : Math.min(
+                                12 + index * 12,
+                                82
+                              )
+                        )
+                      ),
+
+                      rotation:
+                        Number.isFinite(
+                          Number(item?.rotation)
+                        )
+                          ? Number(item.rotation)
+                          : index % 2 === 0
+                          ? -2
+                          : 2,
+
+                      link:
+                        item?.link || "",
+                    })
+                  )
                 : [];
 
             const {
@@ -235,20 +270,50 @@ export default function AdminArticleEditor() {
 
             const loadedReceipts =
               Array.isArray(receiptData)
-                ? receiptData.map((item, index) => ({
-                    id: item.id,
-                    type: item.type || "SOURCE",
-                    title: item.title || "",
-                    description: item.description || "",
-                    source_url: item.source_url || "",
-                    image_url: item.image_url || "",
-                    author: item.author || "",
-                    publication: item.publication || "",
-                    published_date: item.published_date || "",
-                    sort_order: Number.isFinite(item.sort_order)
-                      ? item.sort_order
-                      : index,
-                  }))
+                ? receiptData.map(
+                    (item, index) => ({
+                      id: item.id,
+
+                      type:
+                        item.type ||
+                        "SOURCE",
+
+                      title:
+                        item.title ||
+                        "",
+
+                      description:
+                        item.description ||
+                        "",
+
+                      source_url:
+                        item.source_url ||
+                        "",
+
+                      image_url:
+                        item.image_url ||
+                        "",
+
+                      author:
+                        item.author ||
+                        "",
+
+                      publication:
+                        item.publication ||
+                        "",
+
+                      published_date:
+                        item.published_date ||
+                        "",
+
+                      sort_order:
+                        Number.isFinite(
+                          item.sort_order
+                        )
+                          ? item.sort_order
+                          : index,
+                    })
+                  )
                 : [];
 
             setForm({
@@ -293,10 +358,7 @@ export default function AdminArticleEditor() {
                   articleData.published
                 ),
 
-              // ---------------------------------------------
               // SECRET ARTICLE
-              // ---------------------------------------------
-
               secret:
                 Boolean(
                   articleData.secret
@@ -305,10 +367,7 @@ export default function AdminArticleEditor() {
               secret_code:
                 articleData.secret_code || "",
 
-              // ---------------------------------------------
-              // SECTIONS
-              // ---------------------------------------------
-
+              // STORY SECTIONS
               sections:
                 Array.isArray(
                   articleData.sections
@@ -327,13 +386,11 @@ export default function AdminArticleEditor() {
                     )
                   : [{ ...emptySection }],
 
-              // ---------------------------------------------
               // DIGITAL MARGINALIA
-              // ---------------------------------------------
-
               marginalia:
                 loadedMarginalia,
 
+              // RECEIPTS
               receipts:
                 loadedReceipts,
             });
@@ -388,8 +445,6 @@ export default function AdminArticleEditor() {
         ...current,
         title: value,
 
-        // Only auto-generate the slug
-        // when creating a new article.
         slug: isEditing
           ? current.slug
           : generatedSlug,
@@ -398,7 +453,7 @@ export default function AdminArticleEditor() {
   }
 
   // =========================================================
-  // STORY SECTIONS
+  // STORY EDITOR
   // =========================================================
 
   function getEditorHtml(index) {
@@ -409,142 +464,327 @@ export default function AdminArticleEditor() {
     const editor = editorRefs.current[index];
     const selection = window.getSelection();
 
-    if (!editor || !selection || selection.rangeCount === 0) return;
+    if (
+      !editor ||
+      !selection ||
+      selection.rangeCount === 0
+    ) {
+      return;
+    }
 
     const range = selection.getRangeAt(0);
 
-    if (!editor.contains(range.commonAncestorContainer)) return;
+    if (
+      !editor.contains(
+        range.commonAncestorContainer
+      )
+    ) {
+      return;
+    }
 
-    selectionRefs.current[index] = range.cloneRange();
+    selectionRefs.current[index] =
+      range.cloneRange();
   }
 
   function restoreEditorSelection(index) {
-    const savedRange = selectionRefs.current[index];
-    const editor = editorRefs.current[index];
-    const selection = window.getSelection();
+    const savedRange =
+      selectionRefs.current[index];
 
-    if (!savedRange || !editor || !selection) return false;
+    const editor =
+      editorRefs.current[index];
+
+    const selection =
+      window.getSelection();
+
+    if (
+      !savedRange ||
+      !editor ||
+      !selection
+    ) {
+      return false;
+    }
 
     try {
-      if (!editor.contains(savedRange.commonAncestorContainer)) return false;
+      if (
+        !editor.contains(
+          savedRange.commonAncestorContainer
+        )
+      ) {
+        return false;
+      }
 
       selection.removeAllRanges();
       selection.addRange(savedRange);
+
       return true;
     } catch (err) {
-      console.error("Could not restore editor selection:", err);
+      console.error(
+        "Could not restore editor selection:",
+        err
+      );
+
       return false;
     }
   }
 
-  function updateEditorSection(index, html = null) {
-    const value = html !== null ? html : getEditorHtml(index);
-    updateSection(index, "body", value);
+  function updateEditorSection(
+    index,
+    html = null
+  ) {
+    const editor =
+      editorRefs.current[index];
+
+    if (!editor) return;
+
+    const value =
+      html !== null
+        ? html
+        : editor.innerHTML;
+
+    updateSection(
+      index,
+      "body",
+      value
+    );
   }
 
-  function ensureHistory(index, html = null) {
-    const currentHtml = html !== null ? html : getEditorHtml(index);
+  // =========================================================
+  // HISTORY
+  // =========================================================
 
-    if (!historyRefs.current[index]) {
-      historyRefs.current[index] = [currentHtml];
+  function ensureHistory(
+    index,
+    html = null
+  ) {
+    const currentHtml =
+      html !== null
+        ? html
+        : getEditorHtml(index);
+
+    if (
+      !historyRefs.current[index]
+    ) {
+      historyRefs.current[index] = [
+        currentHtml,
+      ];
+
       historyIndexRefs.current[index] = 0;
     }
 
     return historyRefs.current[index];
   }
 
-  function recordEditorHistory(index, html = null) {
-    if (historyApplyingRef.current) return;
+  function recordEditorHistory(
+    index,
+    html = null
+  ) {
+    if (
+      historyApplyingRef.current
+    ) {
+      return;
+    }
 
-    const currentHtml = html !== null ? html : getEditorHtml(index);
-    const history = ensureHistory(index, currentHtml);
-    const currentIndex = historyIndexRefs.current[index] ?? 0;
+    const currentHtml =
+      html !== null
+        ? html
+        : getEditorHtml(index);
 
-    if (history[currentIndex] === currentHtml) return;
+    const history =
+      ensureHistory(
+        index,
+        currentHtml
+      );
 
-    // Any new edit after an undo creates a new branch.
-    const nextHistory = history.slice(0, currentIndex + 1);
-    nextHistory.push(currentHtml);
+    const currentIndex =
+      historyIndexRefs.current[index] ??
+      0;
 
-    // Keep the editor history manageable.
-    if (nextHistory.length > 100) {
+    if (
+      history[currentIndex] ===
+      currentHtml
+    ) {
+      return;
+    }
+
+    const nextHistory =
+      history.slice(
+        0,
+        currentIndex + 1
+      );
+
+    nextHistory.push(
+      currentHtml
+    );
+
+    if (
+      nextHistory.length > 100
+    ) {
       nextHistory.shift();
     }
 
-    historyRefs.current[index] = nextHistory;
-    historyIndexRefs.current[index] = nextHistory.length - 1;
+    historyRefs.current[index] =
+      nextHistory;
+
+    historyIndexRefs.current[index] =
+      nextHistory.length - 1;
   }
 
-  function restoreHistorySnapshot(index, targetIndex) {
-    const editor = editorRefs.current[index];
-    const history = historyRefs.current[index];
+  function restoreHistorySnapshot(
+    index,
+    targetIndex
+  ) {
+    const editor =
+      editorRefs.current[index];
 
-    if (!editor || !history) return;
-    if (targetIndex < 0 || targetIndex >= history.length) return;
+    const history =
+      historyRefs.current[index];
 
-    const html = history[targetIndex];
+    if (!editor || !history) {
+      return;
+    }
 
-    historyApplyingRef.current = true;
-    historyIndexRefs.current[index] = targetIndex;
+    if (
+      targetIndex < 0 ||
+      targetIndex >= history.length
+    ) {
+      return;
+    }
+
+    const html =
+      history[targetIndex];
+
+    historyApplyingRef.current =
+      true;
+
+    historyIndexRefs.current[index] =
+      targetIndex;
+
     editor.innerHTML = html;
 
-    selectionRefs.current[index] = null;
+    selectionRefs.current[index] =
+      null;
 
-    updateEditorSection(index, html);
+    updateEditorSection(
+      index,
+      html
+    );
 
-    // Let the next input event create a normal history entry again.
     requestAnimationFrame(() => {
-      historyApplyingRef.current = false;
+      historyApplyingRef.current =
+        false;
+
       editor.focus();
     });
   }
 
   function undoEditor(index) {
-    const editor = editorRefs.current[index];
+    const editor =
+      editorRefs.current[index];
+
     if (!editor) return;
 
-    const currentHtml = getEditorHtml(index);
-    ensureHistory(index, currentHtml);
+    const currentHtml =
+      getEditorHtml(index);
 
-    // If something changed without going through our history listener,
-    // capture it before undoing.
-    const history = historyRefs.current[index];
-    const currentIndex = historyIndexRefs.current[index] ?? 0;
-    if (history[currentIndex] !== currentHtml) {
-      recordEditorHistory(index, currentHtml);
+    ensureHistory(
+      index,
+      currentHtml
+    );
+
+    const history =
+      historyRefs.current[index];
+
+    const currentIndex =
+      historyIndexRefs.current[index] ??
+      0;
+
+    if (
+      history[currentIndex] !==
+      currentHtml
+    ) {
+      recordEditorHistory(
+        index,
+        currentHtml
+      );
     }
 
-    const updatedIndex = historyIndexRefs.current[index] ?? 0;
-    if (updatedIndex <= 0) return;
+    const updatedIndex =
+      historyIndexRefs.current[index] ??
+      0;
 
-    restoreHistorySnapshot(index, updatedIndex - 1);
-  }
-
-  function redoEditor(index) {
-    const editor = editorRefs.current[index];
-    if (!editor) return;
-
-    const history = historyRefs.current[index];
-    if (!history) return;
-
-    const currentHtml = getEditorHtml(index);
-    const currentIndex = historyIndexRefs.current[index] ?? 0;
-
-    if (history[currentIndex] !== currentHtml) {
-      recordEditorHistory(index, currentHtml);
+    if (
+      updatedIndex <= 0
+    ) {
       return;
     }
 
-    if (currentIndex >= history.length - 1) return;
-
-    restoreHistorySnapshot(index, currentIndex + 1);
+    restoreHistorySnapshot(
+      index,
+      updatedIndex - 1
+    );
   }
 
-  function runEditorCommand(index, command, value = null) {
-    const editor = editorRefs.current[index];
+  function redoEditor(index) {
+    const editor =
+      editorRefs.current[index];
+
     if (!editor) return;
 
-    const restored = restoreEditorSelection(index);
+    const history =
+      historyRefs.current[index];
+
+    if (!history) return;
+
+    const currentHtml =
+      getEditorHtml(index);
+
+    const currentIndex =
+      historyIndexRefs.current[index] ??
+      0;
+
+    if (
+      history[currentIndex] !==
+      currentHtml
+    ) {
+      recordEditorHistory(
+        index,
+        currentHtml
+      );
+
+      return;
+    }
+
+    if (
+      currentIndex >=
+      history.length - 1
+    ) {
+      return;
+    }
+
+    restoreHistorySnapshot(
+      index,
+      currentIndex + 1
+    );
+  }
+
+  // =========================================================
+  // FORMATTING
+  // =========================================================
+
+  function runEditorCommand(
+    index,
+    command,
+    value = null
+  ) {
+    const editor =
+      editorRefs.current[index];
+
+    if (!editor) return;
+
+    const restored =
+      restoreEditorSelection(
+        index
+      );
 
     if (!restored) {
       editor.focus();
@@ -556,220 +796,528 @@ export default function AdminArticleEditor() {
 
       let success = false;
 
-      if (command === "hiliteColor") {
+      if (
+        command === "hiliteColor"
+      ) {
         success =
-          document.execCommand("hiliteColor", false, value) ||
-          document.execCommand("backColor", false, value);
+          document.execCommand(
+            "hiliteColor",
+            false,
+            value
+          ) ||
+          document.execCommand(
+            "backColor",
+            false,
+            value
+          );
       } else {
-        success = document.execCommand(command, false, value);
+        success =
+          document.execCommand(
+            command,
+            false,
+            value
+          );
       }
 
       if (!success) {
-        console.warn(`Formatting command "${command}" was not applied.`);
+        console.warn(
+          `Formatting command "${command}" was not applied.`
+        );
       }
 
       saveEditorSelection(index);
-      const html = getEditorHtml(index);
-      updateEditorSection(index, html);
-      recordEditorHistory(index, html);
+
+      const html =
+        getEditorHtml(index);
+
+      updateEditorSection(
+        index,
+        html
+      );
+
+      recordEditorHistory(
+        index,
+        html
+      );
     } catch (err) {
-      console.error("Formatting command failed:", err);
+      console.error(
+        "Formatting command failed:",
+        err
+      );
     }
   }
 
-  function wrapSelectionInCircle(index) {
-    const editor = editorRefs.current[index];
+  function wrapSelectionInCircle(
+    index
+  ) {
+    const editor =
+      editorRefs.current[index];
+
     if (!editor) return;
 
-    const selection = window.getSelection();
+    const selection =
+      window.getSelection();
 
-    if (!selection || selection.rangeCount === 0) {
+    if (
+      !selection ||
+      selection.rangeCount === 0
+    ) {
       return;
     }
 
-    const liveRange = selection.getRangeAt(0);
+    const liveRange =
+      selection.getRangeAt(0);
 
     if (
       selection.isCollapsed ||
-      !editor.contains(liveRange.commonAncestorContainer)
+      !editor.contains(
+        liveRange.commonAncestorContainer
+      )
     ) {
       return;
     }
 
     try {
-      const range = liveRange.cloneRange();
-      const circle = document.createElement("span");
+      const range =
+        liveRange.cloneRange();
 
-      circle.className = "writer-text-circle";
+      const circle =
+        document.createElement(
+          "span"
+        );
 
-      // Inline styling makes the circle work even if the global
-      // stylesheet has not loaded the circle rule yet.
-      circle.style.display = "inline-block";
-      circle.style.position = "relative";
-      circle.style.padding = "0.02em 0.28em 0.08em";
-      circle.style.border = "1.5px solid currentColor";
+      circle.className =
+        "writer-text-circle";
+
+      circle.style.display =
+        "inline-block";
+
+      circle.style.position =
+        "relative";
+
+      circle.style.padding =
+        "0.02em 0.28em 0.08em";
+
+      circle.style.border =
+        "1.5px solid currentColor";
+
       circle.style.borderRadius =
         "48% 52% 46% 54% / 52% 45% 55% 48%";
-      circle.style.lineHeight = "1.25";
 
-      const contents = range.extractContents();
-      circle.appendChild(contents);
-      range.insertNode(circle);
+      circle.style.lineHeight =
+        "1.25";
 
-      const newRange = document.createRange();
-      newRange.selectNodeContents(circle);
+      const contents =
+        range.extractContents();
+
+      circle.appendChild(
+        contents
+      );
+
+      range.insertNode(
+        circle
+      );
+
+      const newRange =
+        document.createRange();
+
+      newRange.selectNodeContents(
+        circle
+      );
 
       selection.removeAllRanges();
-      selection.addRange(newRange);
 
-      selectionRefs.current[index] = newRange.cloneRange();
+      selection.addRange(
+        newRange
+      );
 
-      const html = getEditorHtml(index);
-      updateEditorSection(index, html);
-      recordEditorHistory(index, html);
+      selectionRefs.current[
+        index
+      ] = newRange.cloneRange();
+
+      const html =
+        getEditorHtml(index);
+
+      updateEditorSection(
+        index,
+        html
+      );
+
+      recordEditorHistory(
+        index,
+        html
+      );
     } catch (err) {
-      console.error("Circle formatting failed:", err);
+      console.error(
+        "Circle formatting failed:",
+        err
+      );
     }
   }
 
   function removeCircle(index) {
-    const editor = editorRefs.current[index];
+    const editor =
+      editorRefs.current[index];
+
     if (!editor) return;
 
-    const restored = restoreEditorSelection(index);
-    if (!restored) {
-      editor.focus();
-      return;
-    }
-
-    const selection = window.getSelection();
-    if (!selection || selection.rangeCount === 0) return;
-
-    const range = selection.getRangeAt(0);
-    let node = range.commonAncestorContainer;
-    if (node.nodeType === Node.TEXT_NODE) node = node.parentElement;
-
-    const circles = [];
-    const closestCircle = node?.closest?.(".writer-text-circle");
-
-    if (closestCircle && editor.contains(closestCircle)) {
-      circles.push(closestCircle);
-    } else if (!selection.isCollapsed) {
-      editor.querySelectorAll(".writer-text-circle").forEach((circle) => {
-        try {
-          if (range.intersectsNode(circle)) circles.push(circle);
-        } catch {
-          // Ignore detached nodes.
-        }
-      });
-    }
-
-    if (!circles.length) return;
-
-    try {
-      circles.forEach((circle) => {
-        const parent = circle.parentNode;
-        if (!parent) return;
-
-        while (circle.firstChild) {
-          parent.insertBefore(circle.firstChild, circle);
-        }
-        parent.removeChild(circle);
-      });
-
-      const html = getEditorHtml(index);
-      updateEditorSection(index, html);
-      recordEditorHistory(index, html);
-    } catch (err) {
-      console.error("Could not remove circle:", err);
-    }
-  }
-
-  function removeFormatting(index) {
-    const editor = editorRefs.current[index];
-    if (!editor) return;
-
-    const restored = restoreEditorSelection(index);
-    if (!restored) {
-      editor.focus();
-      return;
-    }
-
-    const selection = window.getSelection();
-    if (!selection || selection.rangeCount === 0) return;
-
-    const range = selection.getRangeAt(0);
-    if (selection.isCollapsed || !editor.contains(range.commonAncestorContainer)) {
-      return;
-    }
-
-    try {
-      document.execCommand("removeFormat", false, null);
-
-      // removeFormat does not reliably remove our custom circle span,
-      // so unwrap any selected circle elements as well.
-      const circles = Array.from(
-        editor.querySelectorAll(".writer-text-circle")
+    const restored =
+      restoreEditorSelection(
+        index
       );
 
-      circles.forEach((circle) => {
-        if (range.intersectsNode(circle)) {
-          const parent = circle.parentNode;
-          while (circle.firstChild) {
-            parent.insertBefore(circle.firstChild, circle);
-          }
-          parent.removeChild(circle);
-        }
-      });
+    if (!restored) {
+      editor.focus();
+      return;
+    }
 
-      saveEditorSelection(index);
-      const html = getEditorHtml(index);
-      updateEditorSection(index, html);
-      recordEditorHistory(index, html);
+    const selection =
+      window.getSelection();
+
+    if (
+      !selection ||
+      selection.rangeCount === 0
+    ) {
+      return;
+    }
+
+    const range =
+      selection.getRangeAt(0);
+
+    let node =
+      range.commonAncestorContainer;
+
+    if (
+      node.nodeType ===
+      Node.TEXT_NODE
+    ) {
+      node = node.parentElement;
+    }
+
+    const circles = [];
+
+    const closestCircle =
+      node?.closest?.(
+        ".writer-text-circle"
+      );
+
+    if (
+      closestCircle &&
+      editor.contains(
+        closestCircle
+      )
+    ) {
+      circles.push(
+        closestCircle
+      );
+    } else if (
+      !selection.isCollapsed
+    ) {
+      editor
+        .querySelectorAll(
+          ".writer-text-circle"
+        )
+        .forEach((circle) => {
+          try {
+            if (
+              range.intersectsNode(
+                circle
+              )
+            ) {
+              circles.push(
+                circle
+              );
+            }
+          } catch {
+            // Ignore detached nodes.
+          }
+        });
+    }
+
+    if (!circles.length) {
+      return;
+    }
+
+    try {
+      circles.forEach(
+        (circle) => {
+          const parent =
+            circle.parentNode;
+
+          if (!parent) return;
+
+          while (
+            circle.firstChild
+          ) {
+            parent.insertBefore(
+              circle.firstChild,
+              circle
+            );
+          }
+
+          parent.removeChild(
+            circle
+          );
+        }
+      );
+
+      const html =
+        getEditorHtml(index);
+
+      updateEditorSection(
+        index,
+        html
+      );
+
+      recordEditorHistory(
+        index,
+        html
+      );
     } catch (err) {
-      console.error("Could not remove formatting:", err);
+      console.error(
+        "Could not remove circle:",
+        err
+      );
     }
   }
 
-  function handleEditorKeyDown(event) {
-    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "b") {
-      event.preventDefault();
-      const index = Number(event.currentTarget.dataset.sectionIndex);
-      runEditorCommand(index, "bold");
+  function removeFormatting(
+    index
+  ) {
+    const editor =
+      editorRefs.current[index];
+
+    if (!editor) return;
+
+    const restored =
+      restoreEditorSelection(
+        index
+      );
+
+    if (!restored) {
+      editor.focus();
+      return;
     }
 
-    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "u") {
+    const selection =
+      window.getSelection();
+
+    if (
+      !selection ||
+      selection.rangeCount === 0
+    ) {
+      return;
+    }
+
+    const range =
+      selection.getRangeAt(0);
+
+    if (
+      selection.isCollapsed ||
+      !editor.contains(
+        range.commonAncestorContainer
+      )
+    ) {
+      return;
+    }
+
+    try {
+      document.execCommand(
+        "removeFormat",
+        false,
+        null
+      );
+
+      const circles =
+        Array.from(
+          editor.querySelectorAll(
+            ".writer-text-circle"
+          )
+        );
+
+      circles.forEach(
+        (circle) => {
+          if (
+            range.intersectsNode(
+              circle
+            )
+          ) {
+            const parent =
+              circle.parentNode;
+
+            while (
+              circle.firstChild
+            ) {
+              parent.insertBefore(
+                circle.firstChild,
+                circle
+              );
+            }
+
+            parent.removeChild(
+              circle
+            );
+          }
+        }
+      );
+
+      saveEditorSelection(
+        index
+      );
+
+      const html =
+        getEditorHtml(index);
+
+      updateEditorSection(
+        index,
+        html
+      );
+
+      recordEditorHistory(
+        index,
+        html
+      );
+    } catch (err) {
+      console.error(
+        "Could not remove formatting:",
+        err
+      );
+    }
+  }
+
+  function handleEditorKeyDown(
+    event
+  ) {
+    const index = Number(
+      event.currentTarget.dataset
+        .sectionIndex
+    );
+
+    if (
+      (event.metaKey ||
+        event.ctrlKey) &&
+      event.key.toLowerCase() ===
+        "b"
+    ) {
       event.preventDefault();
-      const index = Number(event.currentTarget.dataset.sectionIndex);
-      runEditorCommand(index, "underline");
+
+      runEditorCommand(
+        index,
+        "bold"
+      );
+    }
+
+    if (
+      (event.metaKey ||
+        event.ctrlKey) &&
+      event.key.toLowerCase() ===
+        "u"
+    ) {
+      event.preventDefault();
+
+      runEditorCommand(
+        index,
+        "underline"
+      );
     }
   }
 
   function escapeHtml(value) {
     return String(value || "")
       .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
+      .replace(
+        /</g,
+        "&lt;"
+      )
+      .replace(
+        />/g,
+        "&gt;"
+      )
+      .replace(
+        /"/g,
+        "&quot;"
+      )
+      .replace(
+        /'/g,
+        "&#039;"
+      );
   }
 
-  function bodyToEditorHtml(value) {
-    const text = String(value || "");
+  function bodyToEditorHtml(
+    value
+  ) {
+    const text =
+      String(value || "");
 
-    if (!text.trim()) return "";
+    if (!text.trim()) {
+      return "";
+    }
 
-    if (/<[a-z][\s\S]*>/i.test(text)) {
+    if (
+      /<[a-z][\s\S]*>/i.test(
+        text
+      )
+    ) {
       return text;
     }
 
     return text
       .split(/\n{2,}/)
-      .map((paragraph) =>
-        `<p>${escapeHtml(paragraph).replace(/\n/g, "<br />")}</p>`
+      .map(
+        (paragraph) =>
+          `<p>${escapeHtml(
+            paragraph
+          ).replace(
+            /\n/g,
+            "<br />"
+          )}</p>`
       )
       .join("");
   }
+
+  // =========================================================
+  // IMPORTANT EDITOR FIX
+  //
+  // React does NOT rewrite contentEditable on every keystroke.
+  // It only initializes/synchronizes the editor when the stored
+  // content is actually different.
+  // =========================================================
+
+  useEffect(() => {
+    form.sections.forEach(
+      (section, index) => {
+        const editor =
+          editorRefs.current[index];
+
+        if (!editor) {
+          return;
+        }
+
+        const desiredHtml =
+          bodyToEditorHtml(
+            section?.body || ""
+          );
+
+        // Critical:
+        // Do NOT reset the DOM if it already contains
+        // what React expects. This preserves the browser's
+        // caret position while the user is typing.
+        if (
+          editor.innerHTML !==
+          desiredHtml
+        ) {
+          editor.innerHTML =
+            desiredHtml;
+        }
+
+        // Initialize history for this editor.
+        ensureHistory(
+          index,
+          editor.innerHTML
+        );
+      }
+    );
+  }, [form.sections]);
 
   // =========================================================
   // STORY SECTIONS
@@ -811,7 +1359,9 @@ export default function AdminArticleEditor() {
     }));
   }
 
-  function removeSection(index) {
+  function removeSection(
+    index
+  ) {
     setForm((current) => {
       const sections =
         current.sections.filter(
@@ -828,6 +1378,31 @@ export default function AdminArticleEditor() {
             : [{ ...emptySection }],
       };
     });
+
+    // Clean up editor references.
+    editorRefs.current =
+      editorRefs.current.filter(
+        (_, sectionIndex) =>
+          sectionIndex !== index
+      );
+
+    selectionRefs.current =
+      selectionRefs.current.filter(
+        (_, sectionIndex) =>
+          sectionIndex !== index
+      );
+
+    historyRefs.current =
+      historyRefs.current.filter(
+        (_, sectionIndex) =>
+          sectionIndex !== index
+      );
+
+    historyIndexRefs.current =
+      historyIndexRefs.current.filter(
+        (_, sectionIndex) =>
+          sectionIndex !== index
+      );
   }
 
   // =========================================================
@@ -835,72 +1410,142 @@ export default function AdminArticleEditor() {
   // =========================================================
 
   function createMarginaliaId() {
-    return `note-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    return `note-${Date.now()}-${Math.random()
+      .toString(36)
+      .slice(2, 8)}`;
   }
 
   function addMarginalia() {
     setForm((current) => {
-      const existing = current.marginalia || [];
+      const existing =
+        current.marginalia || [];
 
       return {
         ...current,
+
         marginalia: [
           ...existing,
+
           {
             ...emptyMarginalia,
+
             id: createMarginaliaId(),
+
             x: 82,
-            y: Math.min(12 + existing.length * 12, 82),
-            rotation: existing.length % 2 === 0 ? -2 : 2,
+
+            y: Math.min(
+              12 +
+                existing.length *
+                  12,
+              82
+            ),
+
+            rotation:
+              existing.length %
+                2 ===
+              0
+                ? -2
+                : 2,
           },
         ],
       };
     });
   }
 
-  function updateMarginalia(index, field, value) {
+  function updateMarginalia(
+    index,
+    field,
+    value
+  ) {
     setForm((current) => ({
       ...current,
-      marginalia: (current.marginalia || []).map((item, itemIndex) =>
-        itemIndex === index
-          ? { ...item, [field]: value }
-          : item
+
+      marginalia: (
+        current.marginalia || []
+      ).map(
+        (item, itemIndex) =>
+          itemIndex === index
+            ? {
+                ...item,
+                [field]: value,
+              }
+            : item
       ),
     }));
   }
 
-  function deleteMarginalia(index) {
+  function deleteMarginalia(
+    index
+  ) {
     setForm((current) => ({
       ...current,
-      marginalia: (current.marginalia || []).filter(
-        (_, itemIndex) => itemIndex !== index
+
+      marginalia: (
+        current.marginalia || []
+      ).filter(
+        (_, itemIndex) =>
+          itemIndex !== index
       ),
     }));
   }
 
-  function syncMarginaliaEditor(index, html) {
-    const editor = marginaliaEditorRefs.current[index];
-    if (editor && editor.innerHTML !== html) {
-      editor.innerHTML = html || "";
+  function syncMarginaliaEditor(
+    index,
+    html
+  ) {
+    const editor =
+      marginaliaEditorRefs.current[
+        index
+      ];
+
+    if (
+      editor &&
+      editor.innerHTML !== html
+    ) {
+      editor.innerHTML =
+        html || "";
     }
   }
 
   useEffect(() => {
-    (form.marginalia || []).forEach((item, index) => {
-      syncMarginaliaEditor(index, item?.note || "");
-    });
+    (
+      form.marginalia || []
+    ).forEach(
+      (item, index) => {
+        syncMarginaliaEditor(
+          index,
+          item?.note || ""
+        );
+      }
+    );
   }, [form.marginalia]);
 
-  function formatMarginalia(index, command, value = null) {
-    const editor = marginaliaEditorRefs.current[index];
+  function formatMarginalia(
+    index,
+    command,
+    value = null
+  ) {
+    const editor =
+      marginaliaEditorRefs.current[
+        index
+      ];
+
     if (!editor) return;
 
     editor.focus();
-    document.execCommand(command, false, value);
 
-    updateMarginalia(index, "note", editor.innerHTML);
+    document.execCommand(
+      command,
+      false,
+      value
+    );
+
+    updateMarginalia(
+      index,
+      "note",
+      editor.innerHTML
+    );
   }
-
 
   // =========================================================
   // THE RECEIPTS
@@ -909,59 +1554,129 @@ export default function AdminArticleEditor() {
   function addReceipt() {
     setForm((current) => ({
       ...current,
+
       receipts: [
         ...(current.receipts || []),
+
         {
-          id: `new-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+          id: `new-${Date.now()}-${Math.random()
+            .toString(36)
+            .slice(2)}`,
+
           type: "SOURCE",
+
           title: "",
+
           description: "",
+
           source_url: "",
+
           image_url: "",
+
           author: "",
+
           publication: "",
+
           published_date: "",
-          sort_order: (current.receipts || []).length,
+
+          sort_order: (
+            current.receipts || []
+          ).length,
         },
       ],
     }));
   }
 
-  function updateReceipt(index, field, value) {
+  function updateReceipt(
+    index,
+    field,
+    value
+  ) {
     setForm((current) => ({
       ...current,
-      receipts: (current.receipts || []).map((item, itemIndex) =>
-        itemIndex === index ? { ...item, [field]: value } : item
+
+      receipts: (
+        current.receipts || []
+      ).map(
+        (item, itemIndex) =>
+          itemIndex === index
+            ? {
+                ...item,
+                [field]: value,
+              }
+            : item
       ),
     }));
   }
 
-  function deleteReceipt(index) {
+  function deleteReceipt(
+    index
+  ) {
     setForm((current) => ({
       ...current,
-      receipts: (current.receipts || [])
-        .filter((_, itemIndex) => itemIndex !== index)
-        .map((item, itemIndex) => ({ ...item, sort_order: itemIndex })),
+
+      receipts: (
+        current.receipts || []
+      )
+        .filter(
+          (_, itemIndex) =>
+            itemIndex !== index
+        )
+        .map(
+          (
+            item,
+            itemIndex
+          ) => ({
+            ...item,
+            sort_order:
+              itemIndex,
+          })
+        ),
     }));
   }
 
-  function moveReceipt(index, direction) {
+  function moveReceipt(
+    index,
+    direction
+  ) {
     setForm((current) => {
-      const receipts = [...(current.receipts || [])];
-      const newIndex = index + direction;
-      if (newIndex < 0 || newIndex >= receipts.length) return current;
+      const receipts = [
+        ...(current.receipts || []),
+      ];
 
-      [receipts[index], receipts[newIndex]] = [
+      const newIndex =
+        index + direction;
+
+      if (
+        newIndex < 0 ||
+        newIndex >=
+          receipts.length
+      ) {
+        return current;
+      }
+
+      [
+        receipts[index],
+        receipts[newIndex],
+      ] = [
         receipts[newIndex],
         receipts[index],
       ];
 
       return {
         ...current,
-        receipts: receipts.map((item, itemIndex) => ({
-          ...item,
-          sort_order: itemIndex,
-        })),
+
+        receipts:
+          receipts.map(
+            (
+              item,
+              itemIndex
+            ) => ({
+              ...item,
+              sort_order:
+                itemIndex,
+            })
+          ),
       };
     });
   }
@@ -970,7 +1685,9 @@ export default function AdminArticleEditor() {
   // COVER IMAGE UPLOAD
   // =========================================================
 
-  async function uploadCover(file) {
+  async function uploadCover(
+    file
+  ) {
     if (!file) return;
 
     setError("");
@@ -983,7 +1700,11 @@ export default function AdminArticleEditor() {
       "image/gif",
     ];
 
-    if (!allowedTypes.includes(file.type)) {
+    if (
+      !allowedTypes.includes(
+        file.type
+      )
+    ) {
       setError(
         "Please upload a JPG, PNG, WEBP, or GIF image."
       );
@@ -991,7 +1712,10 @@ export default function AdminArticleEditor() {
       return;
     }
 
-    if (file.size > 10 * 1024 * 1024) {
+    if (
+      file.size >
+      10 * 1024 * 1024
+    ) {
       setError(
         "Image must be smaller than 10MB."
       );
@@ -1006,7 +1730,8 @@ export default function AdminArticleEditor() {
         file.name
           .split(".")
           .pop()
-          ?.toLowerCase() || "jpg";
+          ?.toLowerCase() ||
+        "jpg";
 
       const fileName =
         `cover-${Date.now()}-${Math.random()
@@ -1024,9 +1749,13 @@ export default function AdminArticleEditor() {
           filePath,
           file,
           {
-            cacheControl: "3600",
+            cacheControl:
+              "3600",
+
             upsert: false,
-            contentType: file.type,
+
+            contentType:
+              file.type,
           }
         );
 
@@ -1065,7 +1794,9 @@ export default function AdminArticleEditor() {
 
       setForm((current) => ({
         ...current,
-        cover_image: publicUrl,
+
+        cover_image:
+          publicUrl,
       }));
 
       setMessage(
@@ -1091,7 +1822,9 @@ export default function AdminArticleEditor() {
   // =========================================================
 
   async function removeCover() {
-    if (!form.cover_image) return;
+    if (!form.cover_image) {
+      return;
+    }
 
     try {
       const marker =
@@ -1102,7 +1835,9 @@ export default function AdminArticleEditor() {
           marker
         );
 
-      if (markerIndex !== -1) {
+      if (
+        markerIndex !== -1
+      ) {
         const filePath =
           form.cover_image.substring(
             markerIndex +
@@ -1110,10 +1845,15 @@ export default function AdminArticleEditor() {
           );
 
         const {
-          error: storageError,
+          error:
+            storageError,
         } = await supabase.storage
-          .from("article-covers")
-          .remove([filePath]);
+          .from(
+            "article-covers"
+          )
+          .remove([
+            filePath,
+          ]);
 
         if (storageError) {
           console.error(
@@ -1167,9 +1907,12 @@ export default function AdminArticleEditor() {
       }
 
       if (!user) {
-        navigate("/admin/login", {
-          replace: true,
-        });
+        navigate(
+          "/admin/login",
+          {
+            replace: true,
+          }
+        );
 
         return;
       }
@@ -1215,15 +1958,17 @@ export default function AdminArticleEditor() {
 
       const cleanedSections =
         form.sections
-          .map((section) => ({
-            heading:
-              section?.heading?.trim() ||
-              "",
+          .map(
+            (section) => ({
+              heading:
+                section?.heading?.trim() ||
+                "",
 
-            body:
-              section?.body?.trim() ||
-              "",
-          }))
+              body:
+                section?.body?.trim() ||
+                "",
+            })
+          )
           .filter(
             (section) =>
               section.heading ||
@@ -1235,40 +1980,116 @@ export default function AdminArticleEditor() {
       // -----------------------------------------------------
 
       const cleanedMarginalia =
-        (form.marginalia || [])
-          .map((item, index) => ({
-            id:
-              item?.id ||
-              `note-${Date.now()}-${index}`,
-            note: item?.note?.trim() || "",
-            type: item?.type || "THOUGHT",
-            x: Math.max(72, Math.min(92, Number(item?.x) || 82)),
-            y: Math.max(4, Math.min(94, Number(item?.y) || 15)),
-            rotation: Math.max(
-              -8,
-              Math.min(8, Number(item?.rotation) || 0)
-            ),
-            link: item?.link?.trim() || null,
-          }))
-          .filter((item) => item.note);
+        (
+          form.marginalia ||
+          []
+        )
+          .map(
+            (
+              item,
+              index
+            ) => ({
+              id:
+                item?.id ||
+                `note-${Date.now()}-${index}`,
+
+              note:
+                item?.note?.trim() ||
+                "",
+
+              type:
+                item?.type ||
+                "THOUGHT",
+
+              x: Math.max(
+                72,
+                Math.min(
+                  92,
+                  Number(item?.x) ||
+                    82
+                )
+              ),
+
+              y: Math.max(
+                4,
+                Math.min(
+                  94,
+                  Number(item?.y) ||
+                    15
+                )
+              ),
+
+              rotation:
+                Math.max(
+                  -8,
+                  Math.min(
+                    8,
+                    Number(
+                      item?.rotation
+                    ) || 0
+                  )
+                ),
+
+              link:
+                item?.link?.trim() ||
+                null,
+            })
+          )
+          .filter(
+            (item) =>
+              item.note
+          );
 
       // -----------------------------------------------------
       // CLEAN RECEIPTS
       // -----------------------------------------------------
 
       const cleanedReceipts =
-        (form.receipts || [])
-          .map((item, index) => ({
-            type: item?.type?.trim() || "SOURCE",
-            title: item?.title?.trim() || "",
-            description: item?.description?.trim() || "",
-            source_url: item?.source_url?.trim() || null,
-            image_url: item?.image_url?.trim() || null,
-            author: item?.author?.trim() || "",
-            publication: item?.publication?.trim() || "",
-            published_date: item?.published_date?.trim() || "",
-            sort_order: index,
-          }))
+        (
+          form.receipts ||
+          []
+        )
+          .map(
+            (
+              item,
+              index
+            ) => ({
+              type:
+                item?.type?.trim() ||
+                "SOURCE",
+
+              title:
+                item?.title?.trim() ||
+                "",
+
+              description:
+                item?.description?.trim() ||
+                "",
+
+              source_url:
+                item?.source_url?.trim() ||
+                null,
+
+              image_url:
+                item?.image_url?.trim() ||
+                null,
+
+              author:
+                item?.author?.trim() ||
+                "",
+
+              publication:
+                item?.publication?.trim() ||
+                "",
+
+              published_date:
+                item?.published_date?.trim() ||
+                "",
+
+              sort_order:
+                index,
+            })
+          )
           .filter(
             (item) =>
               item.title ||
@@ -1318,7 +2139,8 @@ export default function AdminArticleEditor() {
           form.date.trim(),
 
         color:
-          form.color || "pink",
+          form.color ||
+          "pink",
 
         dek:
           form.dek.trim(),
@@ -1332,24 +2154,20 @@ export default function AdminArticleEditor() {
           "",
 
         published:
-          Boolean(publishedValue),
+          Boolean(
+            publishedValue
+          ),
 
         sections:
           cleanedSections,
 
-        // ---------------------------------------------------
-        // SECRET ARTICLE FIELDS
-        // ---------------------------------------------------
-
         secret:
-          Boolean(form.secret),
+          Boolean(
+            form.secret
+          ),
 
         secret_code:
           secretCode,
-
-        // ---------------------------------------------------
-        // DIGITAL MARGINALIA
-        // ---------------------------------------------------
 
         marginalia:
           cleanedMarginalia,
@@ -1366,12 +2184,19 @@ export default function AdminArticleEditor() {
 
       if (isEditing) {
         const {
-          data: updatedArticle,
-          error: updateError,
+          data:
+            updatedArticle,
+          error:
+            updateError,
         } = await supabase
           .from("articles")
-          .update(articleData)
-          .eq("slug", slug)
+          .update(
+            articleData
+          )
+          .eq(
+            "slug",
+            slug
+          )
           .select()
           .maybeSingle();
 
@@ -1384,7 +2209,9 @@ export default function AdminArticleEditor() {
           throw updateError;
         }
 
-        if (!updatedArticle) {
+        if (
+          !updatedArticle
+        ) {
           throw new Error(
             "The article could not be found to update."
           );
@@ -1394,69 +2221,126 @@ export default function AdminArticleEditor() {
         // SAVE RECEIPTS
         // ---------------------------------------------------
 
-        const { error: deleteReceiptsError } = await supabase
-          .from("article_receipts")
+        const {
+          error:
+            deleteReceiptsError,
+        } = await supabase
+          .from(
+            "article_receipts"
+          )
           .delete()
-          .eq("article_id", updatedArticle.id);
+          .eq(
+            "article_id",
+            updatedArticle.id
+          );
 
-        if (deleteReceiptsError) {
+        if (
+          deleteReceiptsError
+        ) {
           throw deleteReceiptsError;
         }
 
-        if (cleanedReceipts.length > 0) {
-          const receiptRows = cleanedReceipts.map((receipt, index) => ({
-            article_id: updatedArticle.id,
-            type: receipt.type,
-            title: receipt.title,
-            description: receipt.description || null,
-            source_url: receipt.source_url,
-            image_url: receipt.image_url,
-            author: receipt.author || null,
-            publication: receipt.publication || null,
-            published_date: receipt.published_date || null,
-            sort_order: index,
-          }));
+        if (
+          cleanedReceipts.length >
+          0
+        ) {
+          const receiptRows =
+            cleanedReceipts.map(
+              (
+                receipt,
+                index
+              ) => ({
+                article_id:
+                  updatedArticle.id,
 
-          const { error: receiptInsertError } = await supabase
-            .from("article_receipts")
-            .insert(receiptRows);
+                type:
+                  receipt.type,
 
-          if (receiptInsertError) {
+                title:
+                  receipt.title,
+
+                description:
+                  receipt.description ||
+                  null,
+
+                source_url:
+                  receipt.source_url,
+
+                image_url:
+                  receipt.image_url,
+
+                author:
+                  receipt.author ||
+                  null,
+
+                publication:
+                  receipt.publication ||
+                  null,
+
+                published_date:
+                  receipt.published_date ||
+                  null,
+
+                sort_order:
+                  index,
+              })
+            );
+
+          const {
+            error:
+              receiptInsertError,
+          } = await supabase
+            .from(
+              "article_receipts"
+            )
+            .insert(
+              receiptRows
+            );
+
+          if (
+            receiptInsertError
+          ) {
             throw receiptInsertError;
           }
         }
 
-        setForm((current) => ({
-          ...current,
+        setForm(
+          (current) => ({
+            ...current,
 
-          slug:
-            updatedArticle.slug,
+            slug:
+              updatedArticle.slug,
 
-          published:
-            Boolean(
-              updatedArticle.published
-            ),
+            published:
+              Boolean(
+                updatedArticle.published
+              ),
 
-          secret:
-            Boolean(
-              updatedArticle.secret
-            ),
+            secret:
+              Boolean(
+                updatedArticle.secret
+              ),
 
-          secret_code:
-            updatedArticle.secret_code ||
-            "",
+            secret_code:
+              updatedArticle.secret_code ||
+              "",
 
-          sections:
-            cleanedSections.length
-              ? cleanedSections
-              : [{ ...emptySection }],
+            sections:
+              cleanedSections.length
+                ? cleanedSections
+                : [
+                    {
+                      ...emptySection,
+                    },
+                  ],
 
-          marginalia:
-            cleanedMarginalia,
+            marginalia:
+              cleanedMarginalia,
 
-          receipts:
-            cleanedReceipts,
-        }));
+            receipts:
+              cleanedReceipts,
+          })
+        );
 
         setMessage(
           publishedValue
@@ -1464,10 +2348,9 @@ export default function AdminArticleEditor() {
             : "Article saved as draft."
         );
 
-        // If the slug changed while editing,
-        // update the URL.
         if (
-          updatedArticle.slug !== slug
+          updatedArticle.slug !==
+          slug
         ) {
           navigate(
             `/admin/edit/${updatedArticle.slug}`,
@@ -1489,7 +2372,9 @@ export default function AdminArticleEditor() {
         error: insertError,
       } = await supabase
         .from("articles")
-        .insert(articleData)
+        .insert(
+          articleData
+        )
         .select()
         .single();
 
@@ -1512,60 +2397,107 @@ export default function AdminArticleEditor() {
       // SAVE RECEIPTS
       // -----------------------------------------------------
 
-      if (cleanedReceipts.length > 0) {
-        const receiptRows = cleanedReceipts.map((receipt, index) => ({
-          article_id: newArticle.id,
-          type: receipt.type,
-          title: receipt.title,
-          description: receipt.description || null,
-          source_url: receipt.source_url,
-          image_url: receipt.image_url,
-          author: receipt.author || null,
-          publication: receipt.publication || null,
-          published_date: receipt.published_date || null,
-          sort_order: index,
-        }));
+      if (
+        cleanedReceipts.length >
+        0
+      ) {
+        const receiptRows =
+          cleanedReceipts.map(
+            (
+              receipt,
+              index
+            ) => ({
+              article_id:
+                newArticle.id,
 
-        const { error: receiptInsertError } = await supabase
-          .from("article_receipts")
-          .insert(receiptRows);
+              type:
+                receipt.type,
 
-        if (receiptInsertError) {
+              title:
+                receipt.title,
+
+              description:
+                receipt.description ||
+                null,
+
+              source_url:
+                receipt.source_url,
+
+              image_url:
+                receipt.image_url,
+
+              author:
+                receipt.author ||
+                null,
+
+              publication:
+                receipt.publication ||
+                null,
+
+              published_date:
+                receipt.published_date ||
+                null,
+
+              sort_order:
+                index,
+            })
+          );
+
+        const {
+          error:
+            receiptInsertError,
+        } = await supabase
+          .from(
+            "article_receipts"
+          )
+          .insert(
+            receiptRows
+          );
+
+        if (
+          receiptInsertError
+        ) {
           throw receiptInsertError;
         }
       }
 
-      setForm((current) => ({
-        ...current,
+      setForm(
+        (current) => ({
+          ...current,
 
-        slug:
-          newArticle.slug,
+          slug:
+            newArticle.slug,
 
-        published:
-          Boolean(
-            newArticle.published
-          ),
+          published:
+            Boolean(
+              newArticle.published
+            ),
 
-        secret:
-          Boolean(
-            newArticle.secret
-          ),
+          secret:
+            Boolean(
+              newArticle.secret
+            ),
 
-        secret_code:
-          newArticle.secret_code ||
-          "",
+          secret_code:
+            newArticle.secret_code ||
+            "",
 
-        sections:
-          cleanedSections.length
-            ? cleanedSections
-            : [{ ...emptySection }],
+          sections:
+            cleanedSections.length
+              ? cleanedSections
+              : [
+                  {
+                    ...emptySection,
+                  },
+                ],
 
-        marginalia:
-          cleanedMarginalia,
+          marginalia:
+            cleanedMarginalia,
 
-        receipts:
-          cleanedReceipts,
-      }));
+          receipts:
+            cleanedReceipts,
+        })
+      );
 
       setMessage(
         publishedValue
@@ -1573,7 +2505,6 @@ export default function AdminArticleEditor() {
           : "Article saved as draft."
       );
 
-      // Move new article into edit mode
       navigate(
         `/admin/edit/${newArticle.slug}`,
         {
@@ -1646,7 +2577,8 @@ export default function AdminArticleEditor() {
             .filter(Boolean);
 
         return (
-          total + words.length
+          total +
+          words.length
         );
       },
       0
@@ -1709,7 +2641,9 @@ export default function AdminArticleEditor() {
           <button
             type="button"
             className="writer-preview-button"
-            onClick={previewArticle}
+            onClick={
+              previewArticle
+            }
             disabled={saving}
           >
             <Eye size={15} />
@@ -1719,7 +2653,9 @@ export default function AdminArticleEditor() {
           <button
             type="button"
             className="writer-save-button"
-            onClick={handleSaveDraft}
+            onClick={
+              handleSaveDraft
+            }
             disabled={saving}
           >
             <Save size={15} />
@@ -1732,7 +2668,9 @@ export default function AdminArticleEditor() {
           <button
             type="button"
             className="writer-publish-button"
-            onClick={handlePublish}
+            onClick={
+              handlePublish
+            }
             disabled={saving}
           >
             {saving
@@ -1818,7 +2756,9 @@ export default function AdminArticleEditor() {
 
             <textarea
               className="writer-subtitle"
-              value={form.subtitle}
+              value={
+                form.subtitle
+              }
               onChange={(event) =>
                 updateField(
                   "subtitle",
@@ -1837,7 +2777,9 @@ export default function AdminArticleEditor() {
               </span>
 
               <input
-                value={form.slug}
+                value={
+                  form.slug
+                }
                 onChange={(event) =>
                   updateField(
                     "slug",
@@ -1902,7 +2844,10 @@ export default function AdminArticleEditor() {
             <div className="writer-sections">
 
               {form.sections.map(
-                (section, index) => (
+                (
+                  section,
+                  index
+                ) => (
                   <article
                     className="writer-story-section"
                     key={index}
@@ -1928,7 +2873,8 @@ export default function AdminArticleEditor() {
                           updateSection(
                             index,
                             "heading",
-                            event.target
+                            event
+                              .target
                               .value
                           )
                         }
@@ -1940,43 +2886,77 @@ export default function AdminArticleEditor() {
 
                       <div className="writer-rich-editor">
 
+                        {/* TOOLBAR */}
+
                         <div className="writer-format-toolbar">
 
                           <div className="writer-format-group">
+
+                            {/* BOLD */}
+
                             <button
                               type="button"
                               className="writer-format-button writer-format-bold"
-                              onMouseDown={(event) => {
+                              onMouseDown={(
+                                event
+                              ) => {
                                 event.preventDefault();
-                                saveEditorSelection(index);
+
+                                saveEditorSelection(
+                                  index
+                                );
                               }}
-                              onClick={() => runEditorCommand(index, "bold")}
+                              onClick={() =>
+                                runEditorCommand(
+                                  index,
+                                  "bold"
+                                )
+                              }
                               title="Bold"
                               aria-label="Bold"
                             >
                               B
                             </button>
 
+                            {/* UNDERLINE */}
+
                             <button
                               type="button"
                               className="writer-format-button writer-format-underline"
-                              onMouseDown={(event) => {
+                              onMouseDown={(
+                                event
+                              ) => {
                                 event.preventDefault();
-                                saveEditorSelection(index);
+
+                                saveEditorSelection(
+                                  index
+                                );
                               }}
-                              onClick={() => runEditorCommand(index, "underline")}
+                              onClick={() =>
+                                runEditorCommand(
+                                  index,
+                                  "underline"
+                                )
+                              }
                               title="Underline"
                               aria-label="Underline"
                             >
                               U
                             </button>
 
+                            {/* CIRCLE */}
+
                             <button
                               type="button"
                               className="writer-format-button writer-format-circle"
-                              onMouseDown={(event) => {
+                              onMouseDown={(
+                                event
+                              ) => {
                                 event.preventDefault();
-                                wrapSelectionInCircle(index);
+
+                                wrapSelectionInCircle(
+                                  index
+                                );
                               }}
                               title="Circle selected text"
                               aria-label="Circle selected text"
@@ -1984,26 +2964,44 @@ export default function AdminArticleEditor() {
                               ◯
                             </button>
 
+                            {/* REMOVE CIRCLE */}
+
                             <button
                               type="button"
                               className="writer-format-button writer-format-uncircle"
-                              onMouseDown={(event) => {
+                              onMouseDown={(
+                                event
+                              ) => {
                                 event.preventDefault();
-                                saveEditorSelection(index);
+
+                                saveEditorSelection(
+                                  index
+                                );
                               }}
-                              onClick={() => removeCircle(index)}
+                              onClick={() =>
+                                removeCircle(
+                                  index
+                                )
+                              }
                               title="Remove circle"
                               aria-label="Remove circle"
                             >
                               ⊖
                             </button>
 
+                            {/* HIGHLIGHT */}
+
                             <button
                               type="button"
                               className="writer-format-button writer-format-highlight"
-                              onMouseDown={(event) => {
+                              onMouseDown={(
+                                event
+                              ) => {
                                 event.preventDefault();
-                                saveEditorSelection(index);
+
+                                saveEditorSelection(
+                                  index
+                                );
                               }}
                               onClick={() =>
                                 runEditorCommand(
@@ -2018,115 +3016,243 @@ export default function AdminArticleEditor() {
                               ✦
                             </button>
 
+                            {/* UNDO */}
+
                             <button
                               type="button"
                               className="writer-format-button writer-format-history"
-                              onMouseDown={(event) => {
+                              onMouseDown={(
+                                event
+                              ) => {
                                 event.preventDefault();
-                                saveEditorSelection(index);
+
+                                saveEditorSelection(
+                                  index
+                                );
                               }}
-                              onClick={() => undoEditor(index)}
+                              onClick={() =>
+                                undoEditor(
+                                  index
+                                )
+                              }
                               title="Undo last edit"
                               aria-label="Undo last edit"
                             >
                               ↶
                             </button>
 
+                            {/* REDO */}
+
                             <button
                               type="button"
                               className="writer-format-button writer-format-history"
-                              onMouseDown={(event) => {
+                              onMouseDown={(
+                                event
+                              ) => {
                                 event.preventDefault();
-                                saveEditorSelection(index);
+
+                                saveEditorSelection(
+                                  index
+                                );
                               }}
-                              onClick={() => redoEditor(index)}
+                              onClick={() =>
+                                redoEditor(
+                                  index
+                                )
+                              }
                               title="Redo edit"
                               aria-label="Redo edit"
                             >
                               ↷
                             </button>
 
+                            {/* CLEAR */}
+
                             <button
                               type="button"
                               className="writer-format-button writer-format-clear"
-                              onMouseDown={(event) => {
+                              onMouseDown={(
+                                event
+                              ) => {
                                 event.preventDefault();
-                                saveEditorSelection(index);
+
+                                saveEditorSelection(
+                                  index
+                                );
                               }}
-                              onClick={() => removeFormatting(index)}
+                              onClick={() =>
+                                removeFormatting(
+                                  index
+                                )
+                              }
                               title="Clear formatting"
                               aria-label="Clear formatting"
                             >
                               Tx
                             </button>
+
                           </div>
 
                           <div className="writer-format-divider" />
 
+                          {/* COLORS */}
+
                           <div className="writer-format-colors">
-                            <span className="writer-format-label">COLOR</span>
 
-                            {Object.entries(editorialColors).map(([name, color]) => (
-                              <div className="writer-color-pair" key={`text-${name}`}>
-                                <button
-                                  type="button"
-                                  className="writer-color-swatch"
-                                  style={{ "--swatch": color }}
-                                  onMouseDown={(event) => {
-                                    event.preventDefault();
-                                    saveEditorSelection(index);
-                                  }}
-                                  onClick={() => runEditorCommand(index, "foreColor", color)}
-                                  title={`Text color: ${name}`}
-                                  aria-label={`Text color: ${name}`}
-                                >
-                                  A
-                                </button>
-                              </div>
-                            ))}
+                            <span className="writer-format-label">
+                              COLOR
+                            </span>
 
-                            {Object.entries(highlightColors).map(([name, color]) => (
-                              <div className="writer-color-pair" key={`highlight-${name}`}>
-                                <button
-                                  type="button"
-                                  className="writer-highlight-swatch"
-                                  style={{
-                                    "--swatch": color,
-                                    backgroundColor: color,
-                                  }}
-                                  onMouseDown={(event) => {
-                                    event.preventDefault();
-                                    saveEditorSelection(index);
-                                  }}
-                                  onClick={() => runEditorCommand(index, "hiliteColor", color)}
-                                  title={`Highlight color: ${name}`}
-                                  aria-label={`Highlight color: ${name}`}
+                            {Object.entries(
+                              editorialColors
+                            ).map(
+                              ([
+                                name,
+                                color,
+                              ]) => (
+                                <div
+                                  className="writer-color-pair"
+                                  key={`text-${name}`}
                                 >
-                                  H
-                                </button>
-                              </div>
-                            ))}
+
+                                  <button
+                                    type="button"
+                                    className="writer-color-swatch"
+                                    style={{
+                                      "--swatch":
+                                        color,
+                                    }}
+                                    onMouseDown={(
+                                      event
+                                    ) => {
+                                      event.preventDefault();
+
+                                      saveEditorSelection(
+                                        index
+                                      );
+                                    }}
+                                    onClick={() =>
+                                      runEditorCommand(
+                                        index,
+                                        "foreColor",
+                                        color
+                                      )
+                                    }
+                                    title={`Text color: ${name}`}
+                                    aria-label={`Text color: ${name}`}
+                                  >
+                                    A
+                                  </button>
+
+                                </div>
+                              )
+                            )}
+
+                            {Object.entries(
+                              highlightColors
+                            ).map(
+                              ([
+                                name,
+                                color,
+                              ]) => (
+                                <div
+                                  className="writer-color-pair"
+                                  key={`highlight-${name}`}
+                                >
+
+                                  <button
+                                    type="button"
+                                    className="writer-highlight-swatch"
+                                    style={{
+                                      "--swatch":
+                                        color,
+
+                                      backgroundColor:
+                                        color,
+                                    }}
+                                    onMouseDown={(
+                                      event
+                                    ) => {
+                                      event.preventDefault();
+
+                                      saveEditorSelection(
+                                        index
+                                      );
+                                    }}
+                                    onClick={() =>
+                                      runEditorCommand(
+                                        index,
+                                        "hiliteColor",
+                                        color
+                                      )
+                                    }
+                                    title={`Highlight color: ${name}`}
+                                    aria-label={`Highlight color: ${name}`}
+                                  >
+                                    H
+                                  </button>
+
+                                </div>
+                              )
+                            )}
+
                           </div>
 
                         </div>
 
+                        {/* =================================================
+                            FIXED RICH TEXT EDITOR
+
+                            IMPORTANT:
+                            There is NO dangerouslySetInnerHTML here.
+
+                            React does not rewrite this element every
+                            time the user types.
+                            ================================================= */}
+
                         <div
-                          ref={(element) => {
-                            editorRefs.current[index] = element;
+                          ref={(
+                            element
+                          ) => {
+                            editorRefs.current[
+                              index
+                            ] = element;
                           }}
                           className="writer-body-input writer-rich-text"
                           contentEditable
                           suppressContentEditableWarning
-                          data-section-index={index}
+                          data-section-index={
+                            index
+                          }
                           data-placeholder="Start writing here..."
-                          dangerouslySetInnerHTML={{
-                            __html: bodyToEditorHtml(section.body),
+                          onInput={(
+                            event
+                          ) => {
+                            updateEditorSection(
+                              index,
+                              event
+                                .currentTarget
+                                .innerHTML
+                            );
                           }}
-                          onInput={() => updateEditorSection(index)}
-                          onMouseUp={() => saveEditorSelection(index)}
-                          onKeyUp={() => saveEditorSelection(index)}
-                          onFocus={() => saveEditorSelection(index)}
-                          onKeyDown={handleEditorKeyDown}
+                          onMouseUp={() =>
+                            saveEditorSelection(
+                              index
+                            )
+                          }
+                          onKeyUp={() =>
+                            saveEditorSelection(
+                              index
+                            )
+                          }
+                          onFocus={() =>
+                            saveEditorSelection(
+                              index
+                            )
+                          }
+                          onKeyDown={
+                            handleEditorKeyDown
+                          }
                           aria-label={`Section ${
                             index + 1
                           } body`}
@@ -2142,7 +3268,8 @@ export default function AdminArticleEditor() {
                     </div>
 
                     {form.sections
-                      .length > 1 && (
+                      .length >
+                      1 && (
                       <button
                         type="button"
                         className="writer-remove-section"
@@ -2171,7 +3298,9 @@ export default function AdminArticleEditor() {
             <button
               type="button"
               className="writer-add-section"
-              onClick={addSection}
+              onClick={
+                addSection
+              }
             >
               <Plus size={17} />
               ADD ANOTHER SECTION
@@ -2236,7 +3365,9 @@ export default function AdminArticleEditor() {
                 </option>
 
                 {categories.map(
-                  (category) => (
+                  (
+                    category
+                  ) => (
                     <option
                       key={
                         category.id
@@ -2245,7 +3376,9 @@ export default function AdminArticleEditor() {
                         category.id
                       }
                     >
-                      {category.name}
+                      {
+                        category.name
+                      }
                     </option>
                   )
                 )}
@@ -2405,6 +3538,7 @@ export default function AdminArticleEditor() {
           >
 
             <div className="writer-sidebar-title">
+
               <span>
                 SECRET ARTICLE
               </span>
@@ -2412,6 +3546,7 @@ export default function AdminArticleEditor() {
               <LockKeyhole
                 size={15}
               />
+
             </div>
 
             <div className="writer-secret-toggle">
@@ -2456,11 +3591,13 @@ export default function AdminArticleEditor() {
               <div className="writer-secret-details">
 
                 <div className="writer-secret-status">
+
                   <span>
                     ✦
                   </span>
 
                   THIS ARTICLE IS HIDDEN
+
                 </div>
 
                 <label className="writer-field">
@@ -2513,7 +3650,8 @@ export default function AdminArticleEditor() {
 
               <span className="writer-marginalia-count">
                 {(
-                  form.marginalia || []
+                  form.marginalia ||
+                  []
                 ).length}
               </span>
 
@@ -2536,56 +3674,202 @@ export default function AdminArticleEditor() {
             </button>
 
             {(
-              form.marginalia || []
-            ).length > 0 && (
+              form.marginalia ||
+              []
+            ).length >
+              0 && (
               <div className="writer-marginalia-list">
 
                 {form.marginalia.map(
-                  (item, index) => (
+                  (
+                    item,
+                    index
+                  ) => (
                     <div
                       className="writer-marginalia-item"
-                      key={item.id || index}
+                      key={
+                        item.id ||
+                        index
+                      }
                     >
+
                       <div className="writer-marginalia-item-top">
+
                         <div>
+
                           <span className="writer-marginalia-number">
-                            {String(index + 1).padStart(2, "0")}
+                            {String(
+                              index +
+                                1
+                            ).padStart(
+                              2,
+                              "0"
+                            )}
                           </span>
+
                           <span className="writer-marginalia-hand-label">
                             ✎ MARGIN NOTE
                           </span>
+
                         </div>
 
                         <button
                           type="button"
                           className="writer-marginalia-delete"
-                          onClick={() => deleteMarginalia(index)}
+                          onClick={() =>
+                            deleteMarginalia(
+                              index
+                            )
+                          }
                           aria-label="Delete note"
                           title="Delete note"
                         >
-                          <Trash2 size={13} />
+                          <Trash2
+                            size={
+                              13
+                            }
+                          />
                         </button>
+
                       </div>
 
                       <div className="writer-marginalia-editor">
+
                         <div className="writer-marginalia-toolbar">
-                          <button type="button" onMouseDown={(event) => { event.preventDefault(); formatMarginalia(index, "bold"); }}>B</button>
-                          <button type="button" onMouseDown={(event) => { event.preventDefault(); formatMarginalia(index, "underline"); }}>U</button>
-                          <button type="button" className="marginalia-tool-red" onMouseDown={(event) => { event.preventDefault(); formatMarginalia(index, "foreColor", editorialColors.red); }}>A</button>
-                          <button type="button" className="marginalia-tool-pink" onMouseDown={(event) => { event.preventDefault(); formatMarginalia(index, "foreColor", editorialColors.pink); }}>A</button>
-                          <button type="button" className="marginalia-tool-blue" onMouseDown={(event) => { event.preventDefault(); formatMarginalia(index, "foreColor", editorialColors.blue); }}>A</button>
-                          <button type="button" className="marginalia-tool-yellow" onMouseDown={(event) => { event.preventDefault(); formatMarginalia(index, "hiliteColor", highlightColors.yellow); }}>✦</button>
+
+                          <button
+                            type="button"
+                            onMouseDown={(
+                              event
+                            ) => {
+                              event.preventDefault();
+
+                              formatMarginalia(
+                                index,
+                                "bold"
+                              );
+                            }}
+                          >
+                            B
+                          </button>
+
+                          <button
+                            type="button"
+                            onMouseDown={(
+                              event
+                            ) => {
+                              event.preventDefault();
+
+                              formatMarginalia(
+                                index,
+                                "underline"
+                              );
+                            }}
+                          >
+                            U
+                          </button>
+
+                          <button
+                            type="button"
+                            className="marginalia-tool-red"
+                            onMouseDown={(
+                              event
+                            ) => {
+                              event.preventDefault();
+
+                              formatMarginalia(
+                                index,
+                                "foreColor",
+                                editorialColors.red
+                              );
+                            }}
+                          >
+                            A
+                          </button>
+
+                          <button
+                            type="button"
+                            className="marginalia-tool-pink"
+                            onMouseDown={(
+                              event
+                            ) => {
+                              event.preventDefault();
+
+                              formatMarginalia(
+                                index,
+                                "foreColor",
+                                editorialColors.pink
+                              );
+                            }}
+                          >
+                            A
+                          </button>
+
+                          <button
+                            type="button"
+                            className="marginalia-tool-blue"
+                            onMouseDown={(
+                              event
+                            ) => {
+                              event.preventDefault();
+
+                              formatMarginalia(
+                                index,
+                                "foreColor",
+                                editorialColors.blue
+                              );
+                            }}
+                          >
+                            A
+                          </button>
+
+                          <button
+                            type="button"
+                            className="marginalia-tool-yellow"
+                            onMouseDown={(
+                              event
+                            ) => {
+                              event.preventDefault();
+
+                              formatMarginalia(
+                                index,
+                                "hiliteColor",
+                                highlightColors.yellow
+                              );
+                            }}
+                          >
+                            ✦
+                          </button>
+
                         </div>
 
                         <div
-                          ref={(element) => {
-                            if (element) {
-                              marginaliaEditorRefs.current[index] = element;
-                              if (element.innerHTML !== (item.note || "")) {
-                                element.innerHTML = item.note || "";
+                          ref={(
+                            element
+                          ) => {
+                            if (
+                              element
+                            ) {
+                              marginaliaEditorRefs.current[
+                                index
+                              ] =
+                                element;
+
+                              if (
+                                element.innerHTML !==
+                                (
+                                  item.note ||
+                                  ""
+                                )
+                              ) {
+                                element.innerHTML =
+                                  item.note ||
+                                  "";
                               }
                             } else {
-                              delete marginaliaEditorRefs.current[index];
+                              delete marginaliaEditorRefs.current[
+                                index
+                              ];
                             }
                           }}
                           className="writer-marginalia-rich-text"
@@ -2593,78 +3877,223 @@ export default function AdminArticleEditor() {
                           suppressContentEditableWarning
                           spellCheck="true"
                           role="textbox"
-                          aria-label={`Margin note ${index + 1}`}
-                          onInput={(event) =>
-                            updateMarginalia(index, "note", event.currentTarget.innerHTML)
+                          aria-label={`Margin note ${
+                            index +
+                            1
+                          }`}
+                          onInput={(
+                            event
+                          ) =>
+                            updateMarginalia(
+                              index,
+                              "note",
+                              event
+                                .currentTarget
+                                .innerHTML
+                            )
                           }
                         />
+
                       </div>
 
                       <label className="writer-field">
-                        <span>TYPE</span>
+
+                        <span>
+                          TYPE
+                        </span>
+
                         <select
-                          value={item.type || "THOUGHT"}
-                          onChange={(event) => updateMarginalia(index, "type", event.target.value)}
+                          value={
+                            item.type ||
+                            "THOUGHT"
+                          }
+                          onChange={(
+                            event
+                          ) =>
+                            updateMarginalia(
+                              index,
+                              "type",
+                              event
+                                .target
+                                .value
+                            )
+                          }
                         >
-                          <option value="THOUGHT">THOUGHT</option>
-                          <option value="RABBIT HOLE">RABBIT HOLE</option>
-                          <option value="EDITORIAL NOTE">EDITORIAL NOTE</option>
-                          <option value="LOOK">LOOK</option>
-                          <option value="OBSESSION">OBSESSION</option>
+
+                          <option value="THOUGHT">
+                            THOUGHT
+                          </option>
+
+                          <option value="RABBIT HOLE">
+                            RABBIT HOLE
+                          </option>
+
+                          <option value="EDITORIAL NOTE">
+                            EDITORIAL NOTE
+                          </option>
+
+                          <option value="LOOK">
+                            LOOK
+                          </option>
+
+                          <option value="OBSESSION">
+                            OBSESSION
+                          </option>
+
                         </select>
+
                       </label>
 
                       <div className="writer-marginalia-position">
+
                         <div className="writer-marginalia-position-heading">
-                          <span>MARGIN POSITION</span>
+
                           <span>
-                            X {Math.round(item.x ?? 82)}% · Y {Math.round(item.y ?? 15)}%
+                            MARGIN POSITION
                           </span>
+
+                          <span>
+                            X{" "}
+                            {Math.round(
+                              item.x ??
+                                82
+                            )}
+                            % · Y{" "}
+                            {Math.round(
+                              item.y ??
+                                15
+                            )}
+                            %
+                          </span>
+
                         </div>
 
                         <label>
-                          <span>X</span>
+
+                          <span>
+                            X
+                          </span>
+
                           <input
                             type="range"
                             min="72"
                             max="92"
-                            value={item.x ?? 82}
-                            onChange={(event) => updateMarginalia(index, "x", Number(event.target.value))}
+                            value={
+                              item.x ??
+                              82
+                            }
+                            onChange={(
+                              event
+                            ) =>
+                              updateMarginalia(
+                                index,
+                                "x",
+                                Number(
+                                  event
+                                    .target
+                                    .value
+                                )
+                              )
+                            }
                           />
+
                         </label>
 
                         <label>
-                          <span>Y</span>
+
+                          <span>
+                            Y
+                          </span>
+
                           <input
                             type="range"
                             min="4"
                             max="94"
-                            value={item.y ?? 15}
-                            onChange={(event) => updateMarginalia(index, "y", Number(event.target.value))}
+                            value={
+                              item.y ??
+                              15
+                            }
+                            onChange={(
+                              event
+                            ) =>
+                              updateMarginalia(
+                                index,
+                                "y",
+                                Number(
+                                  event
+                                    .target
+                                    .value
+                                )
+                              )
+                            }
                           />
+
                         </label>
 
                         <label>
-                          <span>ROTATION</span>
+
+                          <span>
+                            ROTATION
+                          </span>
+
                           <input
                             type="range"
                             min="-8"
                             max="8"
-                            value={item.rotation ?? 0}
-                            onChange={(event) => updateMarginalia(index, "rotation", Number(event.target.value))}
+                            value={
+                              item.rotation ??
+                              0
+                            }
+                            onChange={(
+                              event
+                            ) =>
+                              updateMarginalia(
+                                index,
+                                "rotation",
+                                Number(
+                                  event
+                                    .target
+                                    .value
+                                )
+                              )
+                            }
                           />
+
                         </label>
+
                       </div>
 
                       <label className="writer-field">
-                        <span>LINK <small>OPTIONAL</small></span>
+
+                        <span>
+                          LINK{" "}
+                          <small>
+                            OPTIONAL
+                          </small>
+                        </span>
+
                         <input
                           type="text"
-                          value={item.link || ""}
-                          onChange={(event) => updateMarginalia(index, "link", event.target.value)}
+                          value={
+                            item.link ||
+                            ""
+                          }
+                          onChange={(
+                            event
+                          ) =>
+                            updateMarginalia(
+                              index,
+                              "link",
+                              event
+                                .target
+                                .value
+                            )
+                          }
                           placeholder="/article/another-story"
                         />
+
                       </label>
+
                     </div>
                   )
                 )}
@@ -2673,9 +4102,11 @@ export default function AdminArticleEditor() {
             )}
 
             {(
-              form.marginalia || []
+              form.marginalia ||
+              []
             ).length === 0 && (
               <div className="writer-marginalia-empty">
+
                 <span>
                   ✎
                 </span>
@@ -2687,6 +4118,7 @@ export default function AdminArticleEditor() {
                   thought worth leaving in
                   the margin.
                 </p>
+
               </div>
             )}
 
@@ -2699,10 +4131,18 @@ export default function AdminArticleEditor() {
           <section className="writer-sidebar-card writer-receipts-card">
 
             <div className="writer-sidebar-title writer-receipts-heading">
-              <span>THE RECEIPTS</span>
-              <span className="writer-receipts-count">
-                {(form.receipts || []).length}
+
+              <span>
+                THE RECEIPTS
               </span>
+
+              <span className="writer-receipts-count">
+                {(
+                  form.receipts ||
+                  []
+                ).length}
+              </span>
+
             </div>
 
             <p className="writer-receipts-description">
@@ -2712,143 +4152,398 @@ export default function AdminArticleEditor() {
             <button
               type="button"
               className="writer-add-marginalia"
-              onClick={addReceipt}
+              onClick={
+                addReceipt
+              }
             >
               <Plus size={15} />
               ADD RECEIPT
             </button>
 
-            {(form.receipts || []).length > 0 && (
+            {(
+              form.receipts ||
+              []
+            ).length >
+              0 && (
               <div className="writer-receipts-list">
-                {form.receipts.map((receipt, index) => (
-                  <div
-                    className="writer-receipt-item"
-                    key={receipt.id || index}
-                  >
-                    <div className="writer-receipt-item-top">
-                      <span className="writer-receipt-number">
-                        {String(index + 1).padStart(2, "0")}
-                      </span>
 
-                      <div className="writer-receipt-order">
-                        <button
-                          type="button"
-                          onClick={() => moveReceipt(index, -1)}
-                          disabled={index === 0}
-                          aria-label="Move receipt up"
-                        >↑</button>
-                        <button
-                          type="button"
-                          onClick={() => moveReceipt(index, 1)}
-                          disabled={index === form.receipts.length - 1}
-                          aria-label="Move receipt down"
-                        >↓</button>
-                        <button
-                          type="button"
-                          className="writer-marginalia-delete"
-                          onClick={() => deleteReceipt(index)}
-                          aria-label="Delete receipt"
-                        >
-                          <Trash2 size={13} />
-                        </button>
+                {form.receipts.map(
+                  (
+                    receipt,
+                    index
+                  ) => (
+                    <div
+                      className="writer-receipt-item"
+                      key={
+                        receipt.id ||
+                        index
+                      }
+                    >
+
+                      <div className="writer-receipt-item-top">
+
+                        <span className="writer-receipt-number">
+                          {String(
+                            index +
+                              1
+                          ).padStart(
+                            2,
+                            "0"
+                          )}
+                        </span>
+
+                        <div className="writer-receipt-order">
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              moveReceipt(
+                                index,
+                                -1
+                              )
+                            }
+                            disabled={
+                              index ===
+                              0
+                            }
+                            aria-label="Move receipt up"
+                          >
+                            ↑
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              moveReceipt(
+                                index,
+                                1
+                              )
+                            }
+                            disabled={
+                              index ===
+                              form.receipts
+                                .length -
+                                1
+                            }
+                            aria-label="Move receipt down"
+                          >
+                            ↓
+                          </button>
+
+                          <button
+                            type="button"
+                            className="writer-marginalia-delete"
+                            onClick={() =>
+                              deleteReceipt(
+                                index
+                              )
+                            }
+                            aria-label="Delete receipt"
+                          >
+                            <Trash2
+                              size={
+                                13
+                              }
+                            />
+                          </button>
+
+                        </div>
+
                       </div>
+
+                      <label className="writer-field">
+
+                        <span>
+                          TYPE
+                        </span>
+
+                        <select
+                          value={
+                            receipt.type ||
+                            "SOURCE"
+                          }
+                          onChange={(
+                            event
+                          ) =>
+                            updateReceipt(
+                              index,
+                              "type",
+                              event
+                                .target
+                                .value
+                            )
+                          }
+                        >
+
+                          <option value="SOURCE">
+                            SOURCE
+                          </option>
+
+                          <option value="DATA">
+                            DATA
+                          </option>
+
+                          <option value="SCREENSHOT">
+                            SCREENSHOT
+                          </option>
+
+                          <option value="BOOK">
+                            BOOK
+                          </option>
+
+                          <option value="ARTICLE">
+                            ARTICLE
+                          </option>
+
+                          <option value="VIDEO">
+                            VIDEO
+                          </option>
+
+                          <option value="ARCHIVE">
+                            ARCHIVE
+                          </option>
+
+                          <option value="OTHER">
+                            OTHER
+                          </option>
+
+                        </select>
+
+                      </label>
+
+                      <label className="writer-field">
+
+                        <span>
+                          TITLE
+                        </span>
+
+                        <input
+                          value={
+                            receipt.title ||
+                            ""
+                          }
+                          onChange={(
+                            event
+                          ) =>
+                            updateReceipt(
+                              index,
+                              "title",
+                              event
+                                .target
+                                .value
+                            )
+                          }
+                          placeholder="The source, book, dataset..."
+                        />
+
+                      </label>
+
+                      <label className="writer-field">
+
+                        <span>
+                          DESCRIPTION{" "}
+                          <small>
+                            OPTIONAL
+                          </small>
+                        </span>
+
+                        <textarea
+                          value={
+                            receipt.description ||
+                            ""
+                          }
+                          onChange={(
+                            event
+                          ) =>
+                            updateReceipt(
+                              index,
+                              "description",
+                              event
+                                .target
+                                .value
+                            )
+                          }
+                          placeholder="What is this evidence?"
+                          rows="3"
+                        />
+
+                      </label>
+
+                      <label className="writer-field">
+
+                        <span>
+                          SOURCE LINK{" "}
+                          <small>
+                            OPTIONAL
+                          </small>
+                        </span>
+
+                        <input
+                          type="url"
+                          value={
+                            receipt.source_url ||
+                            ""
+                          }
+                          onChange={(
+                            event
+                          ) =>
+                            updateReceipt(
+                              index,
+                              "source_url",
+                              event
+                                .target
+                                .value
+                            )
+                          }
+                          placeholder="https://..."
+                        />
+
+                      </label>
+
+                      <label className="writer-field">
+
+                        <span>
+                          IMAGE URL{" "}
+                          <small>
+                            OPTIONAL
+                          </small>
+                        </span>
+
+                        <input
+                          type="url"
+                          value={
+                            receipt.image_url ||
+                            ""
+                          }
+                          onChange={(
+                            event
+                          ) =>
+                            updateReceipt(
+                              index,
+                              "image_url",
+                              event
+                                .target
+                                .value
+                            )
+                          }
+                          placeholder="https://..."
+                        />
+
+                      </label>
+
+                      <label className="writer-field">
+
+                        <span>
+                          AUTHOR{" "}
+                          <small>
+                            OPTIONAL
+                          </small>
+                        </span>
+
+                        <input
+                          value={
+                            receipt.author ||
+                            ""
+                          }
+                          onChange={(
+                            event
+                          ) =>
+                            updateReceipt(
+                              index,
+                              "author",
+                              event
+                                .target
+                                .value
+                            )
+                          }
+                          placeholder="Author name"
+                        />
+
+                      </label>
+
+                      <label className="writer-field">
+
+                        <span>
+                          PUBLICATION{" "}
+                          <small>
+                            OPTIONAL
+                          </small>
+                        </span>
+
+                        <input
+                          value={
+                            receipt.publication ||
+                            ""
+                          }
+                          onChange={(
+                            event
+                          ) =>
+                            updateReceipt(
+                              index,
+                              "publication",
+                              event
+                                .target
+                                .value
+                            )
+                          }
+                          placeholder="Publication, institution..."
+                        />
+
+                      </label>
+
+                      <label className="writer-field">
+
+                        <span>
+                          DATE{" "}
+                          <small>
+                            OPTIONAL
+                          </small>
+                        </span>
+
+                        <input
+                          value={
+                            receipt.published_date ||
+                            ""
+                          }
+                          onChange={(
+                            event
+                          ) =>
+                            updateReceipt(
+                              index,
+                              "published_date",
+                              event
+                                .target
+                                .value
+                            )
+                          }
+                          placeholder="September 2026"
+                        />
+
+                      </label>
+
                     </div>
+                  )
+                )}
 
-                    <label className="writer-field">
-                      <span>TYPE</span>
-                      <select
-                        value={receipt.type || "SOURCE"}
-                        onChange={(event) => updateReceipt(index, "type", event.target.value)}
-                      >
-                        <option value="SOURCE">SOURCE</option>
-                        <option value="DATA">DATA</option>
-                        <option value="SCREENSHOT">SCREENSHOT</option>
-                        <option value="BOOK">BOOK</option>
-                        <option value="ARTICLE">ARTICLE</option>
-                        <option value="VIDEO">VIDEO</option>
-                        <option value="ARCHIVE">ARCHIVE</option>
-                        <option value="OTHER">OTHER</option>
-                      </select>
-                    </label>
-
-                    <label className="writer-field">
-                      <span>TITLE</span>
-                      <input
-                        value={receipt.title || ""}
-                        onChange={(event) => updateReceipt(index, "title", event.target.value)}
-                        placeholder="The source, book, dataset..."
-                      />
-                    </label>
-
-                    <label className="writer-field">
-                      <span>DESCRIPTION <small>OPTIONAL</small></span>
-                      <textarea
-                        value={receipt.description || ""}
-                        onChange={(event) => updateReceipt(index, "description", event.target.value)}
-                        placeholder="What is this evidence?"
-                        rows="3"
-                      />
-                    </label>
-
-                    <label className="writer-field">
-                      <span>SOURCE LINK <small>OPTIONAL</small></span>
-                      <input
-                        type="url"
-                        value={receipt.source_url || ""}
-                        onChange={(event) => updateReceipt(index, "source_url", event.target.value)}
-                        placeholder="https://..."
-                      />
-                    </label>
-
-                    <label className="writer-field">
-                      <span>IMAGE URL <small>OPTIONAL</small></span>
-                      <input
-                        type="url"
-                        value={receipt.image_url || ""}
-                        onChange={(event) => updateReceipt(index, "image_url", event.target.value)}
-                        placeholder="https://..."
-                      />
-                    </label>
-
-                    <label className="writer-field">
-                      <span>AUTHOR <small>OPTIONAL</small></span>
-                      <input
-                        value={receipt.author || ""}
-                        onChange={(event) => updateReceipt(index, "author", event.target.value)}
-                        placeholder="Author name"
-                      />
-                    </label>
-
-                    <label className="writer-field">
-                      <span>PUBLICATION <small>OPTIONAL</small></span>
-                      <input
-                        value={receipt.publication || ""}
-                        onChange={(event) => updateReceipt(index, "publication", event.target.value)}
-                        placeholder="Publication, institution..."
-                      />
-                    </label>
-
-                    <label className="writer-field">
-                      <span>DATE <small>OPTIONAL</small></span>
-                      <input
-                        value={receipt.published_date || ""}
-                        onChange={(event) => updateReceipt(index, "published_date", event.target.value)}
-                        placeholder="September 2026"
-                      />
-                    </label>
-                  </div>
-                ))}
               </div>
             )}
 
-            {(form.receipts || []).length === 0 && (
+            {(
+              form.receipts ||
+              []
+            ).length === 0 && (
               <div className="writer-marginalia-empty writer-receipts-empty">
-                <span>⌁</span>
+
+                <span>
+                  ⌁
+                </span>
+
                 <p>
                   No receipts yet.
                   <br />
                   Add the evidence behind this story.
                 </p>
+
               </div>
             )}
 
@@ -2891,7 +4586,9 @@ export default function AdminArticleEditor() {
 
               <label className="writer-upload">
 
-                <ImagePlus size={24} />
+                <ImagePlus
+                  size={24}
+                />
 
                 <strong>
                   {uploading
@@ -2908,7 +4605,9 @@ export default function AdminArticleEditor() {
                 <input
                   type="file"
                   accept="image/jpeg,image/png,image/webp,image/gif"
-                  onChange={(event) =>
+                  onChange={(
+                    event
+                  ) =>
                     uploadCover(
                       event.target
                         .files?.[0]
@@ -2921,10 +4620,13 @@ export default function AdminArticleEditor() {
                 />
 
                 <span className="writer-upload-link">
+
                   <Upload
                     size={13}
                   />
+
                   CHOOSE IMAGE
+
                 </span>
 
               </label>
