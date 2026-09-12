@@ -12826,3 +12826,403 @@ button {
     min-width: 0 !important;
     white-space: nowrap;
   }
+
+  /* =========================================================
+   CURIOUSLY — PHONE COVER TITLE FIX
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+  /* Give the cover a little breathing room */
+  .home-cover {
+    min-height: auto !important;
+    padding: 20px 5vw 30px !important;
+    overflow: hidden !important;
+  }
+
+  /* Top information */
+  .home-cover-top {
+    grid-template-columns: 1fr 1fr !important;
+    font-size: 8px !important;
+  }
+
+  .home-cover-top span:nth-child(2) {
+    display: none !important;
+  }
+
+  /* Main title area */
+  .home-cover-title {
+    min-height: 330px !important;
+    width: 100% !important;
+    overflow: visible !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  /* THE */
+  .cover-small-word {
+    font-size: 9px !important;
+    letter-spacing: 0.35em !important;
+    margin-bottom: 12px !important;
+  }
+
+  /* CURIOUSLY */
+  .home-cover-title h1 {
+    width: 100% !important;
+
+    font-size: clamp(58px, 15vw, 115px) !important;
+
+    line-height: 0.78 !important;
+
+    letter-spacing: -0.075em !important;
+
+    white-space: nowrap !important;
+
+    text-align: center !important;
+
+    margin: 0 !important;
+
+    transform: none !important;
+  }
+
+  /* Yellow circle */
+  .home-cover-title::before {
+    width: 75px !important;
+    height: 75px !important;
+
+    left: 3% !important;
+    top: 30% !important;
+  }
+
+  /* Pink star circle */
+  .home-cover-title::after {
+    width: 62px !important;
+    height: 62px !important;
+
+    right: 4% !important;
+    top: 23% !important;
+
+    font-size: 23px !important;
+  }
+
+  /* Heart underneath title */
+  .home-cover .cover-heart {
+    right: 8% !important;
+    bottom: 13% !important;
+  }
+
+  /* Bottom portion */
+  .home-cover-bottom {
+    grid-template-columns: 1fr 75px !important;
+
+    font-size: 8px !important;
+  }
+
+  .home-cover-bottom .cover-question {
+    width: 65px !important;
+    height: 65px !important;
+
+    font-size: 40px !important;
+  }
+
+  .home-cover-bottom .cover-date {
+    display: none !important;
+  }
+}
+
+
+/* =========================================================
+   EXTRA SMALL PHONES
+   ========================================================= */
+
+@media (max-width: 430px) {
+
+  .home-cover {
+    padding-left: 5vw !important;
+    padding-right: 5vw !important;
+  }
+
+  .home-cover-title {
+    min-height: 300px !important;
+  }
+
+  .home-cover-title h1 {
+    font-size: 14vw !important;
+    letter-spacing: -0.07em !important;
+  }
+
+  .home-cover-title::before {
+    width: 62px !important;
+    height: 62px !important;
+
+    left: 1% !important;
+  }
+
+  .home-cover-title::after {
+    width: 52px !important;
+    height: 52px !important;
+
+    right: 1% !important;
+
+    font-size: 19px !important;
+  }
+
+  .cover-small-word {
+    font-size: 8px !important;
+  }
+
+  .home-cover-bottom {
+    font-size: 7px !important;
+  }
+
+  .home-cover-bottom .cover-question {
+    width: 58px !important;
+    height: 58px !important;
+
+    font-size: 35px !important;
+  }
+}
+
+@media (max-width: 768px) {
+
+  .home-cover-title {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    box-sizing: border-box !important;
+
+    /* Remove the side padding that was clipping Y */
+    padding: 0 !important;
+  }
+
+  .home-cover-title h1 {
+    display: block !important;
+
+    width: 100% !important;
+    max-width: 100% !important;
+
+    margin: 0 auto !important;
+    padding: 0 !important;
+
+    box-sizing: border-box !important;
+
+    font-size: 13.5vw !important;
+    line-height: 0.82 !important;
+    letter-spacing: -0.075em !important;
+
+    white-space: nowrap !important;
+    text-align: center !important;
+
+    transform: none !important;
+  }
+}
+
+@media (max-width: 430px) {
+  .home-cover-title h1 {
+    font-size: 13vw !important;
+  }
+}
+
+@media (max-width: 375px) {
+  .home-cover-title h1 {
+    font-size: 12.5vw !important;
+  }
+}
+
+/* =========================================================
+   CURIOUSLY — CATEGORY GRID / NO OVERLAP
+   FINAL OVERRIDE
+   ========================================================= */
+
+/* Stop shifting the category grid sideways */
+.home-category-list {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+
+  width: 100% !important;
+  max-width: 100% !important;
+
+  box-sizing: border-box !important;
+}
+
+
+/* Every category gets its own contained cell */
+.home-category {
+  min-width: 0 !important;
+  width: 100% !important;
+
+  box-sizing: border-box !important;
+
+  display: grid !important;
+
+  grid-template-columns: 35px minmax(0, 1fr) 20px !important;
+
+  gap: 8px !important;
+
+  overflow: hidden !important;
+}
+
+
+/* Category numbers */
+.home-category > span {
+  min-width: 0 !important;
+
+  font-family: "DM Mono", monospace !important;
+  font-size: 8px !important;
+
+  white-space: nowrap !important;
+}
+
+
+/* CATEGORY NAMES */
+.home-category > strong {
+  display: block !important;
+
+  min-width: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+
+  /*
+     Responsive size:
+     large enough for desktop,
+     automatically smaller when cells get narrower.
+  */
+  font-size: clamp(26px, 3.4vw, 52px) !important;
+
+  line-height: 0.9 !important;
+
+  letter-spacing: -0.045em !important;
+
+  white-space: nowrap !important;
+
+  overflow: hidden !important;
+
+  box-sizing: border-box !important;
+}
+
+
+/* Arrows stay in their own column */
+.home-category > svg {
+  width: 15px !important;
+  height: 15px !important;
+
+  min-width: 15px !important;
+  max-width: 15px !important;
+
+  flex-shrink: 0 !important;
+
+  justify-self: end !important;
+}
+
+
+/* =========================================================
+   NARROWER DESKTOP / TABLET
+   ========================================================= */
+
+@media (max-width: 1200px) {
+
+  .home-category {
+    grid-template-columns: 28px minmax(0, 1fr) 18px !important;
+    gap: 6px !important;
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+
+  .home-category > strong {
+    font-size: clamp(23px, 3.2vw, 40px) !important;
+  }
+
+}
+
+
+/* =========================================================
+   PHONE
+   Keep the existing 2-column phone design
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+  .home-category-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    margin-left: 0 !important;
+  }
+
+  .home-category {
+    min-width: 0 !important;
+
+    grid-template-columns: 24px minmax(0, 1fr) 15px !important;
+
+    padding: 15px !important;
+
+    gap: 5px !important;
+  }
+
+  .home-category > strong {
+    font-size: clamp(20px, 5.5vw, 30px) !important;
+  }
+
+  .home-category > svg {
+    width: 13px !important;
+    height: 13px !important;
+    min-width: 13px !important;
+  }
+
+}
+
+
+/* =========================================================
+   VERY SMALL PHONES
+   ========================================================= */
+
+@media (max-width: 430px) {
+
+  .home-category {
+    padding: 12px !important;
+  }
+
+  .home-category > strong {
+    font-size: clamp(18px, 5.2vw, 25px) !important;
+  }
+
+}
+
+/* =========================================================
+   CURIOUSLY — DESKTOP TITLE FIT
+   Prevent the Y from being clipped
+   ========================================================= */
+
+   @media (min-width: 769px) {
+
+    .home-cover-title {
+      width: 100% !important;
+      max-width: 100% !important;
+      overflow: visible !important;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+      box-sizing: border-box !important;
+    }
+  
+    .home-cover-title h1 {
+      width: 100% !important;
+      max-width: 100% !important;
+  
+      margin: 0 auto !important;
+      padding: 0 !important;
+  
+      box-sizing: border-box !important;
+  
+      /* Slightly smaller than the current 15vw */
+      font-size: clamp(75px, 13.5vw, 210px) !important;
+  
+      line-height: 0.8 !important;
+  
+      letter-spacing: -0.08em !important;
+  
+      white-space: nowrap !important;
+      text-align: center !important;
+  
+      transform: none !important;
+    }
+  }
